@@ -1,5 +1,6 @@
 // Identity service: organisations and white-list, the certificate request process, revocation, and
 // working out who is calling (BIS 4.4, 5.3, 5.4.2).
+import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import { q, tx } from '../db.js';
@@ -8,9 +9,9 @@ import * as ca from './ca.js';
 
 export const CERT_KINDS = {
   rs: { label: 'Resource server', classes: [1], needsOrg: true },
-  org: { label: 'Organisation', classes: [2, 3, 4, 5], needsOrg: true },
+  org: { label: 'Organisation', classes: [0], needsOrg: true }, // BIS 5.4.2: only used to grant certificates to employees
   officer: { label: 'Data officer', classes: [3], needsOrg: true, needsOrgCert: true },
-  emp: { label: 'Employee', classes: [2, 4, 5], needsOrg: true, needsOrgCert: true },
+  emp: { label: 'Employee', classes: [2, 3, 4, 5], needsOrg: true, needsOrgCert: true },
   ind: { label: 'Individual / app developer', classes: [2], needsOrg: false },
 };
 const DNS = /^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i;
@@ -26,10 +27,16 @@ export function makeIdentity(db, cfg, audit) {
   const certBySerial = s => q.get(db, 'SELECT * FROM certs WHERE serial=?', String(s || '').toUpperCase());
 
   // Checks a request against the BIS 5.4.2 rules. Returns { org } or throws with the reason.
+  // Walks the verified chain of a peer certificate; returns the subject of a configured licensed CA in it, or null.
+  function externalIssuer(peer) {
+    const fps = new Set(externalCas(cfg).map(x => x.fingerprint256));
+    for (let x = peer?.issuerCertificate, n = 0; x && n < 8; x = x.issuerCertificate === x ? null : x.issuerCertificate, n++) if (fps.has(x.fingerprint256)) return x.subject?.CN || 'licensed CA';
+    return null;
+  }
   function checkRequest({ subject, cn, email, cls, kind }) {
     need(/^certificate request$/i.test(str(subject)), 400, 'the subject must be "Certificate request" (BIS 5.4.2)');
     const k = CERT_KINDS[kind]; need(k, 400, 'kind must be one of ' + Object.keys(CERT_KINDS).join(', '));
-    need(k.classes.includes(cls), 400, `a ${k.label} certificate can be class ${k.classes.join(' or ')}, not ${cls} (BIS 5.4.2)`);
+    need(k.classes.includes(cls), 400, kind === 'org' ? 'an organisation certificate has no DX class: send cls 0 (BIS 5.4.2)' : `a ${k.label} certificate can be class ${k.classes.join(' or ')}, not ${cls} (BIS 5.4.2)`);
     need(email && email.includes('@'), 400, 'the request must carry an emailAddress in its subject');
     const domain = email.split('@')[1];
     const org = orgOfDomain(domain);
@@ -75,18 +82,22 @@ export function makeIdentity(db, cfg, audit) {
       audit.log('Identity', by, 'Certificate request received', `${id} ${parsed.email} class ${cls} ${kind}`);
       return { id, status: 'pending', cn: parsed.cn, email: parsed.email, cls, kind };
     },
-    csrRequests: (status) => q.all(db, `SELECT id, cn, email, cls, kind, org_id, status, reason, cert_serial, created_at, decided_at, decided_by FROM csr_requests ${status ? 'WHERE status=?' : ''} ORDER BY created_at DESC`, ...(status ? [status] : [])),
+    // orgId set: an organisation acting as registration authority sees only its own employees' requests
+    csrRequests: (status, orgId = null) => q.all(db, `SELECT id, cn, email, cls, kind, org_id, status, reason, cert_serial, created_at, decided_at, decided_by FROM csr_requests ORDER BY created_at DESC`)
+      .filter(r => (!status || r.status === status) && (!orgId || (r.org_id === orgId && EMPLOYEE_KINDS.includes(r.kind)))),
     csrStatus(id) {
       const r = q.get(db, 'SELECT id, email, cls, kind, status, reason, cert_serial FROM csr_requests WHERE id=?', id);
       need(r, 404, 'no such request');
       if (r.cert_serial) r.certificate = certBySerial(r.cert_serial).pem;
       return r;
     },
-    decideCsr(id, approve, by, reason = '') {
+    // byOrgId set: the organisation validates its own employees' requests as sub-CA / registration authority (BIS 5.4.2)
+    decideCsr(id, approve, by, reason = '', byOrgId = null) {
       const r = q.get(db, 'SELECT * FROM csr_requests WHERE id=?', id);
       need(r, 404, 'no such request'); need(r.status === 'pending', 409, 'request already ' + r.status);
+      if (byOrgId) need(r.org_id === byOrgId && EMPLOYEE_KINDS.includes(r.kind), 403, 'an organisation can only decide requests of its own employees and data officers');
       if (!approve) {
-        q.run(db, `UPDATE csr_requests SET status='rejected', reason=?, decided_at=?, decided_by=? WHERE id=?`, str(reason) || 'rejected by administrator', iso(Date.now()), by, id);
+        q.run(db, `UPDATE csr_requests SET status='rejected', reason=?, decided_at=?, decided_by=? WHERE id=?`, str(reason) || 'rejected by ' + by, iso(Date.now()), by, id);
         audit.log('Identity', by, 'Certificate request rejected', id);
         return this.csrStatus(id);
       }
@@ -127,7 +138,8 @@ export function makeIdentity(db, cfg, audit) {
     crl: () => ca.crlInfo(cfg.pkiDir),
     trustedCas() {
       const p = ca.pkiPaths(cfg.pkiDir);
-      return [p.rootCrt, p.caCrt].map(f => { const d = ca.describeCert(fs.readFileSync(f, 'utf8')); return { subject: d.dn, issuer: d.issuer, fingerprint: d.fingerprint, notAfter: d.notAfter, pem: d.pem }; });
+      const own = [p.rootCrt, p.caCrt].map(f => { const d = ca.describeCert(fs.readFileSync(f, 'utf8')); return { source: 'DX certificate authority', subject: d.dn, issuer: d.issuer, fingerprint: d.fingerprint, notAfter: d.notAfter, pem: d.pem }; });
+      return [...own, ...externalCas(cfg).map(x => ({ source: 'licensed CA (configured in DX_TRUSTED_CA_FILE)', subject: x.subject.split('\n').join(', '), issuer: x.issuer.split('\n').join(', '), fingerprint: x.fingerprint256, notAfter: new Date(x.validTo).toISOString(), pem: x.toString() }))];
     },
 
     // Who is calling. Order: TLS client certificate, then OpenID Connect ID token, then console session.
@@ -137,7 +149,15 @@ export function makeIdentity(db, cfg, audit) {
       if (peer && peer.serialNumber) {
         if (!sock.authorized) fail(401, 'client certificate is not from a trusted CA: ' + sock.authorizationError);
         const c = certBySerial(peer.serialNumber);
-        need(c && c.fingerprint === peer.fingerprint256, 401, 'client certificate is not registered with this DX');
+        if (!c || c.fingerprint !== peer.fingerprint256) {
+          // BIS 5.4.2: a certificate from a configured licensed CA is accepted as an individual (class 2) identity.
+          const ext = externalIssuer(sock.getPeerCertificate(true));
+          need(ext, 401, 'client certificate is not registered with this DX and is not from a configured licensed CA');
+          const email = String(peer.subject?.emailAddress || (String(peer.subjectaltname || '').match(/email:([^,\s]+)/) || [])[1] || '').toLowerCase();
+          need(email.includes('@'), 401, 'the certificate carries no e-mail address');
+          need(!externalRevoked(cfg).has(String(peer.serialNumber).toUpperCase()), 403, 'certificate is on the revocation list of its CA (BIS 5.3)');
+          return { via: 'licensed-ca', email, cn: peer.subject?.CN || email, cls: 2, serial: 'ext:' + peer.fingerprint256, dn: `CN=${peer.subject?.CN || ''}, emailAddress=${email} (issued by ${ext})`, kind: 'ind', orgId: null, role: 'consumer', username: null };
+        }
         need(c.status === 'valid', 403, `certificate ${c.serial} is revoked (BIS 5.3)`);
         need(Date.parse(c.not_after) > Date.now(), 403, 'certificate expired');
         const acct = q.get(db, 'SELECT username, role FROM accounts WHERE cert_serial=?', c.serial);
@@ -146,7 +166,8 @@ export function makeIdentity(db, cfg, audit) {
       const idt = req.headers['x-id-token'];
       if (idt) {
         const claims = verifyIdToken(String(idt), cfg);
-        return { via: 'id-token', email: claims.email, cls: 2, serial: null, dn: `ID token from ${claims.iss}`, kind: 'idtoken', orgId: null, role: 'consumer', username: null };
+        // BIS 5.4.2: protected, private and confidential data need a valid certificate, so an ID token alone gives class 0 (public data).
+        return { via: 'id-token', email: claims.email, cls: 0, serial: null, dn: `ID token from ${claims.iss}`, kind: 'idtoken', orgId: null, role: 'consumer', username: null };
       }
       if (session) {
         const a = q.get(db, 'SELECT username, role, cert_serial FROM accounts WHERE username=?', session.username);
@@ -161,7 +182,8 @@ export function makeIdentity(db, cfg, audit) {
 }
 
 const anonymous = () => ({ via: 'none', email: null, cls: 0, serial: null, dn: 'anonymous', kind: 'anonymous', orgId: null, role: 'anonymous', username: null });
-const roleOfKind = c => (c.kind === 'rs' ? 'resource_server' : c.cls === 3 ? 'provider' : 'consumer');
+const roleOfKind = c => (c.kind === 'rs' ? 'resource_server' : c.kind === 'org' ? 'organisation' : c.cls === 3 ? 'provider' : 'consumer');
+const EMPLOYEE_KINDS = ['emp', 'officer'];
 export const actorOf = p => p.email || p.username || 'anonymous';
 
 // Minimal OpenID Connect ID token check (BIS 4.4): EdDSA-signed JWT from a trusted issuer, audience = this DX, not expired.
@@ -197,4 +219,24 @@ export function mintIdToken(privateKeyPem, { email, aud, iss = 'https://idp.demo
   const head = b({ alg: 'EdDSA', typ: 'JWT' }), body = b({ iss, aud, sub: crypto.createHash('sha256').update(email).digest('hex').slice(0, 24), email, email_verified: true, iat: now, exp: now + ttlSec });
   const sig = crypto.sign(null, Buffer.from(head + '.' + body), crypto.createPrivateKey(privateKeyPem)).toString('base64url');
   return `${head}.${body}.${sig}`;
+}
+
+// CA certificates of licensed CAs trusted in addition to the DX CA (BIS 5.4.2, 4.5.2.3)
+export function externalCas(cfg) {
+  if (cfg._extCas) return cfg._extCas;
+  const pem = cfg.trustedCaFile && fs.existsSync(cfg.trustedCaFile) ? fs.readFileSync(cfg.trustedCaFile, 'utf8') : '';
+  cfg._extCas = (pem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || []).map(b => new crypto.X509Certificate(b));
+  return cfg._extCas;
+}
+// Serial numbers revoked by those CAs, read once from DX_TRUSTED_CRL_FILE (PEM CRLs) with openssl (BIS 5.3)
+export function externalRevoked(cfg) {
+  if (cfg._extRevoked) return cfg._extRevoked;
+  const set = new Set();
+  const pem = cfg.trustedCrlFile && fs.existsSync(cfg.trustedCrlFile) ? fs.readFileSync(cfg.trustedCrlFile, 'utf8') : '';
+  for (const crl of pem.match(/-----BEGIN X509 CRL-----[\s\S]+?-----END X509 CRL-----/g) || []) {
+    const text = execFileSync('openssl', ['crl', '-noout', '-text'], { input: crl, encoding: 'utf8' });
+    for (const m of text.matchAll(/Serial Number: ([0-9A-Fa-f]+)/g)) set.add(m[1].toUpperCase());
+  }
+  cfg._extRevoked = set;
+  return set;
 }

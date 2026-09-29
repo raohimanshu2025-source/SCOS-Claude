@@ -53,6 +53,12 @@ export function makeOps(db, cfg, audit, parts) {
           uptimePercent: beats[k] ? round(100 * beats[k].up / beats[k].n, 2) : null, heartbeats: beats[k]?.n ?? 0,
           requests: calls[k]?.n ?? 0, avgResponseMs: calls[k] ? round(calls[k].avg) : null, p95LatencyMs: calls[k] ? p95(k) : null, serverErrors: calls[k]?.errors ?? 0,
         })),
+        // BIS 5.6: the status page reports "for each of the endpoints" and each resource server
+        endpoints: q.all(db, 'SELECT service, route, COUNT(*) n, AVG(ms) avg, SUM(CASE WHEN status>=500 THEN 1 ELSE 0 END) errors FROM api_calls WHERE ts>=? GROUP BY service, route ORDER BY service, route', since).map(r => {
+          const v = q.all(db, 'SELECT ms FROM api_calls WHERE route=? AND ts>=? ORDER BY ms', r.route, since).map(x => x.ms);
+          return { service: r.service, endpoint: r.route, requests: r.n, avgResponseMs: round(r.avg), p95LatencyMs: round(v[Math.min(v.length - 1, Math.floor(v.length * 0.95))]), serverErrors: r.errors };
+        }),
+        resourceServers: [...parts.resource.localServers().keys()].map(id => ({ id, status: parts.resource.serverUp(id) && isUp('resource') ? 'up' : 'down' })),
       };
     },
     // BIS 5.5: every interface makes statistics available

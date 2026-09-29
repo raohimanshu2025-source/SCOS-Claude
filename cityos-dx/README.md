@@ -11,8 +11,8 @@ Working software that implements two documents, and nothing else:
 
 | Part | What is real |
 |---|---|
-| Certificate authority (BIS 5.4.2) | Real X.509 certificates from an OpenSSL root CA and DX CA, in the five DX classes; certificate requests with the "Certificate request" subject, white-listed organisations and domain matching; revocation with a real CRL and a status endpoint |
-| Identity (BIS 4.4, 5.1) | Mutual TLS: API clients present their certificate; officers log in to the console with a password linked to their certificate; OpenID Connect style ID tokens (EdDSA) for citizens |
+| Certificate authority (BIS 5.4.2) | Real X.509 certificates from an OpenSSL root CA and DX CA, in the DX classes; certificate requests with the "Certificate request" subject, white-listed organisations and domain matching; revocation with a real CRL and a status endpoint |
+| Identity (BIS 4.4, 5.1) | Mutual TLS: API clients present their certificate; officers log in to the console with a password linked to their certificate; OpenID Connect style ID tokens (EdDSA) for citizens (public data only, since BIS 5.4.2 requires a certificate for anything else); certificates from configured licensed CAs |
 | Catalogue (BIS 4.5.1, 6) | JSON-LD items checked against Tables 5-8; text, attribute, geo and time search; data models with units; change notices |
 | Authorization (BIS 4.5.2, 5.2-5.4, 7) | Policies P = (C, A) with Table 3 and 4 values; class checks; consent requests; licence agreements; tokens `auth-server/consumer/hex`, bound to the consumer's certificate; introspection by class 1 resource servers only; revocation |
 | Resource access (BIS Table 2) | Latest, search, status, count, subscribe/update/unsubscribe (server-sent events), GeoJSON download, provider ingestion checked against the data model, views without personal data, a DX Adapter in front of a legacy (non-compliant) server |
@@ -48,12 +48,12 @@ With Docker: `docker compose -f deploy/docker-compose.yml up -d --build`.
 ## Tests
 
 ```sh
-npm test             # 73 tests; each starts a fresh city and talks to it over HTTPS with client certificates
+npm test             # 82 tests; each starts a fresh city and talks to it over HTTPS with client certificates
 npm run test:report  # also writes docs/TEST_REPORT.md with coverage and requirement traceability
 npm run trace        # then updates the "server" status of every point in docs/requirements.json
 ```
 
-Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result: 122 points working and tested, 6 partly met (BIS-37, 60, 78, 92, 102; COS-35), 7 statements with no function, 3 out of scope in the documents.
+Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result for 162 points: 129 working and tested, 20 partly met, 2 not met (BIS-111 trusted execution environments, BIS-124 resource-group operations), 8 statements with no function, 3 out of scope in the documents. See [docs/DOCUMENT_CONFORMANCE.md](docs/DOCUMENT_CONFORMANCE.md) for what matches, what differs and what we added.
 
 ## Documents
 

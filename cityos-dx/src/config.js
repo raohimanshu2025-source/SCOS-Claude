@@ -31,6 +31,10 @@ export function loadConfig(overrides = {}) {
     cilServiceEmail: env('DX_CIL_SERVICE_EMAIL', 'cil@mc.demo-city.example'),
     federationCaFile: env('DX_FEDERATION_CA_FILE', ''),
     oidcIssuersFile: env('DX_OIDC_ISSUERS_FILE', ''),
+    // BIS 5.4.2: certificates from licensed CAs in India (certified by the CCA). PEM bundle of their CA certificates,
+    // and optionally their CRLs, so that TLS connections with those certificates are accepted and revocation is checked.
+    trustedCaFile: env('DX_TRUSTED_CA_FILE', ''),
+    trustedCrlFile: env('DX_TRUSTED_CRL_FILE', ''),
     staticDir: path.resolve(env('DX_STATIC_DIR', new URL('../public', import.meta.url).pathname)),
     simulator: bool('DX_SIMULATOR', 'true'),
     simulatorMs: num('DX_SIMULATOR_MS', 60000),

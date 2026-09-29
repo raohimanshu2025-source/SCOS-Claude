@@ -10,6 +10,7 @@ import os from 'node:os';
 
 export const CLASS_OID_ARC = '2.25.228127155926915386208736734112418384017';
 export const CLASS_TEXT = {
+  0: 'Organisation certificate: only grants certificates to its employees (not one of the five classes)',
   1: 'Resource servers, to validate tokens',
   2: 'Individuals or employees: protected data',
   3: 'Employees and data officers: create and manage catalogue items',
@@ -66,7 +67,20 @@ commonName = supplied
 emailAddress = supplied
 organizationName = optional
 organizationalUnitName = optional
-${[1, 2, 3, 4, 5].map(cls).join('')}`;
+givenName = optional
+surname = optional
+title = optional
+stateOrProvinceName = optional
+localityName = optional
+${[1, 2, 3, 4, 5].map(cls).join('')}[ org ]
+basicConstraints = critical,CA:FALSE
+keyUsage = critical,digitalSignature
+extendedKeyUsage = clientAuth,emailProtection
+certificatePolicies = ${CLASS_OID_ARC}.0
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid
+crlDistributionPoints = URI:${crlUrl}
+`;
 }
 
 export function pkiPaths(pkiDir) {
@@ -141,11 +155,11 @@ export function readCsr(csrPem) {
 
 // Signs a CSR with the DX CA as the given class. Returns the PEM and the parsed certificate facts.
 export function signCsr(pkiDir, csrPem, cls, days = 365) {
-  if (![1, 2, 3, 4, 5].includes(cls)) throw new Error('class must be 1 to 5');
+  if (![0, 1, 2, 3, 4, 5].includes(cls)) throw new Error('class must be 1 to 5, or 0 for an organisation certificate');
   const p = pkiPaths(pkiDir);
   const f = tmpFile(csrPem), out = path.join(path.dirname(f), 'out.pem');
   try {
-    ossl(['ca', '-config', p.caCnf, '-batch', '-notext', '-extensions', 'class' + cls, '-days', String(days), '-in', f, '-out', out]);
+    ossl(['ca', '-config', p.caCnf, '-batch', '-notext', '-extensions', cls === 0 ? 'org' : 'class' + cls, '-days', String(days), '-in', f, '-out', out]);
     return describeCert(fs.readFileSync(out, 'utf8'));
   } finally { rmTmp(f); }
 }

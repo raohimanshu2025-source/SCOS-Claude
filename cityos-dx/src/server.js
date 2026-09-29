@@ -7,13 +7,13 @@ import { loadConfig } from './config.js';
 import { openDb, q } from './db.js';
 import { makeAudit } from './audit.js';
 import { initPki, pkiPaths } from './identity/ca.js';
-import { makeIdentity, actorOf } from './identity/identity.js';
+import { makeIdentity, actorOf, externalCas } from './identity/identity.js';
 import { makeAccounts, ROLES } from './identity/accounts.js';
 import { makeNotify } from './dx/notify.js';
 import { makeCatalogue } from './dx/catalogue.js';
 import { makeAuthz } from './dx/authz.js';
 import { makeResource } from './dx/resource.js';
-import { dataModelDoc, MODELS, T3, T4_TO_T3, LABEL_CLASSES } from './dx/model.js';
+import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
 import { makeCil } from './cil/cil.js';
 import { makeOps, serviceOfPath, backupDb, listBackups, securityHeaders, makeRateLimiter } from './ops/ops.js';
@@ -41,7 +41,8 @@ export function createApp(overrides = {}) {
   const routes = [];
   const R = (method, pattern, fn) => routes.push({ method, pattern, fn });
   const role = (p, ...rs) => need(rs.includes(p.role), p.role === 'anonymous' ? 401 : 403, `this needs one of these roles: ${rs.join(', ')}`);
-  const tokenOf = req => { const h = req.headers; const a = String(h.authorization || ''); return h.token || (a.startsWith('DX ') ? a.slice(3).trim() : a.startsWith('Bearer ') ? a.slice(7).trim() : null); };
+  // BIS Figure 2 step 6 sends "Authorization: IUDX <token>"; the token header and DX / Bearer schemes are also accepted.
+  const tokenOf = req => { const h = req.headers; const m = String(h.authorization || '').match(/^(IUDX|DX|Bearer)\s+(\S+)$/i); return h.token || (m ? m[2] : null); };
 
   // ---- identity and accounts ----
   R('POST', '/auth/v1/login', async c => {
@@ -57,8 +58,9 @@ export function createApp(overrides = {}) {
   R('POST', '/identity/v1/orgs/whitelist', c => { role(c.p, 'admin'); identity.setWhitelist(c.body.id, !!c.body.on, actorOf(c.p)); return identity.orgs(); });
   R('POST', '/identity/v1/csr', c => identity.submitCsr(c.body, actorOf(c.p)));
   R('GET', '/identity/v1/csr/status', c => identity.csrStatus(c.query.id));
-  R('GET', '/identity/v1/csr', c => { role(c.p, 'admin', 'auditor'); return identity.csrRequests(c.query.status); });
-  R('POST', '/identity/v1/csr/decide', c => { role(c.p, 'admin'); return identity.decideCsr(c.body.id, !!c.body.approve, actorOf(c.p), c.body.reason); });
+  // The administrator sees every request; an organisation (acting as registration authority, BIS 5.4.2) sees its employees'.
+  R('GET', '/identity/v1/csr', c => { role(c.p, 'admin', 'auditor', 'organisation'); return identity.csrRequests(c.query.status, c.p.role === 'organisation' ? c.p.orgId : null); });
+  R('POST', '/identity/v1/csr/decide', c => { role(c.p, 'admin', 'organisation'); return identity.decideCsr(c.body.id, !!c.body.approve, actorOf(c.p), c.body.reason, c.p.role === 'organisation' ? c.p.orgId : null); });
   R('GET', '/identity/v1/certs', c => { role(c.p, 'admin', 'auditor'); return identity.certs(); });
   R('POST', '/identity/v1/certs/revoke', c => {
     const cert = identity.certBySerial(c.body.serial);
@@ -74,15 +76,19 @@ export function createApp(overrides = {}) {
   R('POST', '/identity/v1/accounts/unlock', c => { role(c.p, 'admin'); accounts.unlock(c.body.username, actorOf(c.p)); return { ok: true }; });
 
   // ---- catalogue (Discover, Manage) ----
-  R('GET', '/catalogue/v1/search', c => catalogue.search(c.query));
-  R('GET', '/catalogue/v1/count', c => ({ count: catalogue.count(c.query) }));
-  R('GET', '/catalogue/v1/list', c => catalogue.all(c.query.type).map(i => i.id));
-  R('GET', '/catalogue/v1/items', c => { const d = catalogue.doc(String(c.query.id || '')); need(d, 404, 'no such item'); return d; });
-  R('POST', '/catalogue/v1/items', c => catalogue.create(c.body.item, c.p, c.body.data).doc);
+  // Discover events are written to the audit log too (BIS 5.5: all interfaces log all events).
+  const discovered = (c, what, detail) => audit.log('Discover', actorOf(c.p), what, detail);
+  R('GET', '/catalogue/v1/search', c => { const r = catalogue.search(c.query); discovered(c, 'Search', `${new URLSearchParams(c.query)} -> ${r.total} item(s)`); return r; });
+  R('GET', '/catalogue/v1/count', c => { const n = catalogue.count(c.query); discovered(c, 'Count', `${new URLSearchParams(c.query)} -> ${n}`); return { count: n }; });
+  R('GET', '/catalogue/v1/list', c => { const r = catalogue.all(c.query.type).map(i => i.id); discovered(c, 'List', `${c.query.type || 'all'} -> ${r.length}`); return r; });
+  R('GET', '/catalogue/v1/items', c => { const d = catalogue.doc(String(c.query.id || '')); need(d, 404, 'no such item'); discovered(c, 'View', d.id); return d; });
+  R('POST', '/catalogue/v1/items', c => { const d = catalogue.create(c.body.item, c.p, c.body.data).doc; c.status = 201; return d; }); // Figure 7: 201 Created
   R('PUT', '/catalogue/v1/items', c => catalogue.update(String(c.query.id || ''), c.body.item, c.p).doc);
   R('DELETE', '/catalogue/v1/items', c => { catalogue.remove(String(c.query.id || ''), c.p); return { deleted: c.query.id }; });
   R('GET', '/catalogue/v1/datamodels', c => { if (!c.query.name) return Object.keys(MODELS); const d = dataModelDoc(c.query.name); need(d, 404, 'no such data model'); return d; });
-  R('GET', '/catalogue/v1/policy-vocabulary', () => ({ table3: T3, table4: T4_TO_T3, labelClasses: LABEL_CLASSES }));
+  R('GET', '/catalogue/v1/context', c => { const d = contextDoc(String(c.query.name || '')); need(d, 404, 'contexts: core, common'); return d; });
+  R('GET', '/catalogue/v1/schemas', c => { if (!c.query.type) return Object.keys(MANDATORY); const d = baseSchema(String(c.query.type)); need(d, 404, 'no such item type'); return d; });
+  R('GET', '/catalogue/v1/policy-vocabulary', () => ({ table3: T3, table3Names: T3_NAMES, table4: TABLE4, table4Rows: TABLE4_ROWS, labelDefaults: LABEL_DEFAULTS, labelClasses: LABEL_CLASSES }));
   R('POST', '/catalogue/v1/watch', c => { need(c.p.email, 401, 'identity required'); need(catalogue.exists(c.body.id), 404, 'no such item'); notify.watch(c.p.email, c.body.id); return { watching: c.body.id }; });
   R('DELETE', '/catalogue/v1/watch', c => { need(c.p.email, 401, 'identity required'); notify.unwatch(c.p.email, c.query.id); return { ok: true }; });
   R('GET', '/catalogue/v1/status', () => ({ service: 'catalogue', status: 'up', items: catalogue.stats(), ts: iso(Date.now()) }));
@@ -96,7 +102,13 @@ export function createApp(overrides = {}) {
   R('POST', '/auth/v1/token/revoke', c => { need(c.p.email, 401, 'identity required'); return authz.revoke(c.p, c.body); });
   R('GET', '/auth/v1/token/list', c => { need(c.p.email, 401, 'identity required'); return authz.myTokens(c.p.email); });
   R('GET', '/auth/v1/acl', c => authz.getPolicy(String(c.query.id || ''), c.p));
-  R('PUT', '/auth/v1/acl', c => authz.setPolicy(String(c.query.id || ''), c.body, c.p));
+  // Table 2 Manage: create, update, delete and view access control policies (Figure 8 step 4 uses POST)
+  R('PUT', '/auth/v1/acl', c => authz.setPolicy(String(c.query.id || c.body.id || ''), c.body, c.p));
+  R('POST', '/auth/v1/acl', c => authz.setPolicy(String(c.query.id || c.body.id || ''), c.body, c.p));
+  R('POST', '/auth/1.0/acl', c => authz.setPolicy(String(c.query.id || c.body.id || ''), c.body, c.p)); // path exactly as printed in Figure 8 step 4
+  R('DELETE', '/auth/v1/acl', c => authz.resetPolicy(String(c.query.id || ''), c.p));
+  // Table 2 Manage: list and view information about consumers
+  R('GET', '/auth/v1/consumers', c => authz.consumers(c.p, c.query.email));
   R('GET', '/auth/v1/consent', c => { need(c.p.email, 401, 'identity required'); return authz.consents(c.p, c.query); });
   R('POST', '/auth/v1/consent/decide', c => authz.decideConsent(c.body.id, !!c.body.approve, c.p));
   R('GET', '/auth/v1/flows', c => authz.flows(c.p));
@@ -201,7 +213,7 @@ export function createApp(overrides = {}) {
       const out = await hit.r.fn(c, hit.m);
       if (c.stream) return;
       if (c.raw) { res.writeHead(200, { 'content-type': c.raw.type }); return res.end(c.raw.body); }
-      send(res, 200, out ?? { ok: true });
+      status = c.status || 200; send(res, status, out ?? { ok: true });
     } catch (e) {
       status = e instanceof HttpError ? e.status : 500;
       if (status === 500) console.error(e);
@@ -225,7 +237,7 @@ export function createApp(overrides = {}) {
 
   const server = https.createServer({
     key: fs.readFileSync(pki.serverKey), cert: fs.readFileSync(pki.serverCrt) + fs.readFileSync(pki.caCrt),
-    ca: [fs.readFileSync(pki.rootCrt), fs.readFileSync(pki.caCrt)],
+    ca: [fs.readFileSync(pki.rootCrt), fs.readFileSync(pki.caCrt), ...externalCas(cfg).map(x => x.toString())],
     requestCert: cfg.requestClientCert, rejectUnauthorized: false, // unauthorised peers are refused per request with a clear message
     minVersion: 'TLSv1.2',
   }, (req, res) => { handle(req, res); });

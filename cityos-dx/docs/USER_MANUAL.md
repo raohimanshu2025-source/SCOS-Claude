@@ -44,7 +44,7 @@ Public items (for example air quality and bus positions) need no token.
 ## 5. Provider console (data officers)
 
 - **Consent requests.** Each request shows who asked, their certificate class, the item and the purpose. Press **Approve** or **Reject**. Approving adds the consumer to the item's policy.
-- **Policy of an item.** Load one of your items to see its policy P = (C, A). Change the label (public, protected, private, confidential), the list of consumers C, and the Table 3 attributes. Changing the label resets the attributes to the Table 4 defaults for that label. Consumers you remove lose their tokens.
+- **Policy of an item.** Load one of your items to see its policy P = (C, A). Change the label (public, protected, private, confidential), the list of consumers C, and the Table 3 attributes. A new policy, or a changed label, starts from that label's column of Table 4, word for word (for example "Needs audit"); you can then pick Table 3 values instead. Only the certificate that created an item can change it or its policy (BIS 5.3). Consumers you remove lose their tokens.
 - **Licence agreement.** Record an agreement with an app developer (app name, developer e-mail, terms). The developer then gets tokens without separate consent. Ending it ends those tokens.
 - **Revoke a consumer.** Ends all of that consumer's tokens for the item and removes them from the policy (BIS 7.6).
 - **All consent and data flows.** Every token issued for your items, its status and use count (BIS 5.6).
@@ -66,7 +66,7 @@ Latest alerts raised by analytics, and the monthly report: API use, alerts by do
 
 ## 8. Certificates and trust (administrator)
 
-- **Certificate requests.** Requests arrive by the API (standing in for the e-mail in BIS 7.1). They are already checked for the subject "Certificate request", a white-listed organisation, matching e-mail domain and allowed class. Enter the request id and press **Approve and issue** or **Reject**.
+- **Certificate requests.** Requests arrive by the API (standing in for the e-mail in BIS 7.1). An organisation's own certificate can also approve its employees' requests through the API (it acts as registration authority, BIS 5.4.2); it cannot be used for anything else. They are already checked for the subject "Certificate request", a white-listed organisation, matching e-mail domain and allowed class. Enter the request id and press **Approve and issue** or **Reject**.
 - **Issued certificates.** Revoke a certificate by serial and reason. It goes on the revocation list at once and every request made with it is refused. Tokens issued to it stop working.
 - **Revocation list** and **trusted certificate authorities** are shown and can be downloaded.
 - **Organisations.** Registered organisations and whether they are white-listed. Registration is done through the API.

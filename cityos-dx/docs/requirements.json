@@ -1,0 +1,2625 @@
+[
+ {
+  "id": "BIS-01",
+  "doc": "BIS",
+  "ref": "Introduction",
+  "page": "6",
+  "point": "The data exchange provides a catalogue service holding meta-information about data sets: the custodian, the data model, the API endpoints and API methods.",
+  "quote": "A catalogue service which will host a catalogue of meta-information about the various data sets",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "Every catalogue item shows its provider (custodian), a link to its data model and its access object with API endpoints and methods.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-02",
+  "doc": "BIS",
+  "ref": "Introduction",
+  "page": "6",
+  "point": "An authorization service lets the data custodian regulate access to its data sets.",
+  "quote": "An authorization service that will enable a data custodian",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "The Provider console sets the access policy of each item. The Consumer app must get a token from the authorization service, which applies that policy.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-03",
+  "doc": "BIS",
+  "ref": "Introduction / 1 Scope",
+  "page": "6-7",
+  "point": "An optional resource access service gives a standardized way to access resources.",
+  "quote": "An optional resource access service which will allow a standardized way to access resources",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-resource",
+  "how": "The Consumer app calls one uniform set of resource calls (latest, search, status, count, subscribe) on every resource server.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-04",
+  "doc": "BIS",
+  "ref": "Introduction",
+  "page": "6",
+  "point": "Security and privacy are built in by design.",
+  "quote": "Security and Privacy will be incorporated by design in this architecture",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "Certificates, policy labels, consent and a tamper-evident log are simulated in the page. No real cryptography or network security is used.",
+  "server": {
+   "status": "working",
+   "how": "Security by design is the sum of the tested points: mutual TLS, X.509 classes, policies, consent, sender-bound tokens and the signed audit log. See docs/SECURITY_CONTROLS.md.",
+   "tests": [
+    "[BIS-59][BIS-62] the server speaks TLS 1.2+ only and presents a certificate from the DX CA",
+    "[BIS-59] a client certificate from an untrusted CA is refused",
+    "[BIS-59] the trusted CA list is published",
+    "[BIS-65] revocation: certificate appears on the CRL, status says revoked, and every request with it is refused",
+    "[BIS-11][BIS-12] audit log is hash-chained and Ed25519-signed; tampering is detected"
+   ]
+  }
+ },
+ {
+  "id": "BIS-05",
+  "doc": "BIS",
+  "ref": "Introduction",
+  "page": "6",
+  "point": "Custodians get a simple way to expose data, give consent, audit and track their data usage.",
+  "quote": "a simple way to expose, give consent, audit and track their data usage",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-history",
+  "how": "The Provider console lists own items, the consent inbox, consent history and every access to the provider's items.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-77][BIS-05] every interface logs events and exposes statistics"
+   ]
+  }
+ },
+ {
+  "id": "BIS-06",
+  "doc": "BIS",
+  "ref": "1 Scope",
+  "page": "7",
+  "point": "Three main components: catalogue service, authorization service and resource access service.",
+  "quote": "Catalogue service that provides framework to manage meta-information about resources",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-dx",
+  "how": "The overview diagram shows the three services. Each has its own screen and appears on the status page.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-07",
+  "doc": "BIS",
+  "ref": "3 Terminology and definitions",
+  "page": "9-11",
+  "point": "Defined roles and terms: Provider, Resource Server, Consumer, App, Provider App, Data Exchange Framework, Consent, Certificate Authority, PII, PII Principal, Authorization Token, Catalogue, Resource Item, DX Authorization Service, DX Catalogue Service, DX Adaptor, DX Administrator.",
+  "quote": "Provider is a Legal Entity",
+  "status": "explained",
+  "tab": "overview",
+  "anchor": "ov-glossary",
+  "how": "A glossary on the overview screen gives each term with the same meaning as the standard. The screens use these names.",
+  "server": {
+   "status": "explained",
+   "how": "The roles are real principals in the server (provider organisations, resource servers, consumers, apps) and are named the same way in the API and console.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-08",
+  "doc": "BIS",
+  "ref": "4 Data Exchange Reference Architecture",
+  "page": "12",
+  "point": "A Consumer uses resources from one or more Resource Servers only on explicit Consent obtained from the Provider.",
+  "quote": "based on explicit Consent obtained from the Provider of the resources",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "For a non-public item the token is issued only if the provider's policy lists the consumer or the provider approves a consent request.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
+  "id": "BIS-09",
+  "doc": "BIS",
+  "ref": "4.1 (1) Technology Agnostic",
+  "page": "12",
+  "point": "DX design is neutral to applications, programming languages and platforms.",
+  "quote": "neutral to applications, programming languages, and platforms",
+  "status": "demo",
+  "tab": "consumer",
+  "anchor": "con-resource",
+  "how": "All exchanges are shown as plain HTTP-style requests with JSON bodies that any language could make. The demo itself runs in one browser page.",
+  "server": {
+   "status": "working",
+   "how": "Every interface is HTTPS with JSON bodies. The tests call it with plain Node.js HTTPS and the README shows curl, so any language can use it.",
+   "tests": [
+    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times"
+   ]
+  }
+ },
+ {
+  "id": "BIS-10",
+  "doc": "BIS",
+  "ref": "4.1 (2) Reliability and Scaling",
+  "page": "12",
+  "point": "Failure of one system should affect other systems minimally; systems recover quickly; individual systems can be scaled.",
+  "quote": "failure of one system should affect other systems minimally",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-status",
+  "how": "On the status page any service can be switched off. The others keep working and the affected calls fail with a clear message. Real scaling is not possible in a static page.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-83][BIS-10] resource server down: 503 with retry; other servers keep working; recovers"
+   ]
+  }
+ },
+ {
+  "id": "BIS-11",
+  "doc": "BIS",
+  "ref": "4.1 (3) Privacy by Design",
+  "page": "12",
+  "point": "Data sharing is based on electronic consent, leaves a non-repudiable audit trail, and the Provider controls consent.",
+  "quote": "based on Electronic Consent and results in a non-repudiable audit trail",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-audit",
+  "how": "Consent is given by the provider in the consent inbox. Each log entry is chained to the previous one with a hash and the chain can be verified. Real digital signatures are not used, so non-repudiation is only illustrated.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-11][BIS-12] audit log is hash-chained and Ed25519-signed; tampering is detected"
+   ]
+  }
+ },
+ {
+  "id": "BIS-12",
+  "doc": "BIS",
+  "ref": "4.1 (4) Security by Design",
+  "page": "12",
+  "point": "End-to-end security of data (PKI, digital certificates, tamper detection), network agnostic and data centric.",
+  "quote": "There shall be end-to-end security of data (PKI, Digital Certificates, tamper detection)",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "Certificates and their classes decide access in the demo, and the log detects tampering. There is no real PKI or encryption.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-11][BIS-12] audit log is hash-chained and Ed25519-signed; tampering is detected"
+   ]
+  }
+ },
+ {
+  "id": "BIS-13",
+  "doc": "BIS",
+  "ref": "4.1 (5) Consumer Centric",
+  "page": "12",
+  "point": "Simplify interactions and ease access to data and services for consumers.",
+  "quote": "ease the access to data and services for consumers",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "The Consumer app takes the user from search to data in one screen, with each step of the flow listed in plain words.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-13][BIS-24] the officer web console is served and needs no install"
+   ]
+  }
+ },
+ {
+  "id": "BIS-14",
+  "doc": "BIS",
+  "ref": "4.1 (6) Consent Driven",
+  "page": "12",
+  "point": "Data is shared only if the provider explicitly consents, and providers get enough information about the consumer to decide.",
+  "quote": "data is shared with a data consumer only if data provider explicitly provides consent",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-inbox",
+  "how": "Each consent request shows the consumer's identity, organisation, certificate class, the purpose and the item before the provider approves or rejects it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
+  "id": "BIS-15",
+  "doc": "BIS",
+  "ref": "4.1 (7) Open APIs for interoperability",
+  "page": "12-13",
+  "point": "Standardized programmatic interfaces (Open APIs) for sharing and accessing resources.",
+  "quote": "specification shall define standard APIs to promote interoperability",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-apis",
+  "how": "The API list names every simulated endpoint of the catalogue, authorization and resource services. Each call in the demo is shown as a request and response.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-16",
+  "doc": "BIS",
+  "ref": "4.1 (8) Transparency through Data",
+  "page": "13",
+  "point": "Cities can host Open Data through Open APIs.",
+  "quote": "providing options to host Open Data through Open APIs",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "Items labelled public are served to an anonymous consumer with no token.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-73][BIS-16] public items need no identity; protected items refuse anonymous callers"
+   ]
+  }
+ },
+ {
+  "id": "BIS-17",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Provider",
+  "page": "13",
+  "point": "Provider manages catalogue entries for resources it owns, provides their data, and manages the access control list.",
+  "quote": "Manages DX Catalogue entries for resources owned",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "The Provider console creates, edits and deletes the provider's own items and edits the list of allowed consumers.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete",
+    "[BIS-20][BIS-17] provider pushes data checked against the data model; bad packets refused"
+   ]
+  }
+ },
+ {
+  "id": "BIS-18",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Consumer",
+  "page": "13",
+  "point": "Consumer requests consent for secured data from the provider and keeps the access token secure.",
+  "quote": "Request Consent for secured data-set from appropriate provider",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "The consumer sends a consent request with a purpose. The token is shown masked and can be revealed only on request.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token",
+    "[BIS-18] a token is bound to the certificate it was issued to"
+   ]
+  }
+ },
+ {
+  "id": "BIS-19",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Data Exchange",
+  "page": "13",
+  "point": "Data Exchange hosts and manages meta-data about resources and manages authorization for them.",
+  "quote": "Hosts and manages meta-data about resources and manages authorization for those",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-dx",
+  "how": "The catalogue and authorization services together form the data exchange in the demo.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-20",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Resource Server",
+  "page": "13",
+  "point": "Resource Server serves the Provider's resources to authorized clients.",
+  "quote": "Serves Provider’s resources to authorized clients",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-resource",
+  "how": "Two demo resource servers serve data only after the token is checked.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-20][BIS-17] provider pushes data checked against the data model; bad packets refused"
+   ]
+  }
+ },
+ {
+  "id": "BIS-21",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: App",
+  "page": "13",
+  "point": "App consumes resources on behalf of consumers.",
+  "quote": "Consumer’s application, that consumes resources on behalf of consumers",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "The Consumer app screen is this app; it acts for the selected consumer.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-32][BIS-21] licence agreement lets an app developer in without separate consent"
+   ]
+  }
+ },
+ {
+  "id": "BIS-22",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Authorization Service",
+  "page": "13",
+  "point": "Authorization Service issues tokens to authorized consumers and validates a token when a resource server asks.",
+  "quote": "Provides Authorization tokens to consumers of a DX if the consumers are authorized to",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Steps 2-5 (token issue) and 7-10 (introspection by the resource server) of the flow are carried out and logged.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+   ]
+  }
+ },
+ {
+  "id": "BIS-23",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Certificate Authority",
+  "page": "13",
+  "point": "Certificate Authority provides digital certificates traceable to Root CAs.",
+  "quote": "Provides Digital Certificates. Their trust can be traced to the Root Certificate Authorities",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "A demo DX CA issues certificates and shows the chain up to a demo root. The certificates are records, not real X.509 files.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-23] every issued certificate chains to the root CA through the DX CA"
+   ]
+  }
+ },
+ {
+  "id": "BIS-24",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: Provider App",
+  "page": "13",
+  "point": "Provider App is a helper application for providers to interact with the data exchange.",
+  "quote": "Helper application used by Providers to manage interactions with the data exchange",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "The Provider console is the Provider App.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation",
+    "[BIS-13][BIS-24] the officer web console is served and needs no install"
+   ]
+  }
+ },
+ {
+  "id": "BIS-25",
+  "doc": "BIS",
+  "ref": "4.2 Table 1: App Developer, Data Exchange Provider",
+  "page": "13-14",
+  "point": "App Developer builds applications that consume, produce or manage resources; the Data Exchange Provider operates the exchange.",
+  "quote": "Operates the data exchange",
+  "status": "explained",
+  "tab": "overview",
+  "anchor": "ov-glossary",
+  "how": "Both roles are listed in the glossary. The developer role is used on the Developer screen.",
+  "server": {
+   "status": "explained",
+   "how": "App developers hold class 2 certificates and licence agreements; the DX provider runs this server.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-26",
+  "doc": "BIS",
+  "ref": "4.3 High Level Architecture, Figure 1",
+  "page": "15",
+  "point": "The Data Exchange has six interfaces: Resource, Authorization, Discover, Manage, Consent and Identity.",
+  "quote": "The Data Exchange comprises the following interfaces",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-dx",
+  "how": "The overview redraws Figure 1 with the six interfaces. Every logged event is tagged with the interface it used.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-27",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "15",
+  "point": "The Catalogue is both human readable and machine-readable.",
+  "quote": "The Catalogue is both human readable as well as machine-readable",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "Each item has a readable card and a JSON-LD view of the same item.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-34][BIS-42][BIS-98][BIS-27] text, attribute, geo (bbox and near), time search and count"
+   ]
+  }
+ },
+ {
+  "id": "BIS-28",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "15",
+  "point": "The Provider registers and manages meta-data and access control policies via the management interface.",
+  "quote": "registers and manages the meta-data of its resources and their associated access control policies via the management interface",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "All provider edits go through the Manage interface and are logged as such.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults"
+   ]
+  }
+ },
+ {
+  "id": "BIS-29",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "16",
+  "point": "An App can register with the data exchange to be notified of changes to meta-data of resources of interest.",
+  "quote": "register with the Data Exchange to get notified about any changes to the meta-data",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-watch",
+  "how": "The Watch button registers the consumer app. When the provider edits that item a notice appears in the Consumer app.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-29] an app registered for changes is notified when an item changes"
+   ]
+  }
+ },
+ {
+  "id": "BIS-30",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "16",
+  "point": "Requests are checked against access control policies; if no decision can be made the DX coordinates a consent transaction; the token is logged for auditability.",
+  "quote": "The Authorization Token will be logged by the system to ensure auditability of the consent flows",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "If the consumer is not on the policy list, the request becomes a consent request for the provider. Every issued token is written to the audit log.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
+  "id": "BIS-31",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "16",
+  "point": "Provider-consumer coordination (SMS/OTP/email) and licence terms are outside the specification, but a licence reference may be given in the meta-data.",
+  "quote": "reference to license may be provided in the meta-data for the resource",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "Items carry a licence reference. The consent message itself travels through an in-page inbox, since the standard leaves that channel open.",
+  "server": {
+   "status": "working",
+   "how": "Licence agreements with terms are recorded by the provider and let the app in without separate consent. Coordination by SMS or e-mail is modelled by the notification inbox.",
+   "tests": [
+    "[BIS-32][BIS-21] licence agreement lets an app developer in without separate consent"
+   ]
+  }
+ },
+ {
+  "id": "BIS-32",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "16",
+  "point": "An App Developer may sign a licensing agreement with a Provider so consumers need not give consent separately.",
+  "quote": "the Consumer can be shielded from having to get consent separately",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-licence",
+  "how": "The provider can record a licensing agreement with a demo app developer. Consumers using that app then get tokens without a separate consent request.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-32][BIS-21] licence agreement lets an app developer in without separate consent"
+   ]
+  }
+ },
+ {
+  "id": "BIS-33",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Manage interface",
+  "page": "16",
+  "point": "Create, Update, Delete, List, Search and View catalogue items; Create, Update, Delete and View access control policies; List and View consumers.",
+  "quote": "Create, Update, Delete, List, Search and View the items in the catalogue",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "The Provider console has each of these actions, including a list of consumers who hold access.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+   ]
+  }
+ },
+ {
+  "id": "BIS-34",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Discover interface",
+  "page": "16",
+  "point": "List, Search, View and Count catalogue items; search with Geo, Time and other attributes.",
+  "quote": "List, Search, View and Count items in the catalogue",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-search",
+  "how": "Text, attribute, geo (map box) and time search, with a live count of hits.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-34][BIS-42][BIS-98][BIS-27] text, attribute, geo (bbox and near), time search and count"
+   ]
+  }
+ },
+ {
+  "id": "BIS-35",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Authorization interface",
+  "page": "16",
+  "point": "Request, Grant, Revoke, Introspect access tokens, in federated OAuth-style flows.",
+  "quote": "Request, Grant, Revoke, Introspect Access Tokens for resources",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Token request, grant, introspection and revoke are all carried out in the demo. They follow the OAuth style but are simulated in the page.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-35] consumer can revoke its own token; not someone else's"
+   ]
+  }
+ },
+ {
+  "id": "BIS-36",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Resource interface",
+  "page": "16",
+  "point": "Get Latest Data, Search for resources, Get Status, Get Counts, Subscribe, Update Subscription, Unsubscribe; search on Geo, Time and other attributes.",
+  "quote": "Get Latest Data, Search for resources, Get Status, Get Counts, Subscribe, Update Subscription, Unsubscribe",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-resource",
+  "how": "Each call is a button in the Consumer app. A subscription receives new demo readings every few seconds.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-36] latest, search (time, attribute, bbox), status and count",
+    "[BIS-36] subscribe, receive packets by server-sent events, update and unsubscribe"
+   ]
+  }
+ },
+ {
+  "id": "BIS-37",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Resource interface (media, GIS, service)",
+  "page": "17",
+  "point": "Playback of live and archived media streams, download media files, stop/pause playback; GIS resources access; service resources access.",
+  "quote": "Playback of live and archived media streams",
+  "status": "demo",
+  "tab": "consumer",
+  "anchor": "con-media",
+  "how": "A demo camera item plays a drawn animation with play, pause and stop. A GIS layer returns GeoJSON. Real video is not used.",
+  "server": {
+   "status": "partial",
+   "how": "GIS files download as GeoJSON (tested). A camera is catalogued as a mediaStream with its stream address, but no video is hosted or played.",
+   "tests": [
+    "[BIS-37] GIS file download as GeoJSON"
+   ]
+  }
+ },
+ {
+  "id": "BIS-38",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Identity interface",
+  "page": "17",
+  "point": "Identity interface connects with external identity systems; defining it is out of scope for the standard.",
+  "quote": "Defining this will be out of scope for this standard currently",
+  "status": "outscope",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "Out of scope per the standard. The demo shows identity only through its own demo certificates.",
+  "server": {
+   "status": "outscope",
+   "how": "Out of scope in the standard. The server still accepts ID tokens from configured external OpenID Connect issuers.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-39",
+  "doc": "BIS",
+  "ref": "4.3 Table 2: Consent interface",
+  "page": "17",
+  "point": "Consent interface lets a consumer get provider information to request consent; not defined in the standard because it involves humans; for embedded PII the Provider must get consent from PII principals.",
+  "quote": "Since it involves interactions with Humans - it is not defined as part of this standard currently",
+  "status": "outscope",
+  "tab": "provider",
+  "anchor": "prov-inbox",
+  "how": "The standard leaves this open. The demo uses an in-page consent inbox. Items that contain PII are marked, and the page states that the provider must take consent from those persons.",
+  "server": {
+   "status": "outscope",
+   "how": "Out of scope in the standard. The server offers consent requests through the authorization service and the provider inbox.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-40",
+  "doc": "BIS",
+  "ref": "4.3",
+  "page": "17",
+  "point": "DX imposes no deployment restrictions and favours no deployment model.",
+  "quote": "DX does not favour or impose any specific deployment model",
+  "status": "explained",
+  "tab": "federation",
+  "anchor": "fed-map",
+  "how": "Stated on the page. The federation screen shows one of many possible layouts.",
+  "server": {
+   "status": "explained",
+   "how": "Runs as one process, in Docker or under systemd; nothing ties it to one deployment model.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-41",
+  "doc": "BIS",
+  "ref": "4.4 Establishing Identities",
+  "page": "17",
+  "point": "Providers and App Developers are identified by X.509 certificates; consumers by X.509 or ID tokens (OpenID Connect, SAML 2.0).",
+  "quote": "App Developers shall be established via X.509 certificates",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-certs",
+  "how": "Every provider and developer in the demo holds a demo certificate. Consumers may use a certificate or a demo ID token. None are real X.509 or OIDC objects.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-41] consumers may use an OpenID Connect style ID token; forged or foreign tokens are refused"
+   ]
+  }
+ },
+ {
+  "id": "BIS-42",
+  "doc": "BIS",
+  "ref": "4.5.1 Catalogue Service",
+  "page": "18-19",
+  "point": "Discovery through geo-spatial search, attribute search and text search.",
+  "quote": "Geo-spatial search: Discover items in a given geo-spatial bound",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-search",
+  "how": "All three search methods work on the demo catalogue and can be combined.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-34][BIS-42][BIS-98][BIS-27] text, attribute, geo (bbox and near), time search and count"
+   ]
+  }
+ },
+ {
+  "id": "BIS-43",
+  "doc": "BIS",
+  "ref": "4.5.1 Catalogue Service",
+  "page": "18",
+  "point": "Ease of consumption through links to data models describing data types, units, value constraints and descriptions.",
+  "quote": "By providing links to data models that describe various attributes of the given resource",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-model",
+  "how": "Each item links to its data model, which lists type, unit, min and max for each attribute.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-44",
+  "doc": "BIS",
+  "ref": "4.5.1 Catalogue Service",
+  "page": "18",
+  "point": "Semantic modelling of meta-information using linked data.",
+  "quote": "By using linked data to provide semantic contexts for the attributes",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "Items are JSON-LD with an @context. The JSON view shows it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-45",
+  "doc": "BIS",
+  "ref": "4.5.1 Catalogue Service",
+  "page": "18",
+  "point": "Ease of access through formal descriptions of how to access data, such as API objects for REST resources.",
+  "quote": "API objects to describe REST based resources",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-access",
+  "how": "Each item links to an OpenAPI 3.0 access object listing its endpoint and response schema.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-46",
+  "doc": "BIS",
+  "ref": "4.5.1 Catalogue Service",
+  "page": "18",
+  "point": "A meta-information object may refer explicitly to another.",
+  "quote": "may be related to another meta-information object by providing explicit references to one another",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "Provider, resource server and group references in an item are links that open the referenced item.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-47",
+  "doc": "BIS",
+  "ref": "4.5.1.1 Catalogue Interface",
+  "page": "19",
+  "point": "Catalogue APIs: search APIs, and management APIs to create, update and delete items.",
+  "quote": "Management APIs to create, update and delete items",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "Search is on the Catalogue screen; create, update and delete are on the Provider console.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-48",
+  "doc": "BIS",
+  "ref": "4.5.2.1 Goals",
+  "page": "19",
+  "point": "Open standards for authorization, data classification and policy authoring; simple-to-understand classification and policy authoring tools.",
+  "quote": "a simple-to-understand data classification framework and policy authoring tools",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "The policy editor offers the four labels and the Table 3 attributes as simple choices.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue, authorization and resource services with the six interfaces as open HTTPS/JSON APIs"
+   ]
+  }
+ },
+ {
+  "id": "BIS-49",
+  "doc": "BIS",
+  "ref": "4.5.2.1 Goals",
+  "page": "19",
+  "point": "Existing non-DX compliant resource and authorization servers can be plugged in with simple extensions.",
+  "quote": "plugging existing non-DX complaint resource and authorization servers into the DX ecosystem",
+  "status": "working",
+  "tab": "trust",
+  "anchor": "trust-adapter",
+  "how": "Resource server 2 is non-compliant and sits behind a DX Adapter, which runs the token check for it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-56][BIS-49] legacy server behind the DX Adapter: token checks and translation from its CSV columns"
+   ]
+  }
+ },
+ {
+  "id": "BIS-50",
+  "doc": "BIS",
+  "ref": "4.5.2.1 Non-goals; 5.2 not in scope",
+  "page": "19-23",
+  "point": "Out of scope of DX: data collection from edge devices, technical enforcement of policies such as retention, compliance of policies, information leakage, what consumers do after the retention period, correctness of providers' policy rules.",
+  "quote": "The following aspects of resource sharing are out of scope of DX authorization service",
+  "status": "outscope",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "Listed on the overview as not handled, exactly as the standard says.",
+  "server": {
+   "status": "outscope",
+   "how": "Out of scope in the standard, and not done by the server.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-51",
+  "doc": "BIS",
+  "ref": "4.5.2.2 Functionalities: Registration",
+  "page": "20",
+  "point": "A resource provider registers with the authorization service using X.509 certificates.",
+  "quote": "register itself with the DX authorization service using X.509 certificates",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Provider registration takes a demo certificate from the demo CA before any catalogue action is allowed.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued"
+   ]
+  }
+ },
+ {
+  "id": "BIS-52",
+  "doc": "BIS",
+  "ref": "4.5.2.2 Resource Access Policy Management",
+  "page": "20",
+  "point": "A registered provider registers resources in the catalogue and lets the DX authorization server authorize access for it; scopes and policies define which attributes a consumer can access.",
+  "quote": "Resources may be associated with scopes and policies that define the set of resource attributes a consumer can access",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-views",
+  "how": "A provider can publish a view (a subset of attributes) as its own item with its own policy, as 5.4 describes.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+   ]
+  }
+ },
+ {
+  "id": "BIS-53",
+  "doc": "BIS",
+  "ref": "4.5.2.2 Resource Access Authorization",
+  "page": "20",
+  "point": "The consumer app uses the catalogue to request access; the resource server with the authorization server decides; later requests may be served by the resource server alone.",
+  "quote": "subsequent requests for data access may be serviced entirely by the resource server",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "After the first introspection the resource server caches the result, so later calls with the same token skip steps 7-10 (shown in the step list).",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-54",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Actors: Consumer Application",
+  "page": "20",
+  "point": "Consumers obtain X.509 certificates from a CA trusted by DX, including CAs licensed by the Controller of Certifying Authorities (MeitY).",
+  "quote": "The trusted CAs shall include certificate authorities licensed by Controller of Certifying Authorities",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "The trusted CA list contains a demo 'CCA-licensed CA' entry. No real CA is contacted.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-54] organisations can be registered and white-listed by the administrator only"
+   ]
+  }
+ },
+ {
+  "id": "BIS-55",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Actors: Resource server",
+  "page": "20",
+  "point": "The resource server validates tokens; if a request has no valid token it starts the DX/UMA 2.0 authorization protocol.",
+  "quote": "the resource server initiates a DX/UMA 2.0 complaint authorization protocol",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Calling a protected item with no token returns a refusal that points the consumer to the authorization service, and the flow starts.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+   ]
+  }
+ },
+ {
+  "id": "BIS-56",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Actors: DX Adapter",
+  "page": "21",
+  "point": "The optional DX Adapter sits in front of a non-DX compliant resource server and runs the DX/UMA protocol for it.",
+  "quote": "The DX Adapter is an optional entity that sits in front of a non-DX compliant resource server",
+  "status": "working",
+  "tab": "trust",
+  "anchor": "trust-adapter",
+  "how": "Resource server 2 is reached only through the adapter; its calls show 'via DX Adapter' in the log.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-56][BIS-49] legacy server behind the DX Adapter: token checks and translation from its CSV columns"
+   ]
+  }
+ },
+ {
+  "id": "BIS-57",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Actors: DX Authorization Server",
+  "page": "21",
+  "point": "The DX AS exposes policy, permissions, grant and token introspection endpoints.",
+  "quote": "It exposes policy, permissions, grant and token introspection endpoints",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-apis",
+  "how": "These endpoints are listed in the API list and are used by the demo flows.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-57] only a class 1 resource server may introspect; it gets consumer, class and expiry"
+   ]
+  }
+ },
+ {
+  "id": "BIS-58",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Figure 2: Authorization Flow",
+  "page": "21",
+  "point": "Thirteen-step flow: search catalogue, POST /auth/v1/token, run policy rules, 403 or 200 with token and expiry, GET resource with token, introspect, verify server identity, check token validity, return data or 403.",
+  "quote": "Figure 2: Authorization Flow",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "The step list in the Consumer app follows the same numbered steps 1 to 13 and marks which branch was taken.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+   ]
+  }
+ },
+ {
+  "id": "BIS-59",
+  "doc": "BIS",
+  "ref": "5.1 Security requirements",
+  "page": "22",
+  "point": "All participants use TLS; DX accepts client TLS certificates from trusted CAs; the trusted CA list is decided by DX and communicated to participants.",
+  "quote": "All participants shall use TLS [1][3] to connect with DX",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-ca",
+  "how": "The trusted CA list is published on the Trust screen. The demo parts run inside one page, so no TLS connections exist between them.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-59][BIS-62] the server speaks TLS 1.2+ only and presents a certificate from the DX CA",
+    "[BIS-59] a client certificate from an untrusted CA is refused",
+    "[BIS-59] the trusted CA list is published"
+   ]
+  }
+ },
+ {
+  "id": "BIS-60",
+  "doc": "BIS",
+  "ref": "5.1 Security requirements",
+  "page": "22",
+  "point": "Security techniques and best practices of ISO/IEC 27001, 27002, 27017, 27018 and others may be followed.",
+  "quote": "Security Techniques and best practices specified in",
+  "status": "notcovered",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "Not covered. A demonstration page cannot show ISO/IEC 27000-series conformance.",
+  "server": {
+   "status": "partial",
+   "how": "Self-assessment against ISO/IEC 27001:2022 Annex A in docs/SECURITY_CONTROLS.md. Not certified; organisational controls and an audit are for the city.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-61",
+  "doc": "BIS",
+  "ref": "5.2 Privacy requirements",
+  "page": "22",
+  "point": "All resource-items shall be tagged public, protected, private or confidential.",
+  "quote": "All resource-items shall be tagged as either \"public\", \"protected\", \"private\", or \"confidential\"",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-results",
+  "how": "Every item shows its label. The item check refuses to save an item with no label.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+   ]
+  }
+ },
+ {
+  "id": "BIS-62",
+  "doc": "BIS",
+  "ref": "5.2 Privacy requirements",
+  "page": "22",
+  "point": "Resource access protocols always use TLS and the token is sent through a secure, encrypted channel.",
+  "quote": "The Authorization Token shall be sent through a secure and encrypted channel",
+  "status": "demo",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Each step names the channel type from Figure 2 (TLS or mutual TLS). No real encryption takes place inside the page.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-59][BIS-62] the server speaks TLS 1.2+ only and presents a certificate from the DX CA"
+   ]
+  }
+ },
+ {
+  "id": "BIS-63",
+  "doc": "BIS",
+  "ref": "5.2 Privacy requirements",
+  "page": "22",
+  "point": "The token contains the authorization server and the consumer ID, e.g. auth.iudx.org.in/user@domain.com/<hex>.",
+  "quote": "The Authorization Token shall contain the authorization server and consumer ID for which the token belongs to",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-token",
+  "how": "Tokens are issued as <auth server>/<consumer id>/<random hex>, the same pattern as the example.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-63] token carries the authorization server and the consumer id"
+   ]
+  }
+ },
+ {
+  "id": "BIS-64",
+  "doc": "BIS",
+  "ref": "5.2 (not in scope)",
+  "page": "23",
+  "point": "Providers must make sure their policy rules match their organisation's policies, are reviewed, vetted and tested before use.",
+  "quote": "The providers shall ensure that their data policy rules match their organization's policies",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-test",
+  "how": "The policy editor has a 'Test policy' check that shows who would get access before the policy is saved. DX itself is not responsible, as the standard says.",
+  "server": {
+   "status": "explained",
+   "how": "Vetting policies is the provider's duty in the standard. The provider console shows each policy and every token flow for review.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-65",
+  "doc": "BIS",
+  "ref": "5.3 Authentication and consent",
+  "page": "23",
+  "point": "Providers connect with certificates from a CA; certificates are checked against revocation lists or OCSP.",
+  "quote": "checked against certificate revocation lists or OCSP",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-certs",
+  "how": "A certificate can be revoked on the Trust screen. It then appears on the demo revocation list and every new request made with it is refused.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-65] revocation: certificate appears on the CRL, status says revoked, and every request with it is refused"
+   ]
+  }
+ },
+ {
+  "id": "BIS-66",
+  "doc": "BIS",
+  "ref": "5.3 Authentication and consent",
+  "page": "23",
+  "point": "Providers manage the access control list of their resources using their valid certificates.",
+  "quote": "All Providers shall be able to manage the access control list of their resources using their valid digital certificates",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "Editing the list of allowed consumers needs the provider's valid certificate of class 3.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-100][BIS-66] provider revokes access: token stops working and consumer leaves the policy"
+   ]
+  }
+ },
+ {
+  "id": "BIS-67",
+  "doc": "BIS",
+  "ref": "5.3 Catalog security",
+  "page": "23",
+  "point": "Only authorized people can create, update and delete catalogue entries; entries are linked to the certificate DN, so only the owner can modify an entry.",
+  "quote": "only the original owner shall be able to modify their own entry",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "Each item stores the owner's certificate DN. Trying to edit another provider's item is refused and logged.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+   ]
+  }
+ },
+ {
+  "id": "BIS-68",
+  "doc": "BIS",
+  "ref": "5.3 Consent history",
+  "page": "23",
+  "point": "Consent history is private to the Provider of the resource and available to DX for audit.",
+  "quote": "Consent history data is to be considered private and is only available to the Provider of the resource",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-history",
+  "how": "Each provider sees only the consent history of its own items. The DX administrator's audit view sees all of it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-68] consent history is private to the provider of the resource"
+   ]
+  }
+ },
+ {
+  "id": "BIS-69",
+  "doc": "BIS",
+  "ref": "5.4 Authorization Policies",
+  "page": "23",
+  "point": "A policy is associated with every resource-item; attribute-level policy is not supported, so providers define views over raw data and give each view a policy.",
+  "quote": "providers may define views over underlying raw data, and associate a policy with every view",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-views",
+  "how": "Policies are set per item. The 'Create view' action makes a new item exposing chosen attributes, with its own policy.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-69] a view shares counts without personal data",
+    "[BIS-76][BIS-69] certificate class decides the label: class 2 is refused private data even when asked"
+   ]
+  }
+ },
+ {
+  "id": "BIS-70",
+  "doc": "BIS",
+  "ref": "5.4 Authorization Policies",
+  "page": "23",
+  "point": "A policy P = (C, A): C is the set of authorized consumers (in XACML or Aperture), A is a list of attribute-value requirements on consumers.",
+  "quote": "A policy P is a pair of the form ( C , A )",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "The editor shows C (consumers, by certificate identity or class) and A (the Table 3 attributes). It is stored as a simple text rule, not full XACML or Aperture.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults"
+   ]
+  }
+ },
+ {
+  "id": "BIS-71",
+  "doc": "BIS",
+  "ref": "5.4 Table 3: Authorization policy attributes",
+  "page": "24",
+  "point": "Attributes: authorization protocol and policy, data locality, data retention, data storage, data usage, data audit, each with the listed values.",
+  "quote": "Table 3: Authorization policy attributes and values",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "Each attribute is a dropdown holding exactly the values listed in Table 3. The chosen values travel with the token so the consumer sees them.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults"
+   ]
+  }
+ },
+ {
+  "id": "BIS-72",
+  "doc": "BIS",
+  "ref": "5.4.1 Table 4: Policy labels",
+  "page": "24-25",
+  "point": "Standard labels Public, Protected, Private, Confidential with default values for consent, locality, retention, storage, usage, audit and monetization.",
+  "quote": "we define a set of policy labels that capture commonly used policy specifications",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "Choosing a label fills the attributes with the Table 4 defaults, which the provider may then adjust.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults"
+   ]
+  }
+ },
+ {
+  "id": "BIS-73",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "25",
+  "point": "Identities of providers and consumers of private data must be established with certificates; consumers of public data may be anonymous.",
+  "quote": "consumers accessing public data could be anonymous",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-flow",
+  "how": "The 'Anonymous' consumer can read public items and is refused for all others.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-73][BIS-16] public items need no identity; protected items refuse anonymous callers"
+   ]
+  }
+ },
+ {
+  "id": "BIS-74",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "DX accepts certificates from any CCA-licensed CA; DX may host a CA granting certificates to resource servers, individuals/app developers, organisations, data officers and employees.",
+  "quote": "DX may host a certificate authority (CA) which will grant certificates to",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-certs",
+  "how": "The demo DX CA issues to all five kinds of holder. Records only, not real certificates.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued"
+   ]
+  }
+ },
+ {
+  "id": "BIS-75",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity (CSR process)",
+  "page": "26",
+  "point": "CSRs are sent by email with subject \"Certificate request\"; organisations register and are white-listed; an organisation certificate only grants employee certificates whose email matches the organisation's domain.",
+  "quote": "the domain name of the organization shall match with the e-mail of the employee for whom the certificate is granted",
+  "status": "working",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "The CSR form checks the subject line, refuses organisations not on the white-list, and refuses an employee whose email domain does not match.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
+    "[BIS-75] employee certificates need the organisation to hold an organisation certificate"
+   ]
+  }
+ },
+ {
+  "id": "BIS-76",
+  "doc": "BIS",
+  "ref": "5.4.2 Certificate classes",
+  "page": "27",
+  "point": "Five certificate classes: 1 resource servers; 2 protected data; 3 create/manage catalogue items; 4 protected and private data; 5 protected, private and confidential data.",
+  "quote": "DX Certificate Authority shall issue 5 classes of certificates",
+  "status": "working",
+  "tab": "trust",
+  "anchor": "trust-classes",
+  "how": "The authorization decision checks the class: e.g. a class 2 holder is refused private data even if listed.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-76] resource server certificates are class 1 with a DNS name under the organisation domain",
+    "[BIS-76][BIS-69] certificate class decides the label: class 2 is refused private data even when asked"
+   ]
+  }
+ },
+ {
+  "id": "BIS-77",
+  "doc": "BIS",
+  "ref": "5.5 Audit Considerations",
+  "page": "27",
+  "point": "All interfaces make statistics available and log all events.",
+  "quote": "All Interfaces shall make statistics available and log all events to allow audit of interactions",
+  "status": "working",
+  "tab": "trust",
+  "anchor": "trust-audit",
+  "how": "Every action is logged with its interface. A table counts events per interface.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-77][BIS-05] every interface logs events and exposes statistics"
+   ]
+  }
+ },
+ {
+  "id": "BIS-78",
+  "doc": "BIS",
+  "ref": "5.6 Reliability Considerations",
+  "page": "27",
+  "point": "Systems are highly available and scalable using a distributed architecture.",
+  "quote": "highly available, scalable using a distributed architecture",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-status",
+  "how": "Not covered. The demo runs in one browser page and cannot show real availability or scaling.",
+  "server": {
+   "status": "partial",
+   "how": "Backups, restore, health checks and automatic restart work and are tested. There is no distributed high availability or scaling: one process, one database.",
+   "tests": [
+    "[BIS-78] backup while running: consistent copy, integrity check, can be restored and served"
+   ]
+  }
+ },
+ {
+  "id": "BIS-79",
+  "doc": "BIS",
+  "ref": "5.6 Reliability Considerations",
+  "page": "27-28",
+  "point": "A public API Status Page for authorization, catalogue and resource servers reporting uptime, average response time and latency; a Heartbeat API reports uptime in real time.",
+  "quote": "a public API Status Page shall be provided",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-status",
+  "how": "The status page shows uptime, average response time and latency per endpoint and a heartbeat that ticks every few seconds. Values are measured inside the page, not from real servers.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-79][BIS-82] public status page: uptime, average response time and latency per interface; heartbeat API"
+   ]
+  }
+ },
+ {
+  "id": "BIS-80",
+  "doc": "BIS",
+  "ref": "5.6 Failure: notify Provider",
+  "page": "28",
+  "point": "If the Provider cannot be notified, notify later or give the provider a list of all consent and data flows with status.",
+  "quote": "providing a list of all consent flows and data flows (with status) in the application",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-history",
+  "how": "If notifications are switched off on the status page, notices queue up and are delivered when switched on. The provider always has the list of flows with status.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-80] notification service paused: notices queue and are delivered later",
+    "[BIS-80] provider has the list of all consent flows and data flows with status"
+   ]
+  }
+ },
+ {
+  "id": "BIS-81",
+  "doc": "BIS",
+  "ref": "5.6 Failure: AS response does not reach Consumer",
+  "page": "28",
+  "point": "The consumer can ask the authorization service for the status of its consent flows.",
+  "quote": "the latter should have a mechanism provided by AS to initiate a request to know the status of the consent flows",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-status",
+  "how": "'Check my consent requests' asks the authorization service for the status of each request.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
+  "id": "BIS-82",
+  "doc": "BIS",
+  "ref": "5.6 Failure: Catalogue response does not reach Consumer",
+  "page": "28",
+  "point": "The consumer can ask the catalogue service for its status.",
+  "quote": "the Consumer should have a mechanism provided by catalogue service to initiate a request to know the status of catalogue services",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-status",
+  "how": "A 'Catalogue status' button returns the catalogue service state; searches fail clearly if it is off.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-82] the consumer can ask the catalogue service for its status",
+    "[BIS-79][BIS-82] public status page: uptime, average response time and latency per interface; heartbeat API"
+   ]
+  }
+ },
+ {
+  "id": "BIS-83",
+  "doc": "BIS",
+  "ref": "5.6 Failure: RS not available",
+  "page": "28",
+  "point": "If the resource server is unavailable the consumer can re-initiate the request.",
+  "quote": "Consumer may have a mechanism to re-initiate the request to RS",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-resource",
+  "how": "A failed call shows a Retry button that repeats the same request.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-83][BIS-10] resource server down: 503 with retry; other servers keep working; recovers",
+    "[BIS-83] authorization service down: consumer gets 503 and can retry later"
+   ]
+  }
+ },
+ {
+  "id": "BIS-84",
+  "doc": "BIS",
+  "ref": "6.1 Catalogue Information Model; Table 5",
+  "page": "28-29, 35",
+  "point": "Item types resourceItem, resourceServer, provider, resourceServerGroup, catalogueItem; each has a schema with mandatory attributes; custom attributes allowed.",
+  "quote": "'resourceItem', 'resourceServer', 'provider', 'resourceServerGroup' and 'catalogueItem'",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-types",
+  "how": "The demo catalogue holds items of all five types and they can be filtered by type.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-85",
+  "doc": "BIS",
+  "ref": "6.1 / 6.2 Core attribute types",
+  "page": "29-31",
+  "point": "Every attribute belongs to one core type: Property, Relationship, GeoProperty, QuantitativeProperty, TimeProperty.",
+  "quote": "'Property', 'Relationship', 'GeoProperty', 'QuantitativeProperty' and 'TimeProperty'",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "The item check reads each attribute's type and refuses unknown types.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-86",
+  "doc": "BIS",
+  "ref": "6.1.1 JSON-LD and JSON-schema",
+  "page": "30-31",
+  "point": "All catalogue items are JSON-LD documents with an @context; JSON schema defines and validates their structure.",
+  "quote": "All the catalogue items are JSON-LD documents and necessarily need to include “@context” field",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "The item check refuses an item with no @context and checks it against its base schema.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-87",
+  "doc": "BIS",
+  "ref": "6.2.1-6.2.5 Core type structure",
+  "page": "31-34",
+  "point": "Each core type has mandatory 'type' and 'value'; Relationship value is a URI; GeoProperty value holds a GeoJSON geometry or an address; TimeProperty is a W3C date-time; QuantitativeProperty is a number with unitCode, unitText, minValue, maxValue.",
+  "quote": "Mandatory fields : “type”, “value”",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "The item check tests each rule and names the attribute that breaks it. Try 'Break this item' to see it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+   ]
+  }
+ },
+ {
+  "id": "BIS-88",
+  "doc": "BIS",
+  "ref": "6.3 Common attributes; Table 6",
+  "page": "34, 39-43",
+  "point": "Common attributes such as id, name, tags, createdAt, location (GeoJSON point), coverageRegion (GeoJSON polygon), provider, refDataModel, accessObject, itemStatus.",
+  "quote": "‘location’ represents a point by restricting the ‘geometry’ object to be of type ‘GeoJSON point’",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Demo items use the Table 6 names. The check requires location to be a Point and coverageRegion to be a Polygon.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references"
+   ]
+  }
+ },
+ {
+  "id": "BIS-89",
+  "doc": "BIS",
+  "ref": "6.4.1 Base schemas; Table 7",
+  "page": "34-35, 43",
+  "point": "Mandatory attributes per item type (e.g. resourceItem: id, tags, refBaseSchema, resourceServer, itemDescription, refDataModel, provider, resourceServerGroup, resourceId, itemType).",
+  "quote": "Table 7: Mandatory attributes for DX base schemas",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "The check uses the Table 7 lists as written and names any missing attribute.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+   ]
+  }
+ },
+ {
+  "id": "BIS-90",
+  "doc": "BIS",
+  "ref": "6.4.2 Data Models",
+  "page": "35-36",
+  "point": "A data model is a JSON schema with a JSON-LD @context describing data attributes and other meta-information; data from a resource can point to it with @context.",
+  "quote": "All that is required is to add an “@context” field in the JSON data from the resource",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-model",
+  "how": "Data returned by the resource servers carries an @context pointing to the item's data model.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-91",
+  "doc": "BIS",
+  "ref": "6.4.2.1 Compact representation",
+  "page": "36",
+  "point": "Data attributes may be sent as simple key-value pairs; the type comes from the context or data model.",
+  "quote": "a compact representation is supported",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-output",
+  "how": "Resource data is returned in compact key-value form, as in the Annex message packet.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-91] packets use the compact key-value form; types come from the data model"
+   ]
+  }
+ },
+ {
+  "id": "BIS-92",
+  "doc": "BIS",
+  "ref": "6.4.3 Access Objects",
+  "page": "37",
+  "point": "Access objects describe how to access a resource: OpenAPI for REST, AsyncAPI for MQTT or AMQP; they refer to the data model for request/response bodies.",
+  "quote": "async API objects for MQTT [12] or AMQP [10]",
+  "status": "demo",
+  "tab": "catalogue",
+  "anchor": "cat-access",
+  "how": "REST items carry an OpenAPI object whose schema refers to the data model. The streaming item carries an AsyncAPI-style object; no real MQTT or AMQP broker exists.",
+  "server": {
+   "status": "partial",
+   "how": "Items carry OpenAPI access information that refers to the data model (tested). Streams are served as server-sent events; MQTT or AMQP with AsyncAPI is not implemented.",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-93",
+  "doc": "BIS",
+  "ref": "6.4.4 Relationships between catalogue objects",
+  "page": "38-39",
+  "point": "A resourceItem shall reference a provider and a resourceServer, may reference a resourceServerGroup; a group shares one data model and access object.",
+  "quote": "An item of type ‘resource-item’ shall contain a reference to an item of type ‘provider’",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "The check requires both references. Groups hold the shared data model, and 'Get latest for group' works on all items in a group.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references",
+    "[BIS-93] an item that others refer to cannot be deleted"
+   ]
+  }
+ },
+ {
+  "id": "BIS-94",
+  "doc": "BIS",
+  "ref": "Table 8: Resource types",
+  "page": "43-44",
+  "point": "Resource types: file, table, message, messageStream, media stream.",
+  "quote": "Table 8: List of supported resource types",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-types",
+  "how": "The demo catalogue has at least one item of each of the five resource types.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+   ]
+  }
+ },
+ {
+  "id": "BIS-95",
+  "doc": "BIS",
+  "ref": "7 Interaction Scenarios, Figure 5",
+  "page": "45",
+  "point": "Minimal scenarios: Provider Registration, Create and Manage Meta Data, Discover Data, Request Consent, Approve/Reject Consent Request, Access Data, Revoke Consent, Get Consent History.",
+  "quote": "The minimal set of interaction scenarios supported by the data exchange ecosystem",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-scenarios",
+  "how": "The overview lists all eight scenarios, each with a button that opens the screen where it runs.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-96",
+  "doc": "BIS",
+  "ref": "7.1 Provider Registration, Figure 6",
+  "page": "46",
+  "point": "Provider generates CSR, emails it to the DX CA, CA validates and sends an X.509 certificate, provider loads it into the ProviderApp.",
+  "quote": "The provider needs to obtain a certificate from the CA to establish identity",
+  "status": "demo",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "The CSR form goes through the same four steps and the new certificate appears in the Provider console's identity list.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-97",
+  "doc": "BIS",
+  "ref": "7.2 Create and manage metadata",
+  "page": "46-47",
+  "point": "Provider asks the Authorization Service for permission to use the catalogue; then creates or updates entries; for non-public resources sets data access policies. Pre-condition: valid certificate.",
+  "quote": "a Provider is requesting the Authorization Service to allow access to use the Catalogue",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "The console asks the authorization service first (logged), and refuses if the certificate is not valid or not class 3.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete",
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-98",
+  "doc": "BIS",
+  "ref": "7.3 Discover Data",
+  "page": "48-49",
+  "point": "Consumer searches the catalogue; post-condition: a list of search hits is sent to the consumer app.",
+  "quote": "A list of search hits are sent to the consumer app",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-results",
+  "how": "Search returns a list of hits, each of which can be sent to the Consumer app.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-34][BIS-42][BIS-98][BIS-27] text, attribute, geo (bbox and near), time search and count",
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
+   ]
+  }
+ },
+ {
+  "id": "BIS-99",
+  "doc": "BIS",
+  "ref": "7.4 Request Consent and Access Data",
+  "page": "49-50",
+  "point": "If no policy or a valid token, the resource server serves the data; else it starts DX/UMA 2.0: policies in a policy language, X.509 identities, claims pushed (no interactive claims gathering), access tokens reference the policy object.",
+  "quote": "Include a reference to the policy object in access tokens issued",
+  "status": "working",
+  "tab": "consumer",
+  "anchor": "con-token",
+  "how": "Token details show the policy reference; claims (certificate class and identity) are pushed with the request, never asked for interactively.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation",
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+   ]
+  }
+ },
+ {
+  "id": "BIS-100",
+  "doc": "BIS",
+  "ref": "7.6 Revoke Consent, Figure 11",
+  "page": "51",
+  "point": "The provider revokes access by calling /revoke (POST /auth/v1/token/revoke); afterwards the consumer can no longer access the resource.",
+  "quote": "A provider shall be able to revoke access to a particular resource by calling the /revoke API",
+  "status": "working",
+  "tab": "provider",
+  "anchor": "prov-consumers",
+  "how": "Revoke on the consumers list calls the revoke endpoint; the consumer's next call is refused with 403.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation",
+    "[BIS-100][BIS-66] provider revokes access: token stops working and consumer leaves the policy"
+   ]
+  }
+ },
+ {
+  "id": "BIS-101",
+  "doc": "BIS",
+  "ref": "Annex 1: Examples of catalogue objects",
+  "page": "52-59",
+  "point": "Example air-quality data model (CO2_MAX, TEMPERATURE_MAX with unitCode X59 and CEL), example resourceItem, OpenAPI access object and message packet with @context.",
+  "quote": "Annex 1: Examples of catalogue objects",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-detail",
+  "how": "The demo air-quality sensor item follows the Annex example: same attribute names, units and structure (with demo values and demo coordinates).",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-102",
+  "doc": "BIS",
+  "ref": "2.1 Normative references",
+  "page": "8",
+  "point": "Referenced standards: HTTP over TLS, URI, TLS 1.2, OAuth 2.0, HTTP/1.1, GeoJSON, JSON, ISO 8601, AMQP, ISO/IEC 29100, MQTT 5.0, OGC Simple Features, UN/CEFACT Rec. 20 units.",
+  "quote": "The following referenced documents are necessary for the application of the present document",
+  "status": "demo",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "JSON, GeoJSON, ISO 8601 times and UN/CEFACT unit codes are used in the demo data. TLS, OAuth, MQTT and AMQP are shown by name only.",
+  "server": {
+   "status": "partial",
+   "how": "TLS 1.2+, HTTP/1.1, JSON, GeoJSON and ISO 8601 are used and tested. MQTT and AMQP are not implemented.",
+   "tests": [
+    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times"
+   ]
+  }
+ },
+ {
+  "id": "COS-01",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "3",
+  "point": "A data exchange alone is not enough; a City Operating System (COS) that includes the data exchange should be the basic building block of city IT.",
+  "quote": "a data exchange is only one aspect of a",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-cos",
+  "how": "The overview shows the COS as one wrapper around the Data Exchange layer and the City Intelligence Layer, as in Figure 1.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-01][COS-06][COS-27][COS-04] the COS is the data exchange plus the intelligence layer, between data sources and service delivery"
+   ]
+  }
+ },
+ {
+  "id": "COS-02",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "3",
+  "point": "A City Intelligence Layer (CIL) makes derived insights available through standardised APIs in addition to raw data.",
+  "quote": "makes derived insights about the city available through standardised API’s in addition to the raw data",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "Each CIL API returns a derived result (heatmap, ETA, alerts) built from raw data served by the data exchange.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-03",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "3",
+  "point": "Standardised APIs to raw and cleansed data and to processed views of that data.",
+  "quote": "standardised access (APIs) of raw and cleansed data from a variety of sources",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-views",
+  "how": "For the same source the page shows raw readings, cleansed readings (invalid values removed) and the processed output side by side.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-04",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "3",
+  "point": "Curated services for administrators, and easy building for app developers, dashboard builders and analytics-as-a-service providers.",
+  "quote": "make it easy for application programmers, dashboard builders and analytics-as-a-service providers",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-register",
+  "how": "The Developer screen (app builders), the ICCC screen (administrators) and the Analytics studio (analytics providers) each use the same APIs.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-01][COS-06][COS-27][COS-04] the COS is the data exchange plus the intelligence layer, between data sources and service delivery"
+   ]
+  }
+ },
+ {
+  "id": "COS-05",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "3",
+  "point": "Standardised interfaces to data and metadata allow use of data across silos for many stakeholders.",
+  "quote": "will facilitate the use of data across silos",
+  "status": "working",
+  "tab": "iccc",
+  "anchor": "iccc-board",
+  "how": "The ICCC board combines data owned by five different demo departments through one catalogue.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-25][COS-07][COS-05] APIs with protected inputs need the caller to hold DX access; consent is requested otherwise"
+   ]
+  }
+ },
+ {
+  "id": "COS-06",
+  "doc": "COS",
+  "ref": "1 Introduction, Figure 1",
+  "page": "3-4",
+  "point": "COS sits between the Data Layer (middleware, IoT) and the Service Delivery Layer (dashboards, alerts, reporting, citizen information portals); applications use CIL and DX APIs; app ecosystem uses open APIs and published data models.",
+  "quote": "We envision the COS as an intermediary infrastructure between the Data Layer",
+  "status": "working",
+  "tab": "overview",
+  "anchor": "ov-cos",
+  "how": "Figure 1 is redrawn and each box opens the matching screen.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-01][COS-06][COS-27][COS-04] the COS is the data exchange plus the intelligence layer, between data sources and service delivery"
+   ]
+  }
+ },
+ {
+  "id": "COS-07",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "4",
+  "point": "COS gives third-party developers data access under access controls and authorizations.",
+  "quote": "The COS will provide data access, under appropriate access controls and authorizations, to third party application developers",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The Citizen Grievance API uses a protected source, so it refuses a developer with no data exchange token and answers once the token is held.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-25][COS-07][COS-05] APIs with protected inputs need the caller to hold DX access; consent is requested otherwise"
+   ]
+  }
+ },
+ {
+  "id": "COS-08",
+  "doc": "COS",
+  "ref": "1 Introduction, Figure 2",
+  "page": "4",
+  "point": "Federated deployment: each city has a COS; the DX layer is a backplane between COSs; state and national aggregation; sources differ per city but output APIs are common; centralised access control policies may be set nationally.",
+  "quote": "all the COS’s will all have common APIs at the output level",
+  "status": "working",
+  "tab": "federation",
+  "anchor": "fed-map",
+  "how": "Three demo cities with different sources answer the same API. State and national views aggregate them, and a national policy switch applies to all three.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+   ]
+  }
+ },
+ {
+  "id": "COS-09",
+  "doc": "COS",
+  "ref": "1 Introduction",
+  "page": "4",
+  "point": "Data collecting systems like IoT systems and citizen grievance aggregators connect directly to the DX layer.",
+  "quote": "citizen grievance aggregators, etc., can be directly interfaced with the Data Exchange Layer",
+  "status": "working",
+  "tab": "catalogue",
+  "anchor": "cat-results",
+  "how": "The demo catalogue includes IoT sensor items and a citizen grievance aggregator item.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-09] a data collecting system (grievance aggregator) connects directly to the DX layer"
+   ]
+  }
+ },
+ {
+  "id": "COS-10",
+  "doc": "COS",
+  "ref": "2 Usage and benefits, Figures 3-4",
+  "page": "5",
+  "point": "The ICCC RFP lifecycle of four phases (requirements, solution process, visualisation/delivery, tenders) becomes two (deploy COS, develop end-user applications).",
+  "quote": "COS will amalgamate the four lifecycles into two lifecycles",
+  "status": "explained",
+  "tab": "federation",
+  "anchor": "fed-rfp",
+  "how": "Both lifecycles are drawn side by side. The page does not measure time or cost savings.",
+  "server": {
+   "status": "explained",
+   "how": "A claim about the ICCC procurement lifecycle; nothing for software to do.",
+   "tests": []
+  }
+ },
+ {
+  "id": "COS-11",
+  "doc": "COS",
+  "ref": "2, Figure 5",
+  "page": "5-6",
+  "point": "City officials can shift attention to more impactful use cases such as quality of service and revenue/expenditure optimisation.",
+  "quote": "improvement of quality of services and optimization of revenue and expenditures",
+  "status": "explained",
+  "tab": "federation",
+  "anchor": "fed-rfp",
+  "how": "Figure 5's before and after use cases are listed. No claim of impact is made.",
+  "server": {
+   "status": "explained",
+   "how": "A claim about how officials spend time; nothing for software to do.",
+   "tests": []
+  }
+ },
+ {
+  "id": "COS-12",
+  "doc": "COS",
+  "ref": "2, Figures 6-7",
+  "page": "6-7",
+  "point": "Developers pick processed inputs, combine them through APIs, feed standard algorithms available as APIs, and route outputs to their interfaces; e.g. a multimodal transit app built on the ETA API.",
+  "quote": "many APIs for “Estimated Time of Arrival,” etc. can be directly used by application developers",
+  "status": "working",
+  "tab": "federation",
+  "anchor": "fed-dev",
+  "how": "The Developer builder combines the ETA API with stop data to make a small journey app, and shows how many parts the developer did not have to build.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat"
+   ]
+  }
+ },
+ {
+  "id": "COS-13",
+  "doc": "COS",
+  "ref": "2",
+  "page": "8",
+  "point": "With processed-data APIs the developer saves download, storage, compute and algorithm cost.",
+  "quote": "the developer would save on data downloading/storing cost",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-views",
+  "how": "The page counts the size of the raw data against the size of the processed answer for the same question.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat"
+   ]
+  }
+ },
+ {
+  "id": "COS-14",
+  "doc": "COS",
+  "ref": "2",
+  "page": "8",
+  "point": "Intelligence is built collaboratively by stakeholder organisations and follows agreed terminologies and data formats (Figure 12).",
+  "quote": "The Intelligence adheres to commonly agreed upon terminologies and data formats",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-ontology",
+  "how": "Every analytic, including ones added by other demo organisations, must use the agreed terms of the ontology to be accepted.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled"
+   ]
+  }
+ },
+ {
+  "id": "COS-15",
+  "doc": "COS",
+  "ref": "2, Figure 8",
+  "page": "8",
+  "point": "Interoperable, reusable intelligence across cities enables cross-city and cross-domain aggregates (bus regularity across two cities; bus vs metro financial performance).",
+  "quote": "key performance indicators such as the regularity (is the bus on time?) of transit fleets can be compared across two cities",
+  "status": "working",
+  "tab": "federation",
+  "anchor": "fed-kpi",
+  "how": "The federation screen compares bus on-time rate between demo cities and cost recovery of bus and metro, using the same KPI definition.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+   ]
+  }
+ },
+ {
+  "id": "COS-16",
+  "doc": "COS",
+  "ref": "3 Target domains (1) Air Quality",
+  "page": "9",
+  "point": "Air quality: spatio-temporal interpolations, alerts, hotspot identification.",
+  "quote": "Air Quality Management Systems: spatio-temporal interpolations, alerts, and hotspot identification",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The air quality API interpolates between demo sensors onto a grid, marks hotspots and raises alerts above a threshold.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-17",
+  "doc": "COS",
+  "ref": "3 (2) Intelligent Transit",
+  "page": "9",
+  "point": "Transit: estimated times of arrival, traffic hotspots, fleet performance and status, deviations from scheduled routes.",
+  "quote": "Estimated times of arrival, traffic hotspots, fleet performance and status, and deviations from scheduled routes",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The transit API gives ETA, slow-speed hotspots, on-time rate per bus and flags a bus off its route.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-18",
+  "doc": "COS",
+  "ref": "3 (3) Solid Waste",
+  "page": "9",
+  "point": "Solid waste: daily dumping estimations, dumping zone identification, trend anomalies, routes and schedules from trends, anomalous surge handling, redistribution recommendations.",
+  "quote": "Daily dumping estimations, dumping zone identification, dumping trend anomalies",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The waste API estimates daily tonnage per zone from a 14-day demo series, flags anomalies, orders a collection route and suggests moving load from a surging zone.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-19",
+  "doc": "COS",
+  "ref": "3 (4) Flood",
+  "page": "9",
+  "point": "Flood: flood alerts, vulnerability analysis, storm water drain flow and level status updates and alerts.",
+  "quote": "Flood alerts, vulnerability analysis, storm water drain flow, and level status updates and alerts",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The flood API reports drain level and flow, raises level alerts and ranks wards by a simple vulnerability score.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator",
+    "[COS-28][COS-19] rule-based alerts are raised by analytics"
+   ]
+  }
+ },
+ {
+  "id": "COS-20",
+  "doc": "COS",
+  "ref": "3 (5) Weather",
+  "page": "9",
+  "point": "Weather: spatio-temporal interpolations, forecasts, wind maps, heat-island maps.",
+  "quote": "Spatio-temporal interpolations, weather forecasts, wind maps, heat-island maps",
+  "status": "demo",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "Interpolation, wind arrows and a heat-island map work on demo stations. The 'forecast' is a simple trend line, not a weather model.",
+  "server": {
+   "status": "working",
+   "how": "Interpolation, wind and heat-island APIs run on station data (tested). The forecast is a simple trend, not a weather model.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-21",
+  "doc": "COS",
+  "ref": "3 (6) Citizen Grievance",
+  "page": "9",
+  "point": "Citizen grievance: ward-wise top grievances, and top grievances.",
+  "quote": "Ward-wise top grievances, and top grievances",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The grievance API counts demo complaints by ward and category and returns the top ones.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-22",
+  "doc": "COS",
+  "ref": "3",
+  "page": "9",
+  "point": "CIL APIs are OpenAPI compliant and include only ontology-specific request and response bodies.",
+  "quote": "CIL APIs will be “OpenAPI” compliant",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-openapi",
+  "how": "Each CIL API shows its OpenAPI 3.0 description, generated from its ontology specification.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-22] every CIL API has an OpenAPI 3 description with ontology-specific bodies"
+   ]
+  }
+ },
+ {
+  "id": "COS-23",
+  "doc": "COS",
+  "ref": "3, Figure 9",
+  "page": "9",
+  "point": "Air quality API: POST <UAC URL>/environment/spatialForecast with spatialRange, forecastStart, forecastEnd; inputs sensor readings (TimeSeries) and sensor locations (HashMap); output interpolated heatmap (MeshGrid).",
+  "quote": "Figure 9: CIL API Example for Air Quality Domain",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The same path, body fields, input types and MeshGrid output are used. A demo UAC address replaces the one in the figure.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-23] air quality API takes spatialRange, forecastStart, forecastEnd and returns a MeshGrid"
+   ]
+  }
+ },
+ {
+  "id": "COS-24",
+  "doc": "COS",
+  "ref": "3, Figure 10",
+  "page": "9-10",
+  "point": "Transit API: POST <UAC URL>/publictransit/eta with routeid and current location; inputs bus position (TimeSeries) and stop locations (HashMap); output ETA (SingleStat).",
+  "quote": "Figure 10: CIL API Example for Intelligent Transit Domain",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The same path, body fields, input types and SingleStat output are used.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat"
+   ]
+  }
+ },
+ {
+  "id": "COS-25",
+  "doc": "COS",
+  "ref": "4 Design principles",
+  "page": "10",
+  "point": "COS follows the BIS Urban Data Exchange specification; the Data Exchange is the heart of the COS and serves semantically homogenised data to the CIL.",
+  "quote": "The Data Exchange acts as the heart of the COS",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-sources",
+  "how": "The CIL reads its inputs only through the data exchange catalogue items and their data models; each API lists the item IDs it used.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-25][COS-07][COS-05] APIs with protected inputs need the caller to hold DX access; consent is requested otherwise"
+   ]
+  }
+ },
+ {
+  "id": "COS-26",
+  "doc": "COS",
+  "ref": "4 Design principles",
+  "page": "10",
+  "point": "Besides standard DX APIs, domain-specific APIs serve outputs of domain intelligence algorithms.",
+  "quote": "domain-specific APIs serving outputs of domain intelligence algorithms are also provided",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-explorer",
+  "how": "The six domain APIs sit beside the DX resource APIs.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+   ]
+  }
+ },
+ {
+  "id": "COS-27",
+  "doc": "COS",
+  "ref": "4 Design principles",
+  "page": "10",
+  "point": "COS = DX layer (data and API standardisation) + CIL (analytics, domain APIs), connected by general and domain analytics engines, schedulers and OLAP access; engines produce cleansed or processed data.",
+  "quote": "Connecting the two layers are various types of general (standardised) as well as domain-specific analytics engines, schedulers, and OLAP access",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-olap",
+  "how": "The Analytics studio has the executor, the scheduler and an OLAP table (pivot by ward, domain and day).",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-01][COS-06][COS-27][COS-04] the COS is the data exchange plus the intelligence layer, between data sources and service delivery"
+   ]
+  }
+ },
+ {
+  "id": "COS-28",
+  "doc": "COS",
+  "ref": "4 Pluggable Analytics",
+  "page": "11",
+  "point": "Analytics providers host and run analytics on DX data; the platform handles periodic execution, rule-based alerts and data serving through domain APIs.",
+  "quote": "The platform will then take the responsibility of periodic execution, generation of alerts based on rules",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-register",
+  "how": "Plug in a new analytic from a template; the scheduler runs it on its period, its rule raises alerts and it appears as a new API.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled",
+    "[COS-28][COS-19] rule-based alerts are raised by analytics"
+   ]
+  }
+ },
+ {
+  "id": "COS-29",
+  "doc": "COS",
+  "ref": "4",
+  "page": "11",
+  "point": "CIL could support business intelligence and Natural Language Querying.",
+  "quote": "“Natural Language Querying'' capabilities",
+  "status": "demo",
+  "tab": "analytics",
+  "anchor": "an-nlq",
+  "how": "A question box answers simple questions by keyword matching (e.g. 'top grievance in ward 3'). It is not a language model.",
+  "server": {
+   "status": "working",
+   "how": "Questions are answered by calling CIL APIs (tested). Matching is by keywords, not a language model.",
+   "tests": [
+    "[COS-29] natural-language questions are answered by calling CIL APIs"
+   ]
+  }
+ },
+ {
+  "id": "COS-30",
+  "doc": "COS",
+  "ref": "4",
+  "page": "11",
+  "point": "City officials plug in dashboards in ICCCs and receive monthly reports on system performance.",
+  "quote": "receive monthly reports for gauging system performance",
+  "status": "working",
+  "tab": "iccc",
+  "anchor": "iccc-report",
+  "how": "The ICCC screen has the dashboard and a generated monthly report of API calls, uptime and alerts.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-30] ICCC monthly report on system performance"
+   ]
+  }
+ },
+ {
+  "id": "COS-31",
+  "doc": "COS",
+  "ref": "4, Figure 11",
+  "page": "11",
+  "point": "CIL components: Source layer (IUDX resource server, NGSI-LD context broker, GIS sources, files/object stores, data warehouse); Service layer (OLAP access, analytic executor, rules/alerts, scheduler, BI/NLQ, pluggable analytics, CIL APIs); Representation layer (dashboards, chatbots, reports, IUDX NGSI-LD).",
+  "quote": "Figure 11: Architectural overview of CIL showing its components",
+  "status": "working",
+  "tab": "cil",
+  "anchor": "cil-sources",
+  "how": "Figure 11 is redrawn; each box is linked to where it works in the demo. NGSI-LD output is shown as a formatted entity; the chatbot is the question box.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-31] OLAP access pivots a measure over two dimensions under DX rules",
+    "[COS-31] outputs are also available as NGSI-LD entities"
+   ]
+  }
+ },
+ {
+  "id": "COS-32",
+  "doc": "COS",
+  "ref": "4, Figure 12",
+  "page": "11-12",
+  "point": "Analytics ontology: ingress types (Categorical, Series, SingleStat, TimeSeries, nd-Array, DA graph, Adjacency Matrix, Vector Set, HashMap, Probability Distribution), process attributes (RequiresDataSource, RequiresAdditionalDataSource, RequiresDataPeriodicity, ProcessPeriodicity, OutputDataType), egress types and visualisations.",
+  "quote": "All analytics processes are described through a commonly agreed upon analytics ontology",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-ontology",
+  "how": "The ontology is listed with the same term names. An analytic that uses a term outside it is refused.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled"
+   ]
+  }
+ },
+ {
+  "id": "COS-33",
+  "doc": "COS",
+  "ref": "4, Figure 13",
+  "page": "12",
+  "point": "Analytics providers specify input schema, output schema, procedure, provenance and visualisation; a customization service (schema matching, behaviour specification, visualisation) feeds dashboards, alerts, reports and intelligence.",
+  "quote": "clearly specify the input datatypes, output datatypes, visualisation specifications and other details of analytics processes",
+  "status": "working",
+  "tab": "analytics",
+  "anchor": "an-register",
+  "how": "The register form asks for all five parts and runs schema matching against the data exchange items before accepting.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled"
+   ]
+  }
+ },
+ {
+  "id": "COS-34",
+  "doc": "COS",
+  "ref": "4",
+  "page": "12",
+  "point": "This enables wider aggregations such as state-level reports and sector-wise performance reports.",
+  "quote": "“state-level reports'' and “sector-wise performance reports”",
+  "status": "working",
+  "tab": "federation",
+  "anchor": "fed-kpi",
+  "how": "The state view produces a state-level report and a sector-wise table from the three demo cities.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+   ]
+  }
+ },
+ {
+  "id": "COS-35",
+  "doc": "COS",
+  "ref": "4",
+  "page": "13",
+  "point": "COS and CIL are built with open source components and made available through public Git repositories.",
+  "quote": "will be made available through publicly-accessible Git repositories",
+  "status": "notcovered",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "Not covered. This demo is a single page and is not published as an open source repository.",
+  "server": {
+   "status": "partial",
+   "how": "Built only from open source parts (Node.js, OpenSSL, SQLite) under the Apache 2.0 licence. Publishing to a public Git repository is still to be done.",
+   "tests": []
+  }
+ },
+ {
+  "id": "COS-36",
+  "doc": "COS",
+  "ref": "5 Conclusions",
+  "page": "13",
+  "point": "COS/CIL reduces development time and cost for administrative and consumer-ready applications.",
+  "quote": "considerable reduction of development time",
+  "status": "explained",
+  "tab": "federation",
+  "anchor": "fed-rfp",
+  "how": "Stated as the document's claim. The demo does not measure time or cost.",
+  "server": {
+   "status": "explained",
+   "how": "A claim about development cost; the software does not measure it.",
+   "tests": []
+  }
+ }
+]

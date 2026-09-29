@@ -1,0 +1,216 @@
+// Officer web console. Every action is a call to the server's real API with the officer's session.
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const J = o => JSON.stringify(o, null, 2);
+let ME = null, CSRF = null, VIEW = 'home';
+
+async function api(method, url, body, headers = {}) {
+  const h = { ...headers };
+  if (body !== undefined) h['content-type'] = 'application/json';
+  if (CSRF && method !== 'GET') h['x-csrf-token'] = CSRF;
+  const r = await fetch(url, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body), credentials: 'same-origin' });
+  const t = await r.text(); let j; try { j = JSON.parse(t); } catch { j = t; }
+  return { ok: r.ok, status: r.status, body: j };
+}
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 3500); }
+const pill = (s, cls) => `<span class="pill ${esc(cls || s)}">${esc(s)}</span>`;
+const card = (title, body, meets = '') => `<section class="card"><div class="card-h"><h3>${esc(title)}</h3>${meets ? `<div class="meets">${meets.split(' ').map(x => `<span class="chip ${x.startsWith('COS') ? 'cos' : 'bis'}">${x}</span>`).join('')}</div>` : ''}</div>${body}</section>`;
+function table(rows, cols) {
+  if (!rows || !rows.length) return '<p class="hint">Nothing to show.</p>';
+  cols = cols || [...new Set(rows.flatMap(r => Object.keys(r)))];
+  return `<div class="tbl-wrap"><table><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${rows.map(r => `<tr>${cols.map(c => { const v = r[c]; return `<td${typeof v === 'string' && v.length > 40 ? ' class="small"' : ''}>${esc(typeof v === 'object' && v !== null ? JSON.stringify(v) : v)}</td>`; }).join('')}</tr>`).join('')}</table></div>`;
+}
+const out = (el, r) => { el.innerHTML = r.ok ? `<pre class="json">${esc(J(r.body))}</pre>` : `<p class="err">${r.status}: ${esc(r.body.error || r.body)}</p>${r.body.errors ? `<ul class="err">${r.body.errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : ''}${r.body.authorizationFlow ? steps(r.body.authorizationFlow) : ''}`; };
+const steps = f => `<ol class="steps">${f.map(s => `<li class="${s.ok ? 'ok' : 'bad'}"><b>${s.step}</b><span>${esc(s.text)}</span></li>`).join('')}</ol>`;
+function heat(cells) {
+  const flat = cells.flat(), mn = Math.min(...flat), mx = Math.max(...flat), n = cells.length;
+  const col = v => { const f = (v - mn) / ((mx - mn) || 1); return `hsl(${Math.round(220 - 220 * f)} 70% 50%)`; };
+  return `<div class="grid-heat" data-n="${n}">${cells.slice().reverse().flat().map(v => `<div title="${v}" data-c="${col(v)}"></div>`).join('')}</div><p class="hint">North at top. ${mn} to ${mx}.</p>`;
+}
+function paintHeat(root) { root.querySelectorAll("[data-n]").forEach(g => { g.style.gridTemplateColumns = `repeat(${g.dataset.n},1fr)`; }); root.querySelectorAll('[data-c]').forEach(d => { d.style.background = d.dataset.c; }); }
+
+const SCREENS = [
+  ['home', 'Overview', 'all'],
+  ['catalogue', 'Catalogue', 'all'],
+  ['access', 'Data access', 'all'],
+  ['provider', 'Provider console', 'provider'],
+  ['cil', 'City intelligence', 'all'],
+  ['iccc', 'ICCC dashboard', 'operator admin auditor'],
+  ['trust', 'Certificates and trust', 'admin auditor'],
+  ['ops', 'Operations and audit', 'admin auditor'],
+  ['status', 'Status page', 'all'],
+];
+
+async function boot() {
+  const r = await api('GET', '/auth/v1/me');
+  ME = r.body.principal; CSRF = r.body.csrf;
+  if (ME.role === 'anonymous') return loginScreen();
+  $('#who').innerHTML = `${esc(r.body.account?.display_name || ME.email)} · ${esc(ME.role)}${ME.cls ? ' · class ' + ME.cls + ' certificate' : ''}<br><button class="btn sm" id="logout">Log out</button>`;
+  $('#logout').onclick = async () => { await api('POST', '/auth/v1/logout', {}); location.reload(); };
+  if (r.body.account?.must_change) return passwordScreen();
+  const nav = $('#nav');
+  nav.innerHTML = SCREENS.filter(s => s[2] === 'all' || s[2].split(' ').includes(ME.role)).map(([k, t]) => `<button data-v="${k}"${k === VIEW ? ' aria-current="true"' : ''}>${esc(t)}</button>`).join('');
+  nav.onclick = e => { const b = e.target.closest('[data-v]'); if (b) { VIEW = b.dataset.v; nav.querySelectorAll('button').forEach(x => x.removeAttribute('aria-current')); b.setAttribute('aria-current', 'true'); show(); } };
+  show();
+}
+function show() { const m = $('#main'); m.innerHTML = '<p class="muted">Loading…</p>'; (VIEWS[VIEW] || VIEWS.home)(m).catch(e => { m.innerHTML = `<p class="err">${esc(e.message)}</p>`; }); }
+
+function loginScreen() {
+  $('#nav').innerHTML = '';
+  $('#main').innerHTML = `<div class="login">${card('Officer login', `<form id="lf" class="col"><label class="f">Username<input name="username" autocomplete="username" required></label><label class="f">Password<input name="password" type="password" autocomplete="current-password" required></label><button class="btn primary">Log in</button><p id="le" class="err"></p></form><p class="hint">API clients use their X.509 certificate over TLS instead of a password. The public status page and catalogue search need no login: <a href="/status/v1">status JSON</a>.</p>`)}</div>`;
+  $('#lf').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); const r = await api('POST', '/auth/v1/login', { username: f.get('username'), password: f.get('password') }); if (!r.ok) { $('#le').textContent = r.body.error; return; } location.reload(); };
+}
+function passwordScreen() {
+  $('#main').innerHTML = `<div class="login">${card('Set a new password', `<form id="pf" class="col"><p class="hint">This is your first login. Choose a password of at least 12 characters with letters and digits.</p><label class="f">Current password<input name="old" type="password" required></label><label class="f">New password<input name="new" type="password" minlength="12" required></label><button class="btn primary">Change password</button><p id="pe" class="err"></p></form>`)}</div>`;
+  $('#pf').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); const r = await api('POST', '/auth/v1/password', { old: f.get('old'), new: f.get('new') }); if (!r.ok) { $('#pe').textContent = r.body.error; return; } toast('Password changed. Log in again.'); setTimeout(() => location.reload(), 1200); };
+}
+
+const VIEWS = {
+  async home(m) {
+    const [st, cat] = await Promise.all([api('GET', '/status/v1/heartbeat'), api('GET', '/catalogue/v1/count')]);
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Overview</h2><p>You are signed in as <b>${esc(ME.email || ME.username)}</b> with role <b>${esc(ME.role)}</b>${ME.serial ? ` and certificate <span class="mono">${esc(ME.serial)}</span> (class ${ME.cls})` : ''}. Actions you take here are made with that identity and written to the signed audit log.</p></div>
+      <div class="grid3">${card('Catalogue', `<div class="stat"><b>${cat.body.count}</b><span>items</span></div>`, 'BIS-01')}${card('Services', Object.entries(st.body.services).map(([k, v]) => `<div class="row">${pill(v, v === 'up' ? 'up' : 'down')} ${esc(k)}</div>`).join(''), 'BIS-79')}${card('This city', `<p>${esc(st.body.city)}</p><p class="hint">Synthetic demo data. Up for ${st.body.uptimeSec} s.</p>`)}</div></div>`;
+  },
+
+  async catalogue(m) {
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Catalogue</h2><p>Search the data exchange catalogue by text, tag, area or time (BIS 4.5.1).</p></div>
+      ${card('Search', `<form id="cs" class="row"><input name="q" placeholder="text, e.g. drain"><input name="tag" placeholder="tag, e.g. flood"><select name="type"><option value="">any type</option>${['resourceItem', 'resourceServerGroup', 'resourceServer', 'provider', 'catalogueItem'].map(t => `<option>${t}</option>`).join('')}</select><input name="bbox" placeholder="bbox w,s,e,n"><button class="btn primary">Search</button></form><div id="cr"></div>`, 'BIS-34 BIS-42 BIS-98')}
+      ${card('Item', '<div id="ci"><p class="hint">Pick an item from the results.</p></div>', 'BIS-84 BIS-86 BIS-89')}</div>`;
+    const run = async () => {
+      const f = new FormData($('#cs')); const p = new URLSearchParams();
+      if (f.get('q')) p.set('q', f.get('q')); if (f.get('tag')) { p.set('attr', 'tags'); p.set('value', f.get('tag')); } if (f.get('type')) p.set('type', f.get('type')); if (f.get('bbox')) p.set('bbox', f.get('bbox'));
+      const r = await api('GET', '/catalogue/v1/search?' + p);
+      if (!r.ok) return out($('#cr'), r);
+      $('#cr').innerHTML = `<p class="hint">${r.body.total} found</p>` + table(r.body.results.map(i => ({ id: i.id, type: i.itemType.value, name: i.name?.value || i.resourceId?.value, label: i.accessPolicyLabel?.value || '' })));
+      $('#cr').querySelectorAll('tr').forEach((tr, k) => { if (k) { tr.style.cursor = 'pointer'; tr.onclick = () => item(r.body.results[k - 1].id); } });
+    };
+    const item = async id => {
+      const r = await api('GET', '/catalogue/v1/items?id=' + encodeURIComponent(id));
+      const dm = r.body.refDataModel ? (r.body.refDataModel.value.match(/<catalogue-link>\/(\w+)\//) || [])[1] : null;
+      const d = dm ? await api('GET', '/catalogue/v1/datamodels?name=' + dm) : null;
+      $('#ci').innerHTML = `<div class="row"><button class="btn sm" id="cw">Notify me of changes</button></div><div class="grid2"><pre class="json">${esc(J(r.body))}</pre>${d ? `<pre class="json">${esc(J(d.body))}</pre>` : ''}</div>`;
+      $('#cw').onclick = async () => { const x = await api('POST', '/catalogue/v1/watch', { id }); toast(x.ok ? 'You will be notified of changes' : x.body.error); };
+    };
+    $('#cs').onsubmit = e => { e.preventDefault(); run(); }; run();
+  },
+
+  async access(m) {
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Data access</h2><p>Request an access token, then read data with it. The steps follow BIS Figure 2.</p></div>
+      ${card('1. Request a token', `<form id="tf" class="row"><input name="id" class="grow" placeholder="item id, e.g. urn:demo-cat:drains/drain-1" required><input name="purpose" placeholder="purpose"><button class="btn primary">Request token</button></form><div id="to"></div>`, 'BIS-35 BIS-58 BIS-63')}
+      ${card('2. Read data', `<form id="rf" class="col"><div class="row"><input name="id" class="grow" placeholder="item id" required><select name="op">${['latest', 'search', 'count', 'status', 'download'].map(o => `<option>${o}</option>`).join('')}</select></div><div class="row"><input name="token" class="grow" placeholder="token (blank for public items)"><input name="extra" placeholder="extra query, e.g. attr=level&op=gt&value=1"></div><button class="btn primary">Send</button></form><div id="ro"></div>`, 'BIS-36 BIS-55 BIS-99')}
+      <div class="grid2">${card('My tokens', '<div id="mt"></div>', 'BIS-35')}${card('My consent requests', '<div id="mc"></div>', 'BIS-81')}</div>
+      ${card('Inbox', '<div id="ib"></div>', 'BIS-29 BIS-80')}</div>`;
+    const lists = async () => {
+      if (!ME.email) { $('#mt').innerHTML = $('#mc').innerHTML = $('#ib').innerHTML = '<p class="hint">Your account has no certificate, so you can only read public items.</p>'; return; }
+      const [t, c, i] = await Promise.all([api('GET', '/auth/v1/token/list'), api('GET', '/auth/v1/consent?role=consumer'), api('GET', '/notify/v1/history')]);
+      $('#mt').innerHTML = t.ok ? table(t.body.map(x => ({ token: '…' + x.tail, items: x.items.join(', '), status: x.status, expiry: x.expiry, accesses: x.accesses }))) : '<p class="hint">Needs an identity.</p>';
+      $('#mc').innerHTML = c.ok ? table(c.body.map(x => ({ id: x.id, item: x.item_id, status: x.status, purpose: x.purpose }))) : '';
+      $('#ib').innerHTML = i.ok ? table(i.body.map(x => ({ when: x.created_at, message: x.msg }))) : '';
+    };
+    $('#tf').onsubmit = async e => {
+      e.preventDefault(); const f = new FormData(e.target);
+      const r = await api('POST', '/auth/v1/token', { request: [{ id: f.get('id').trim() }], purpose: f.get('purpose') });
+      if (r.ok) { $('#to').innerHTML = `<p class="okt">Token granted (${esc(r.body.via.map(v => v.via).join(', '))}), expires ${esc(r.body.expiry)}.</p><pre class="json">${esc(r.body.token)}</pre>`; $('#rf').id.value = f.get('id').trim(); $('#rf').token.value = r.body.token; }
+      else out($('#to'), r);
+      lists();
+    };
+    $('#rf').onsubmit = async e => {
+      e.preventDefault(); const f = new FormData(e.target);
+      const r = await api('GET', `/resource/v1/${f.get('op')}?id=${encodeURIComponent(f.get('id').trim())}&trace=1${f.get('extra') ? '&' + f.get('extra') : ''}`, undefined, f.get('token') ? { token: f.get('token').trim() } : {});
+      if (r.ok && r.body.authorizationFlow) { const { authorizationFlow, ...rest } = r.body; $('#ro').innerHTML = steps(authorizationFlow) + `<pre class="json">${esc(J(rest))}</pre>`; } else out($('#ro'), r);
+      lists();
+    };
+    lists();
+  },
+
+  async provider(m) {
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Provider console</h2><p>Consent requests, policies P = (C, A), licences and the list of consent and data flows (BIS 5.3, 5.4, 5.6).</p></div>
+      ${card('Consent requests', '<div id="pc"></div>', 'BIS-14 BIS-30 BIS-68')}
+      ${card('Policy of an item', `<form id="pf" class="row"><input name="id" class="grow" placeholder="item id you own" required><button class="btn">Load</button></form><div id="po"></div>`, 'BIS-70 BIS-71 BIS-72 BIS-66')}
+      ${card('Licence agreement with an app developer', `<form id="lf" class="col"><div class="row"><input name="id" placeholder="item id" required><input name="app" placeholder="app name" required><input name="developer" placeholder="developer e-mail" required></div><input name="terms" placeholder="terms" required><button class="btn">Record licence</button></form><div id="lo"></div>`, 'BIS-32')}
+      ${card('Revoke a consumer', `<form id="vf" class="row"><input name="id" placeholder="item id" required><input name="consumer" placeholder="consumer e-mail" required><button class="btn danger">Revoke access</button></form><div id="vo"></div>`, 'BIS-100')}
+      ${card('All consent and data flows', '<div id="pfl"></div>', 'BIS-80')}</div>`;
+    const load = async () => {
+      const [c, f] = await Promise.all([api('GET', '/auth/v1/consent'), api('GET', '/auth/v1/flows')]);
+      $('#pc').innerHTML = c.body.length ? c.body.map(x => `<div class="inbox-item"><div class="row">${pill(x.status, x.status === 'pending' ? 'pending' : x.status === 'approved' ? 'ok' : 'bad')}<b>${esc(x.id)}</b> ${esc(x.consumer)} (class ${x.cls}) asks for <span class="mono">${esc(x.item_id)}</span></div><div class="hint">Purpose: ${esc(x.purpose)} · ${esc(x.created_at)}</div>${x.status === 'pending' ? `<div class="row"><button class="btn sm primary" data-a="${esc(x.id)}">Approve</button><button class="btn sm danger" data-r="${esc(x.id)}">Reject</button></div>` : ''}</div>`).join('') : '<p class="hint">No consent requests.</p>';
+      $('#pfl').innerHTML = f.ok ? table(f.body.dataFlows.map(x => ({ token: '…' + x.tail, consumer: x.consumer, items: x.items.join(', '), via: x.via, status: x.status, accesses: x.accesses, last: x.last_access }))) : out($('#pfl'), f) || '';
+    };
+    $('#pc').onclick = async e => { const a = e.target.dataset.a, r = e.target.dataset.r; if (!a && !r) return; const x = await api('POST', '/auth/v1/consent/decide', { id: a || r, approve: !!a }); toast(x.ok ? 'Decision recorded' : x.body.error); load(); };
+    $('#pf').onsubmit = async e => {
+      e.preventDefault(); const id = new FormData(e.target).get('id').trim(); const r = await api('GET', '/auth/v1/acl?id=' + encodeURIComponent(id)); if (!r.ok) return out($('#po'), r);
+      const voc = (await api('GET', '/catalogue/v1/policy-vocabulary')).body;
+      $('#po').innerHTML = `<p class="mono small">${esc(r.body.text)}</p><form id="pe" class="col"><label class="f">Label<select name="label">${['public', 'protected', 'private', 'confidential'].map(l => `<option${l === r.body.label ? ' selected' : ''}>${l}</option>`).join('')}</select></label><label class="f">C: consumers allowed (one e-mail per line)<textarea name="C" rows="4">${esc(r.body.C.join('\n'))}</textarea></label>${Object.entries(voc.table3).map(([k, vals]) => `<label class="f">${esc(k)}<select name="A_${k}">${vals.map(v => `<option${r.body.A[k] === v ? ' selected' : ''}>${esc(v)}</option>`).join('')}</select></label>`).join('')}<button class="btn primary">Save policy</button></form><div id="pr"></div>`;
+      $('#pe').onsubmit = async ev => { ev.preventDefault(); const g = new FormData(ev.target); const A = {}; for (const k of Object.keys(voc.table3)) A[k] = g.get('A_' + k); const lab = g.get('label'); const x = await api('PUT', '/auth/v1/acl?id=' + encodeURIComponent(id), lab !== r.body.label ? { label: lab, C: g.get('C').split('\n').map(s => s.trim()).filter(Boolean) } : { C: g.get('C').split('\n').map(s => s.trim()).filter(Boolean), A }); out($('#pr'), x); };
+    };
+    $('#lf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); out($('#lo'), await api('POST', '/auth/v1/licence', f)); };
+    $('#vf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); out($('#vo'), await api('POST', '/auth/v1/token/revoke', f)); load(); };
+    load();
+  },
+
+  async cil(m) {
+    const apis = (await api('GET', '/cil/v1/apis')).body;
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>City intelligence</h2><p>Domain APIs of the City Intelligence Layer (City OS Sections 3 and 4). Inputs are read only through the data exchange; protected inputs need your data exchange access.</p></div>
+      ${card('Call an API', `<form id="af" class="col"><select name="path">${apis.map(a => `<option value="${esc(a.path)}">${esc(a.domain)} · ${esc(a.name)} (${esc(a.path)})</option>`).join('')}</select><label class="f">Request body (JSON, blank for defaults)<textarea name="body" rows="3">{}</textarea></label><div class="row"><button class="btn primary">Call</button><button class="btn" type="button" id="ao">Show OpenAPI</button></div></form><div id="ar"></div>`, 'COS-16 COS-17 COS-18 COS-19 COS-20 COS-21 COS-22')}
+      <div class="grid2">${card('Ask a question', `<form id="qf" class="row"><input name="q" class="grow" value="Which drains are near overflow?"><button class="btn primary">Ask</button></form><div id="qo"></div><p class="hint">Keyword matching onto the APIs. Not a language model.</p>`, 'COS-29')}
+      ${card('OLAP', `<form id="of" class="row"><select name="measure"><option value="griev">grievances</option><option value="waste">waste tonnes</option><option value="alerts">alerts</option></select><select name="rows"><option>ward</option><option>day</option><option>cat</option></select><select name="cols"><option>cat</option><option>ward</option><option>day</option></select><button class="btn">Pivot</button></form><div id="oo"></div>`, 'COS-31')}</div>
+      ${card('Plug in an analytic', `<form id="rf" class="col"><p class="hint">Give the full specification (City OS Figure 13). Inputs are checked against the ontology and the catalogue's data models.</p><textarea name="spec" rows="10">${esc(J({ id: 'pm-ward', domain: 'Air Quality', name: 'Average PM2.5 by ward', path: '/environment/pmByWard', inputs: [{ group: 'aqm', type: 'Time Series', role: 'RequiresDataSource', attr: 'PM2_5' }], out: 'Table', viz: 'Bar', period: 15, dataPeriodicity: '15 min', procedure: 'Mean of the latest PM2.5 of the sensors in each ward', provenance: 'Your organisation', operation: 'meanByWard', alertAbove: 80 }))}</textarea><button class="btn primary">Register</button></form><div id="rr"></div>`, 'COS-28 COS-32 COS-33')}
+      ${card('Federation', `<form id="ff" class="row"><select name="path"><option>/publictransit/fleetPerformance</option>${apis.map(a => `<option>${esc(a.path)}</option>`).join('')}</select><button class="btn">Ask all cities</button></form><div id="fo"></div>`, 'COS-08 COS-15 COS-34')}</div>`;
+    $('#af').onsubmit = async e => {
+      e.preventDefault(); const f = new FormData(e.target); let b = {}; try { b = JSON.parse(f.get('body') || '{}'); } catch { return toast('Body is not valid JSON'); }
+      const r = await api('POST', '/cil/v1' + f.get('path'), b);
+      if (!r.ok) return out($('#ar'), r);
+      const o = r.body.output;
+      $('#ar').innerHTML = (o.cells ? heat(o.cells) : '') + (o.rows ? table(o.rows) : '') + (o.type === 'SingleStat' ? `<div class="stat"><b>${esc(o.value ?? '—')} ${esc(o.unit)}</b><span>${esc(o.stop)} · ${esc(o.bus)}</span></div>` : '') + `<details><summary>Full response</summary><pre class="json">${esc(J(r.body))}</pre></details>`;
+      paintHeat($('#ar'));
+    };
+    $('#ao').onclick = async () => out($('#ar'), await api('GET', '/cil/v1/openapi?path=' + encodeURIComponent($('#af').path.value)));
+    $('#qf').onsubmit = async e => { e.preventDefault(); const r = await api('POST', '/cil/v1/ask', { question: new FormData(e.target).get('q') }); $('#qo').innerHTML = r.ok ? `<p><b>${esc(r.body.answer)}</b></p>${r.body.api ? `<p class="hint">Answered by POST /cil/v1${esc(r.body.api)}</p>` : ''}` : `<p class="err">${esc(r.body.error)}</p>`; };
+    $('#of').onsubmit = async e => { e.preventDefault(); const r = await api('POST', '/cil/v1/olap', Object.fromEntries(new FormData(e.target))); if (!r.ok) return out($('#oo'), r); $('#oo').innerHTML = table(r.body.rows.map((rw, i) => ({ [r.body.measure]: rw, ...Object.fromEntries(r.body.cols.map((c, j) => [c, r.body.cells[i][j]])) }))); };
+    $('#rf').onsubmit = async e => { e.preventDefault(); let s; try { s = JSON.parse(new FormData(e.target).get('spec')); } catch { return toast('Specification is not valid JSON'); } out($('#rr'), await api('POST', '/cil/v1/analytics', s)); };
+    $('#ff').onsubmit = async e => { e.preventDefault(); const r = await api('POST', '/cil/v1/federate', { path: new FormData(e.target).get('path') }); if (!r.ok) return out($('#fo'), r); $('#fo').innerHTML = table(r.body.cities.map(c => ({ city: c.city, answered: c.ok, error: c.error || '' }))) + `<pre class="json">${esc(J(r.body.aggregate))}</pre>`; };
+  },
+
+  async iccc(m) {
+    const [al, rep] = await Promise.all([api('GET', '/cil/v1/alerts'), api('GET', '/cil/v1/report')]);
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>ICCC dashboard</h2><p>Alerts raised by analytics and the monthly report on system performance (City OS Section 4).</p></div>
+      ${card('Latest alerts', table(al.body.slice(0, 30).map(a => ({ time: a.ts, domain: a.domain, ward: a.ward, alert: a.msg, source: a.source }))), 'COS-28 COS-30')}
+      ${card('Monthly report ' + (rep.body.month || ''), rep.ok ? `<h4>API use</h4>${table(rep.body.apiUse)}<h4>Alerts by domain</h4>${table(rep.body.alertsByDomain)}<h4>Uptime</h4>${table(rep.body.uptime)}` : `<p class="err">${esc(rep.body.error)}</p>`, 'COS-30')}</div>`;
+  },
+
+  async trust(m) {
+    const [csr, certs, crl, orgs, cas] = await Promise.all([api('GET', '/identity/v1/csr'), api('GET', '/identity/v1/certs'), api('GET', '/identity/v1/crl'), api('GET', '/identity/v1/orgs'), api('GET', '/identity/v1/trusted-cas')]);
+    const admin = ME.role === 'admin';
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Certificates and trust</h2><p>The DX Certificate Authority, certificate requests, revocation and organisations (BIS 5.3, 5.4.2, 7.1).</p></div>
+      ${card('Certificate requests', table(csr.body.map(r => ({ id: r.id, email: r.email, class: r.cls, kind: r.kind, status: r.status, serial: r.cert_serial || '' }))) + (admin ? `<form id="df" class="row"><input name="id" placeholder="request id" required><button class="btn primary" name="a" value="1">Approve and issue</button><button class="btn danger" name="a" value="0">Reject</button></form><div id="do"></div>` : ''), 'BIS-75 BIS-96')}
+      ${card('Issued certificates', table(certs.body.map(c => ({ serial: c.serial, holder: c.email, cn: c.cn, class: c.cls, kind: c.kind, status: c.status, expires: c.not_after }))) + (admin ? `<form id="vf" class="row"><input name="serial" placeholder="serial" required><select name="reason"><option>keyCompromise</option><option>affiliationChanged</option><option>superseded</option><option>cessationOfOperation</option></select><button class="btn danger">Revoke</button></form><div id="vo"></div>` : ''), 'BIS-76 BIS-65')}
+      <div class="grid2">${card('Revocation list', `<p class="small">Last update ${esc(crl.body.lastUpdate)}, next ${esc(crl.body.nextUpdate)}</p>${table(crl.body.revokedSerials.map(s => ({ serial: s })))}<p><a href="/identity/v1/crl.pem">Download CRL (PEM)</a></p>`, 'BIS-65')}
+      ${card('Trusted certificate authorities', table(cas.body.cas.map(c => ({ subject: c.subject, expires: c.notAfter }))), 'BIS-59')}</div>
+      ${card('Organisations and white-list', table(orgs.body.map(o => ({ id: o.id, name: o.name, domain: o.domain, whitelisted: o.whitelisted ? 'yes' : 'no' }))), 'BIS-75')}</div>`;
+    if (admin) {
+      $('#df').onsubmit = async e => { e.preventDefault(); const id = new FormData(e.target).get('id'); const r = await api('POST', '/identity/v1/csr/decide', { id, approve: e.submitter.value === '1' }); out($('#do'), r); };
+      $('#vf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); if (!confirm('Revoke certificate ' + f.serial + '? This cannot be undone.')) return; out($('#vo'), await api('POST', '/identity/v1/certs/revoke', f)); };
+    }
+  },
+
+  async ops(m) {
+    const [au, ver, st, bk] = await Promise.all([api('GET', '/ops/v1/audit?limit=100'), api('GET', '/ops/v1/audit/verify'), api('GET', '/ops/v1/stats'), api('GET', '/ops/v1/backups')]);
+    const admin = ME.role === 'admin';
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Operations and audit</h2><p>Signed audit log, statistics, backups and service drills (BIS 5.5, 5.6).</p></div>
+      ${card('Audit log', `<p>${ver.body.ok ? pill('chain verified', 'ok') + ` ${ver.body.checked} entries, hash chain and Ed25519 signatures intact` : pill('broken', 'bad') + ' at entry ' + esc(ver.body.brokenAt) + ': ' + esc(ver.body.reason)}</p>${table(au.body.map(a => ({ seq: a.seq, time: a.ts, interface: a.iface, actor: a.actor, action: a.action, detail: a.detail, ok: a.ok ? 'yes' : 'refused' })))}`, 'BIS-11 BIS-77')}
+      ${card('Statistics by interface', table(st.body.audit), 'BIS-77')}
+      ${admin ? card('Backups', `<button class="btn primary" id="bb">Take backup now</button><div id="bo"></div>${table(bk.body)}`, 'BIS-78') : ''}
+      ${admin ? card('Service drills', `<p class="hint">Pause a service to test the failure handling in BIS 5.6. Remember to resume it.</p><div class="row">${['authorization', 'notification', 'cil', 'urn:demo-cat:rs/rs1', 'urn:demo-cat:rs/rs2'].map(s => `<button class="btn sm" data-s="${s}" data-u="0">Pause ${s}</button><button class="btn sm" data-s="${s}" data-u="1">Resume</button>`).join('')}</div><div id="so"></div>`, 'BIS-80 BIS-83') : ''}</div>`;
+    if (admin) {
+      $('#bb').onclick = async () => { out($('#bo'), await api('POST', '/ops/v1/backup', { label: 'console' })); };
+      m.querySelector('[data-s]').parentElement.onclick = async e => { const b = e.target.closest('[data-s]'); if (!b) return; out($('#so'), await api('POST', '/ops/v1/service', { service: b.dataset.s, up: b.dataset.u === '1' })); };
+    }
+  },
+
+  async status(m) {
+    const s = await api('GET', '/status/v1');
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Status page</h2><p>${esc(s.body.note)} Window: last ${s.body.windowHours} hours.</p></div>${card('Services', table(s.body.services.map(x => ({ service: x.name, status: x.status, 'uptime %': x.uptimePercent, requests: x.requests, 'avg ms': x.avgResponseMs, 'p95 ms': x.p95LatencyMs, '5xx': x.serverErrors }))), 'BIS-79')}</div>`;
+  },
+};
+
+boot();

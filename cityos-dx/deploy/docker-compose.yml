@@ -1,0 +1,21 @@
+# docker compose -f deploy/docker-compose.yml up -d --build
+services:
+  dx:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    image: cityos-dx:1.0.0
+    restart: unless-stopped
+    ports: ["8443:8443"]
+    environment:
+      DX_PUBLIC_NAME: dx.demo-city.example
+      DX_CITY_NAME: Demo City
+    volumes: ["dx-state:/var/lib/cityos-dx"]
+  backup:
+    image: cityos-dx:1.0.0
+    depends_on: [dx]
+    restart: unless-stopped
+    volumes: ["dx-state:/var/lib/cityos-dx"]
+    environment: { DX_BACKUP_KEEP: "14" }
+    # one online backup a day, kept for 14 days
+    entrypoint: ["sh", "-c", "while true; do sleep 86400; node --no-warnings scripts/backup.js daily; done"]
+volumes:
+  dx-state: {}

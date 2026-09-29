@@ -1,0 +1,22 @@
+# systemd unit. Install the code in /opt/cityos-dx, create user "cityos", then:
+#   systemctl enable --now cityos-dx.service cityos-dx-backup.timer
+[Unit]
+Description=City OS data exchange reference implementation (demo data)
+After=network-online.target
+
+[Service]
+User=cityos
+WorkingDirectory=/opt/cityos-dx
+EnvironmentFile=-/etc/cityos-dx.env
+Environment=DX_DATA_DIR=/var/lib/cityos-dx/data DX_PKI_DIR=/var/lib/cityos-dx/pki DX_BACKUP_DIR=/var/lib/cityos-dx/backups
+ExecStart=/usr/bin/node --no-warnings src/server.js
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/cityos-dx
+
+[Install]
+WantedBy=multi-user.target

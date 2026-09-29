@@ -1,0 +1,22 @@
+{
+  "name": "cityos-dx",
+  "version": "1.0.0",
+  "description": "Reference implementation of the BIS Smart Cities Data Exchange Reference Architecture (draft IS 18XXXX-X Part 1:2019) and the City Operating System and City Intelligence Layer paper (v1.1, 2023). Research prototype, demo data.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "certs": "node scripts/init-pki.js",
+    "seed": "node --no-warnings src/seed.js",
+    "start": "node --no-warnings src/server.js",
+    "test": "node --no-warnings --test --test-concurrency=1 test/*.test.js",
+    "test:report": "node --no-warnings scripts/test-report.js",
+    "backup": "node --no-warnings scripts/backup.js",
+    "restore": "node --no-warnings scripts/restore.js",
+    "uptime": "node --no-warnings scripts/uptime-check.js",
+    "trace": "node scripts/trace-requirements.js"
+  },
+  "license": "Apache-2.0"
+}

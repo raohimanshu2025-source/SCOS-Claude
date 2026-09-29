@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily online backup of the City OS DX database
+
+[Service]
+Type=oneshot
+User=cityos
+WorkingDirectory=/opt/cityos-dx
+Environment=DX_DATA_DIR=/var/lib/cityos-dx/data DX_PKI_DIR=/var/lib/cityos-dx/pki DX_BACKUP_DIR=/var/lib/cityos-dx/backups
+ExecStart=/usr/bin/node --no-warnings scripts/backup.js daily

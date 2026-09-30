@@ -23,7 +23,7 @@ const ORGS = [
 ];
 const HOLDERS = [
   // [email, cn, cls, kind]
-  ...['mc', 'pcc', 'transport', 'wd', 'cs'].map(d => [`dx@${d}.demo-city.example`, `${d.toUpperCase()} organisation certificate`, 3, 'org']),
+  ...['mc', 'pcc', 'transport', 'wd', 'cs'].map(d => [`dx@${d}.demo-city.example`, `${d.toUpperCase()} organisation certificate`, 0, 'org']),
   ['admin@mc.demo-city.example', 'rs1.mc.demo-city.example', 1, 'rs'],
   ['admin@wd.demo-city.example', 'rs2-adapter.wd.demo-city.example', 1, 'rs'],
   ['officer@pcc.demo-city.example', 'Air quality data officer', 3, 'officer'],

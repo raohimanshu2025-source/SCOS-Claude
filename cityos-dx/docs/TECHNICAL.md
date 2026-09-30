@@ -50,7 +50,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 73 end-to-end tests |
+| `test/` | 82 end-to-end tests |
 
 ## 2. Identity and authentication
 
@@ -59,25 +59,27 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | Kind | Classes | Rule |
 |---|---|---|
 | `rs` (resource server) | 1 | CN must be a DNS name under the organisation's domain |
-| `org` | 2, 3, 4, 5 | Organisation must be white-listed |
+| `org` | none (sent as `cls: 0`) | Organisation must be white-listed. BIS 5.4.2: the organisation certificate "can only be used to grant certificates to employees", so it cannot manage the catalogue or read data; it can only decide its own employees' requests |
 | `officer` (data officer) | 3 | Organisation must hold a valid organisation certificate |
-| `emp` (employee) | 2, 4, 5 | Same |
-| `ind` (individual) | 2 | E-mail domain must match |
+| `emp` (employee) | 2, 3, 4, 5 | Same |
+| `ind` (individual / app developer) | 2 | No organisation needed |
 
-A request uses the subject "Certificate request" (the e-mail step of BIS 7.1 is modelled as `POST /identity/v1/csr`). The administrator approves or rejects it. Revocation adds the serial to the CRL, blocks the certificate at once and revokes its tokens.
+The e-mail to the DX CA (BIS 5.4.2, 7.1) is modelled as `POST /identity/v1/csr`; every request must use the subject "Certificate request" (the standard states this subject for individuals and app developers; the server applies it to all requests). The e-mail domain must belong to a registered, white-listed organisation for organisation, employee, officer and resource server requests. The DX administrator decides any request; an organisation, acting as sub-CA / registration authority, may also decide requests of its own employees and data officers. Revocation adds the serial to the CRL, blocks the certificate at once and revokes its tokens.
+
+**Licensed CAs (BIS 5.4.2).** "DX shall accept TLS connections using certificates from any licensed CA in India (certified by the CCA)." Put those CA certificates in the PEM file named by `DX_TRUSTED_CA_FILE` and their CRLs in `DX_TRUSTED_CRL_FILE`. A holder of such a certificate is identified by the e-mail in it and treated as class 2 (individual); certificates on the CRL are refused. Classes 3 to 5 need a certificate from the DX CA, because they need the organisation to be registered and white-listed.
 
 **How a caller is identified**, in this order:
 
-1. The TLS client certificate. Its serial and fingerprint must be in the database with status valid and not expired, and it must chain to the DX CA.
-2. An `X-ID-Token` header: an EdDSA JWT from a trusted OpenID Connect issuer (demo issuer `https://idp.demo-city.example`; more through `DX_OIDC_ISSUERS_FILE`). The audience must be the server's public name.
+1. The TLS client certificate. A DX CA certificate must be in the database with status valid and not expired. A certificate from a configured licensed CA must chain to it and not be on its CRL.
+2. An `X-ID-Token` header: an EdDSA JWT from a trusted OpenID Connect issuer (demo issuer `https://idp.demo-city.example`; more through `DX_OIDC_ISSUERS_FILE`). The audience must be the server's public name. BIS 4.4 lets consumers be identified this way, but 5.4.2 says protected, private or confidential data "shall require a valid certificate", so an ID token alone reaches public data only (class 0).
 3. A console session cookie. The session belongs to an account that is linked to a certificate, so console actions run as that certificate holder.
 4. Otherwise anonymous (public data and the status page only).
 
-**Console accounts.** Passwords are hashed with scrypt, need at least 12 characters with letters and digits, and must be changed at first login. Five failures lock the account for 15 minutes. The cookie `dx_session` is HttpOnly, Secure and SameSite=Strict, and every write in a session needs the `X-CSRF-Token` header. Roles: admin, provider, consumer, operator, auditor, analytics_provider.
+**Console accounts.** Passwords are hashed with scrypt, need at least 12 characters with letters and digits, and must be changed at first login. Five failures lock the account for 15 minutes. The cookie `dx_session` is HttpOnly, Secure and SameSite=Strict, and every write in a session needs the `X-CSRF-Token` header. Roles: admin, provider, consumer, operator, auditor, analytics_provider. Certificates without an account get the role of their kind: resource_server, organisation, provider (class 3) or consumer.
 
 ## 3. Authorization (BIS 4.5.2, 5.2-5.4, 7)
 
-Each item has a policy P = (C, A): C is the list of consumers, A the Table 3 attributes. The label sets which certificate classes may read:
+Each item has a policy P = (C, A): C is the list of consumers, A the Table 3 attributes. A new policy starts from its label's column of Table 4, copied cell by cell (for example a private item starts with data locality "Configurable or as per regulatory framework", data usage "Licensed with legal framework" and data audit "Needs audit"); the provider may then choose Table 3 values. Consent and data monetization from Table 4 are kept in A too. `GET /catalogue/v1/policy-vocabulary` returns Table 3, Table 4 and the label defaults. The label sets which certificate classes may read:
 
 | Label | Classes |
 |---|---|
@@ -88,20 +90,22 @@ Each item has a policy P = (C, A): C is the list of consumers, A the Table 3 att
 
 `POST /auth/v1/token` checks every requested item. If the caller is in C (or holds a licence from the provider) and has a suitable class, a token is issued. Otherwise the call returns 403 with the list of refused items, and a consent request goes to the provider's inbox.
 
-Tokens have the form `auth.demo-city.example/<consumer e-mail>/<64 hex>` and last `DX_TOKEN_TTL` seconds (default 3600). Only their SHA-256 hash is stored. A token is bound to the certificate that asked for it: another certificate presenting it is refused.
+Tokens have the form `auth.demo-city.example/<consumer e-mail>/<64 hex>` and last `DX_TOKEN_TTL` seconds (default 3600; BIS 3.1.11: every token "shall have a valid expiration time"). The response carries `token`, `token-type: IUDX` and `expires-in` as in Figure 2 step 5. Only the token's SHA-256 hash is stored. A token is bound to the certificate that asked for it: another certificate presenting it is refused. This is stricter than Figure 2, where step 6 needs only a server certificate.
 
-A resource server checks a token with `POST /auth/v1/token/introspect`. Only a class 1 `rs` certificate whose CN matches the item's resource server host may do this. Results are cached briefly and every access is counted (BIS 5.6 flows).
+A resource server checks a token with `POST /auth/v1/token/introspect` and body `{"token": ...}`. Only a class 1 `rs` certificate may do this. Figure 2 step 8 says "Verify resource-server's identity through DNS"; the server instead checks that the certificate's CN is the host in the item's resource server URL, and does no DNS lookup. The response has `consumer`, `consumer-certificate-class`, `expiry` and `request` (step 10) plus `policy`, the reference to the policy version (7.4). Results are cached briefly and every access is counted (BIS 5.6 flows).
+
+A provider revokes a token with `POST /auth/v1/token/revoke` and body `{"token": ...}` (Figure 11), or all of one consumer's tokens for an item with `{"id", "consumer"}`. Catalogue entries are linked to the DN of the certificate that created them, and only that certificate may change them or their policy (BIS 5.3).
 
 ## 4. API reference
 
-All paths are under the server root. Bodies are JSON. Tokens go in the `token` header, or `Authorization: DX <token>` or `Bearer <token>`. `GET /api` lists every route.
+All paths are under the server root. Bodies are JSON. Tokens go in `Authorization: IUDX <token>` (Figure 2), or the `token` header, or `Authorization: DX <token>` or `Bearer <token>`. `GET /api` lists every route.
 
 | Area | Routes |
 |---|---|
 | Console auth | `POST /auth/v1/login`, `POST /auth/v1/logout`, `GET /auth/v1/me`, `POST /auth/v1/password` |
 | Identity | `GET/POST /identity/v1/orgs`, `POST /identity/v1/orgs/whitelist`, `GET/POST /identity/v1/csr`, `GET /identity/v1/csr/status`, `POST /identity/v1/csr/decide`, `GET /identity/v1/certs`, `POST /identity/v1/certs/revoke`, `GET /identity/v1/certs/status`, `GET /identity/v1/crl`, `GET /identity/v1/crl.pem`, `GET /identity/v1/trusted-cas`, `GET/POST /identity/v1/accounts`, `POST /identity/v1/accounts/unlock` |
-| Catalogue | `GET /catalogue/v1/search` (q, attr/value, bbox, near, time/timerel, limit/offset), `GET /catalogue/v1/count`, `GET /catalogue/v1/list`, `GET/POST/PUT/DELETE /catalogue/v1/items`, `GET /catalogue/v1/datamodels`, `GET /catalogue/v1/policy-vocabulary`, `POST/DELETE /catalogue/v1/watch`, `GET /catalogue/v1/status` |
-| Authorization | `POST /auth/v1/token`, `POST /auth/v1/token/introspect`, `POST /auth/v1/token/revoke`, `GET /auth/v1/token/list`, `GET/PUT /auth/v1/acl`, `GET /auth/v1/consent`, `POST /auth/v1/consent/decide`, `GET /auth/v1/flows`, `GET/POST/DELETE /auth/v1/licence`, `GET /auth/v1/status` |
+| Catalogue | `GET /catalogue/v1/search` (q, attr/value, bbox, near, time/timerel, limit/offset), `GET /catalogue/v1/count`, `GET /catalogue/v1/list`, `GET/POST/PUT/DELETE /catalogue/v1/items` (POST answers 201 Created, Figure 7), `GET /catalogue/v1/datamodels`, `GET /catalogue/v1/schemas` (base schemas), `GET /catalogue/v1/context?name=core|common` (JSON-LD contexts; like data models these are not catalogue items, BIS 6.1.1), `GET /catalogue/v1/policy-vocabulary`, `POST/DELETE /catalogue/v1/watch`, `GET /catalogue/v1/status` |
+| Authorization | `POST /auth/v1/token`, `POST /auth/v1/token/introspect`, `POST /auth/v1/token/revoke`, `GET /auth/v1/token/list`, `GET/POST/PUT/DELETE /auth/v1/acl` (DELETE resets to the label defaults; `POST /auth/1.0/acl` is also accepted, as printed in Figure 8), `GET /auth/v1/consumers`, `GET /auth/v1/consent`, `POST /auth/v1/consent/decide`, `GET /auth/v1/flows`, `GET/POST/DELETE /auth/v1/licence`, `GET /auth/v1/status` |
 | Resource | `GET /resource/v1/latest`, `/search`, `/status`, `/count`, `/download` (GeoJSON), `POST/PATCH/DELETE /resource/v1/subscription`, `GET /resource/v1/subscription/stream` (server-sent events), `POST /resource/v1/ingest`, `GET /resource/v1/servers` |
 | Notify | `GET /notify/v1/inbox`, `GET /notify/v1/history` |
 | City Intelligence | `GET /cil/v1/apis`, `GET /cil/v1/openapi`, `GET /cil/v1/ontology`, `POST /cil/v1/{domain}/{api}` (add `?format=ngsi-ld` for NGSI-LD), `POST/DELETE /cil/v1/analytics`, `GET /cil/v1/alerts`, `POST /cil/v1/olap`, `POST /cil/v1/ask`, `GET /cil/v1/report`, `POST /cil/v1/federate` |
@@ -109,11 +113,11 @@ All paths are under the server root. Bodies are JSON. Tokens go in the `token` h
 
 Errors return `{ "error": "..." }` with a matching status. A 401 carries `WWW-Authenticate: DX realm=..., as_uri=...` pointing at the authorization server.
 
-**Provider tasks with a class 3 certificate:** create, update or delete catalogue items of the provider's organisation (the owner is checked), push data with `POST /resource/v1/ingest` (each packet is checked against the item's data model), set policies with `PUT /auth/v1/acl`, and decide consent.
+**Provider tasks with a class 3 certificate:** create, update or delete the catalogue items that certificate created (the owner DN is checked), push data with `POST /resource/v1/ingest` (each packet is checked against the item's data model), set policies with `PUT /auth/v1/acl`, and decide consent.
 
 ## 5. Data model
 
-Catalogue items are JSON-LD documents with the context in `src/dx/model.js`. The item types are those of BIS Table 5 (resourceItem, resourceGroup, provider, resourceServer, catalogueItem). Mandatory fields follow Tables 6-8. Each item names a data model; data models list attributes with type and unit, and ingestion rejects packets that do not match.
+Catalogue items are JSON-LD documents with the context in `src/dx/model.js`. The item types are those of BIS Table 5 (resourceItem, resourceServerGroup, provider, resourceServer, catalogueItem; Table 7 names the provider row "providerItem" and has no row for catalogueItem, so its mandatory list here is our own). Mandatory fields follow Tables 6-8. Each item names a data model; data models list attributes with type and unit, and ingestion rejects packets that do not match.
 
 The demo city has 48 catalogue items: 28 resource items, 12 groups, 5 providers, 2 resource servers and 1 catalogue item, covering the six City OS domains. One resource server (`rs2-adapter.wd.demo-city.example`) is a legacy server with CSV columns `LVL_M`, `FLOW_CUMECS`, `CAP_M`, `TS_UTC`; the DX Adapter translates it to the data model on the fly.
 
@@ -147,14 +151,15 @@ The demo city has 48 catalogue items: 28 resource items, 12 groups, 5 providers,
 | `DX_SIMULATOR`, `DX_SIMULATOR_MS` | true, 60000 | Synthetic sensor feed; turn off for real feeds |
 | `DX_FEDERATION_PEERS`, `DX_FEDERATION_CA_FILE` | none | Other cities and their CA |
 | `DX_OIDC_ISSUERS_FILE` | none | Extra trusted ID-token issuers |
+| `DX_TRUSTED_CA_FILE`, `DX_TRUSTED_CRL_FILE` | none | CA certificates and CRLs of licensed CAs whose certificates are accepted (BIS 5.4.2) |
 | `DX_CIL_SERVICE_EMAIL` | `cil@mc.demo-city.example` | Certificate identity the CIL uses |
 | `DX_REQUEST_CLIENT_CERT` | true | Ask clients for a certificate |
 | `DX_LOG_REQUESTS` | false | Log each request to stdout |
 
 ## 8. Operations design
 
-- **Audit log.** Every decision (identity, catalogue, authorization, resource, consent, CIL, operations) is one row. Each row stores the SHA-256 of the previous row and an Ed25519 signature made with `pki/audit/audit-ed25519.key`. `GET /ops/v1/audit/verify` re-checks the whole chain.
-- **Status.** Each service writes a heartbeat every minute. `/status/v1` gives uptime, mean and 95th-percentile latency per service from recorded API calls.
+- **Audit log.** Every event (identity, discover, manage, authorization, resource, consent, CIL, operations) is one row (BIS 5.5). Each row stores the SHA-256 of the previous row and an Ed25519 signature made with `pki/audit/audit-ed25519.key`. `GET /ops/v1/audit/verify` re-checks the whole chain.
+- **Status.** Each service writes a heartbeat every minute. `/status/v1` gives uptime, mean and 95th-percentile latency per service and per endpoint from recorded API calls, and the state of each resource server (BIS 5.6).
 - **Backups.** `VACUUM INTO` makes a consistent copy while the server runs, file mode 0600, then an integrity check. Restore also checks the audit chain before it replaces the database.
 - **Hardening.** TLS 1.2 or later; strict Content-Security-Policy with no inline script or style; HSTS; no framing; 1 MB body limit; rate limit; SQL values always passed as parameters.
 
@@ -164,7 +169,9 @@ Every point of both documents is listed in `docs/requirements.json` (138 points)
 
 ## 10. Known limits
 
-- One process and one SQLite file. No clustering or high availability (BIS 5.5 scale-out is not covered).
-- The demo CA is not a licensed certifying authority. Real use needs certificates under the Controller of Certifying Authorities (CCA) or the city's own approved CA.
+- One process and one SQLite file. No clustering or high availability (the BIS 5.6 "distributed architecture for vertical and horizontal scale" is not covered).
+- The demo CA is not a licensed certifying authority. Licensed CAs can be configured (section 2), but none are configured in the demo.
+- Trusted execution environments for policy enforcement at the time of data use (BIS 4.5.2.1, "shall support") are not implemented.
+- Streams use server-sent events; MQTT and AMQP with AsyncAPI are not implemented.
 - The question box matches keywords only.
 - Sensor data is simulated. Live feeds need department agreements.

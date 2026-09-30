@@ -1,7 +1,7 @@
 // Catalogue service (BIS 4.5.1, 6): JSON-LD items, Manage and Discover interfaces.
 import { q, tx } from '../db.js';
 import { iso, fail, need, str } from '../util.js';
-import { validateItem, T4_TO_T3, LABELS, CTX } from './model.js';
+import { validateItem, LABEL_DEFAULTS, LABELS, CTX } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
 const DATA_KINDS = ['series', 'table', 'view', 'count'];
@@ -16,7 +16,8 @@ export function makeCatalogue(db, audit, notify) {
   }
   function assertOwner(r, p, what) {
     assertManager(p, what);
-    need(r.owner_org && r.owner_org === p.orgId, 403, `${what}: the item belongs to another organisation; entries are linked to the certificate that created them (BIS 5.3)`);
+    // BIS 5.3: entries are linked to the DN of the creating certificate; only that owner may modify them.
+    need(r.owner_dn === p.dn, 403, `${what}: only the owner of this entry may do this; entries are linked to the DN of the certificate that created them (BIS 5.3)`);
   }
   function checkData(doc, data) {
     if (doc.itemType?.value !== 'resourceItem') return null;
@@ -51,7 +52,7 @@ export function makeCatalogue(db, audit, notify) {
       }
       const d = checkData(doc, data);
       const label = doc.accessPolicyLabel?.value ?? null;
-      const policy = label ? { label, C: [], A: { ...T4_TO_T3[label] }, version: 1 } : null;
+      const policy = label ? { label, C: [], A: { ...LABEL_DEFAULTS[label] }, version: 1 } : null;
       q.run(db, 'INSERT INTO items (id, item_type, owner_dn, owner_org, doc, label, policy, data_kind, created_at, modified_at) VALUES (?,?,?,?,?,?,?,?,?,?)',
         doc.id, doc.itemType.value, p.dn, p.orgId, JSON.stringify(doc), label, policy && JSON.stringify(policy), d && JSON.stringify(d), now, now);
       audit.log('Manage', actorOf(p), 'Item created', `${doc.id} (${doc.itemType.value}${label ? ', ' + label : ''})`);
@@ -67,7 +68,7 @@ export function makeCatalogue(db, audit, notify) {
       if (errs.length) { audit.log('Manage', actorOf(p), 'Update refused', `${id}: ${errs[0]}`, false); fail(400, 'item does not meet the catalogue model', { errors: errs }); }
       const label = doc.accessPolicyLabel?.value ?? null;
       let policy = r.policy ? JSON.parse(r.policy) : null;
-      if (label && policy && policy.label !== label) policy = { ...policy, label, A: { ...T4_TO_T3[label] }, version: policy.version + 1 };
+      if (label && policy && policy.label !== label) policy = { ...policy, label, A: { ...LABEL_DEFAULTS[label] }, version: policy.version + 1 };
       q.run(db, 'UPDATE items SET doc=?, label=?, policy=?, modified_at=? WHERE id=?', JSON.stringify(doc), label, policy && JSON.stringify(policy), iso(Date.now()), id);
       audit.log('Manage', actorOf(p), 'Item updated', id);
       notify.changed(id, 'was updated');

@@ -32,16 +32,16 @@ async function certify(name, subj, cls, kind) {
 test('[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation', async () => {
   // 7.1 Provider registration
   await admin.as('POST', '/identity/v1/orgs', { body: { id: 'parks', name: 'Parks Department (demo)', domain: 'parks.demo-city.example', whitelisted: true } });
-  await certify('org', '/CN=Parks organisation/emailAddress=dx@parks.demo-city.example', 3, 'org');
+  await certify('org', '/CN=Parks organisation/emailAddress=dx@parks.demo-city.example', 0, 'org');
   const officer = await certify('officer', '/CN=Parks data officer/emailAddress=officer@parks.demo-city.example', 3, 'officer');
   // 7.2 Create and manage metadata: provider, then a group and an item on rs1
   const base = (type, id, name, tags) => ({ '@context': ['<catalogue-link>/core_context.json'], id, itemType: { type: 'Property', value: type }, name: { type: 'Property', value: name }, itemDescription: { type: 'Property', value: name + ' (test)' }, tags: { type: 'Property', value: tags }, refBaseSchema: { type: 'Relationship', value: `<catalogue-link>/${type}_schema.json` } });
   let r = await c.req('POST', '/catalogue/v1/items', { cert: officer, body: { item: { ...base('provider', 'urn:demo-cat:provider/parks', 'Parks Department (demo)', ['provider', 'parks']), organizationInfo: { type: 'Property', value: { email: 'officer@parks.demo-city.example' } } } } });
-  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.status, 201, JSON.stringify(r.body));
   r = await c.req('POST', '/catalogue/v1/items', { cert: officer, body: { item: { ...base('resourceServerGroup', 'urn:demo-cat:group/parkaq', 'Park air sensors', ['group']), resourceServer: { type: 'Relationship', value: 'urn:demo-cat:rs/rs1' }, refDataModel: { type: 'Relationship', value: '<catalogue-link>/airQuality/airQuality_dataModel.json' }, provider: { type: 'Relationship', value: 'urn:demo-cat:provider/parks' } } } });
-  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.status, 201, JSON.stringify(r.body));
   r = await c.req('POST', '/catalogue/v1/items', { cert: officer, body: { item: { ...base('resourceItem', 'urn:demo-cat:parkaq/park-1', 'Central park air sensor', ['park', 'air-quality']), resourceId: { type: 'Property', value: 'park-1' }, resourceType: { type: 'Property', value: 'messageStream' }, resourceServer: { type: 'Relationship', value: 'urn:demo-cat:rs/rs1' }, resourceServerGroup: { type: 'Relationship', value: 'urn:demo-cat:group/parkaq' }, provider: { type: 'Relationship', value: 'urn:demo-cat:provider/parks' }, refDataModel: { type: 'Relationship', value: '<catalogue-link>/airQuality/airQuality_dataModel.json' }, accessPolicyLabel: { type: 'Property', value: 'protected' }, location: { type: 'GeoProperty', value: { geometry: { type: 'Point', coordinates: [80.05, 20.05] } } } } } });
-  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.equal(r.status, 201, JSON.stringify(r.body));
   const now = new Date().toISOString();
   r = await c.req('POST', '/resource/v1/ingest', { cert: officer, body: { id: 'urn:demo-cat:parkaq/park-1', data: [{ PM2_5: 22.5, CO2_MAX: 410, TEMPERATURE_MAX: 29, LASTUPDATEDATETIME: now }] } });
   assert.equal(r.body.accepted, 1);

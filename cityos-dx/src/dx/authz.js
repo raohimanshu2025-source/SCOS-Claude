@@ -2,7 +2,7 @@
 // introspection and revocation. Tokens are opaque: only their SHA-256 hash is stored.
 import { q, tx } from '../db.js';
 import { iso, fail, need, randHex, sha256, str } from '../util.js';
-import { LABEL_CLASSES, checkPolicy, T4_TO_T3 } from './model.js';
+import { LABEL_CLASSES, checkPolicy, LABEL_DEFAULTS } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
 export function makeAuthz(db, cfg, audit, catalogue, notify) {
@@ -59,7 +59,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
         sha256(token), p.email, p.serial, JSON.stringify(items.map(i => i.id)), p.cls, policyRef, JSON.stringify(duties),
         [...new Set(decisions.map(x => x.d.via))].join('; '), iso(Date.now()), exp, token.slice(-8));
       audit.log('Authorization', actorOf(p), 'Token granted', `${items.map(i => i.id).join(', ')} via ${decisions[0].d.via} token …${token.slice(-8)}`);
-      return { token, 'token-type': 'DX', 'expires-in': cfg.tokenTtlSec, expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })) };
+      return { token, 'token-type': 'IUDX', 'expires-in': cfg.tokenTtlSec, expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })) };
     },
     // POST /auth/v1/token/introspect  (Figure 2 steps 7-10); `rs` is the calling resource server principal
     introspect(rs, token, itemId, { useCache = true } = {}) {
@@ -81,18 +81,30 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
         const host = new URL(rsItem.resourceServerHTTPAccessURL.value).hostname;
         if (rs.cn !== host) return { ok: false, reason: `resource server ${rs.cn} does not serve ${itemId} (expected ${host})` };
       }
-      if (t.cert_serial) {
+      if (t.cert_serial && !t.cert_serial.startsWith('ext:')) { // certificates of licensed CAs are checked against their CRL on each connection
         const c = q.get(db, 'SELECT status FROM certs WHERE serial=?', t.cert_serial);
         if (!c || c.status !== 'valid') return { ok: false, reason: 'the consumer certificate was revoked' };
       }
       cache.set(key, Math.min(t.expires_at, Date.now() + 5 * 60e3));
       audit.log('Authorization', rs.cn, 'Token introspected', `…${t.tail} for ${itemId || items.join(', ')}`);
-      return { ok: true, cached: false, rec: t, body: { consumer: t.consumer, 'consumer-certificate-class': t.cls, expiry: iso(t.expires_at), request: items.map(id => ({ id, duties: JSON.parse(t.duties)[id] })) } };
+      return { ok: true, cached: false, rec: t, body: { consumer: t.consumer, 'consumer-certificate-class': t.cls, expiry: iso(t.expires_at), request: items.map(id => ({ id, duties: JSON.parse(t.duties)[id] })), policy: t.policy_ref } }; // 7.4: reference to the policy object
     },
     recordAccess(hash) { q.run(db, 'UPDATE tokens SET accesses=accesses+1, last_access=? WHERE hash=?', iso(Date.now()), hash); },
     // POST /auth/v1/token/revoke. A consumer revokes its own tokens; a provider revokes a consumer's access to an item (BIS 7.6).
-    revoke(p, { tokens, id, consumer }) {
+    revoke(p, { token, tokens, id, consumer }) {
       const now = iso(Date.now());
+      // Figure 11: the provider posts body={"token": <token>}; the holder may also revoke it this way.
+      if (typeof token === 'string') {
+        const h = sha256(token); const t = q.get(db, 'SELECT * FROM tokens WHERE hash=?', h);
+        need(t, 404, 'unknown token');
+        const items = JSON.parse(t.items);
+        if (t.consumer !== p.email) for (const iid of items) { const it = catalogue.get(iid); need(it, 404, 'item no longer exists'); catalogue.assertOwner(it, p, 'revoke'); }
+        q.run(db, 'UPDATE tokens SET revoked_at=? WHERE hash=? AND revoked_at IS NULL', now, h);
+        for (const k of cache.keys()) if (k.startsWith(h)) cache.delete(k);
+        audit.log('Authorization', actorOf(p), 'POST /auth/v1/token/revoke', `token …${t.tail} of ${t.consumer} for ${items.join(', ')}`);
+        if (t.consumer !== p.email) notify.push(t.consumer, `A token for ${items.join(', ')} was revoked by the provider`);
+        return { revoked: 1 };
+      }
       if (Array.isArray(tokens)) {
         let n = 0;
         for (const tk of tokens) {
@@ -127,7 +139,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
     setPolicy(id, body, p) {
       const it = catalogue.get(id); need(it && it.policy, 404, 'no such resource item'); catalogue.assertOwner(it, p, 'set policy');
       const label = body.label || it.policy.label;
-      const next = { label, C: body.C ?? it.policy.C, A: { ...(label !== it.policy.label ? T4_TO_T3[label] : it.policy.A), ...(body.A || {}) } };
+      const next = { label, C: body.C ?? it.policy.C, A: { ...(label !== it.policy.label ? LABEL_DEFAULTS[label] : it.policy.A), ...(body.A || {}) } };
       const errs = checkPolicy(next); need(!errs.length, 400, errs.join('; '), { errors: errs });
       const pol = { ...next, C: [...new Set(next.C.map(c => c.toLowerCase()))], version: it.policy.version + 1 };
       tx(db, () => {
@@ -143,12 +155,33 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
       return { id, ...pol, text: policyText(pol) };
     },
 
+    // Table 2 Manage "Delete": the policy goes back to its label's Table 4 defaults with no consumers listed.
+    resetPolicy(id, p) {
+      const it = catalogue.get(id); need(it && it.policy, 404, 'no such resource item'); catalogue.assertOwner(it, p, 'delete policy');
+      return api.setPolicy(id, { label: it.policy.label, C: [], A: { ...LABEL_DEFAULTS[it.policy.label] } }, p);
+    },
+    // Table 2 Manage: list and view information about consumers of the provider's items
+    consumers(p, email) {
+      need(p.cls === 3, 403, 'provider data officers only');
+      const own = catalogue.all('resourceItem').filter(i => i.owner_dn === p.dn && i.policy);
+      const byEmail = new Map();
+      const add = (e, k, v) => { if (!byEmail.has(e)) byEmail.set(e, { consumer: e, onPolicy: [], tokens: 0, activeTokens: 0, consents: [] }); const r = byEmail.get(e); if (k === 'tokens') { r.tokens++; if (v) r.activeTokens++; } else r[k].push(v); };
+      for (const it of own) for (const e of it.policy.C) add(e, 'onPolicy', it.id);
+      const ids = new Set(own.map(i => i.id));
+      for (const t of q.all(db, 'SELECT consumer, items, revoked_at, expires_at FROM tokens')) if (JSON.parse(t.items).some(i => ids.has(i))) add(t.consumer, 'tokens', !t.revoked_at && t.expires_at > Date.now());
+      for (const c of q.all(db, 'SELECT id, consumer, item_id, status, cls, org FROM consents')) if (ids.has(c.item_id)) add(c.consumer, 'consents', { id: c.id, item: c.item_id, status: c.status, cls: c.cls });
+      for (const r of byEmail.values()) { const cert = q.get(db, `SELECT cls, kind, org_id FROM certs WHERE email=? AND status='valid' ORDER BY issued_at DESC`, r.consumer); Object.assign(r, cert ? { certificateClass: cert.cls, kind: cert.kind, org: cert.org_id } : {}); }
+      const list = [...byEmail.values()];
+      if (email) { const one = list.find(r => r.consumer === String(email).toLowerCase()); need(one, 404, 'not a consumer of your items'); return one; }
+      return list;
+    },
+
     // Consent (BIS 4.3, 5.3 consent history private to provider, 5.6 status of consent flows)
     consents(p, { status, role } = {}) {
       const all = q.all(db, 'SELECT * FROM consents ORDER BY created_at DESC');
       const mine = role === 'consumer' || p.cls !== 3
         ? all.filter(c => c.consumer === p.email)
-        : all.filter(c => { const it = catalogue.get(c.item_id) || q.get(db, 'SELECT owner_org FROM items WHERE id=?', c.item_id); return it && it.owner_org === p.orgId; });
+        : all.filter(c => { const it = catalogue.get(c.item_id) || q.get(db, 'SELECT owner_dn FROM items WHERE id=?', c.item_id); return it && it.owner_dn === p.dn; });
       return mine.filter(c => !status || c.status === status);
     },
     decideConsent(id, approve, p) {
@@ -167,7 +200,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
     // All consent flows and data flows of a provider, with status (BIS 5.6 first failure case)
     flows(p) {
       need(p.cls === 3, 403, 'provider data officers only');
-      const own = new Set(catalogue.all('resourceItem').filter(i => i.owner_org === p.orgId).map(i => i.id));
+      const own = new Set(catalogue.all('resourceItem').filter(i => i.owner_dn === p.dn).map(i => i.id));
       const consents = q.all(db, 'SELECT * FROM consents ORDER BY created_at DESC').filter(c => own.has(c.item_id));
       const tokens = q.all(db, 'SELECT tail, consumer, items, cls, via, issued_at, expires_at, revoked_at, accesses, last_access FROM tokens ORDER BY issued_at DESC')
         .map(t => ({ ...t, items: JSON.parse(t.items).filter(i => own.has(i)) })).filter(t => t.items.length)

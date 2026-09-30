@@ -26,13 +26,20 @@ export const T3 = {
   dataUsage: ['Privacy preserving computation', 'Anonymization', 'Computation certified by a third party', 'Any'],
   dataAudit: ['Audit accesses along with time and duration of access', 'None'],
 };
-// Table 4 labels expressed as Table 3 defaults
-export const T4_TO_T3 = {
-  public: { authProtocol: 'None', dataLocality: 'None', dataRetention: 'None', dataStorage: 'Any', dataUsage: 'Any', dataAudit: 'None' },
-  protected: { authProtocol: 'OAuth/UMA', dataLocality: 'None', dataRetention: 'None', dataStorage: 'Any', dataUsage: 'Any', dataAudit: 'Audit accesses along with time and duration of access' },
-  private: { authProtocol: 'OAuth/UMA + XACML Policy', dataLocality: 'Country', dataRetention: 'Fixed period', dataStorage: 'Encrypted (using adequately protected keys)', dataUsage: 'Anonymization', dataAudit: 'Audit accesses along with time and duration of access' },
-  confidential: { authProtocol: 'Token/DX + Aperture policy language', dataLocality: 'Organization (Service-based access)', dataRetention: 'None', dataStorage: 'Encrypted (using keys owned by data owner)', dataUsage: 'Computation certified by a third party', dataAudit: 'Audit accesses along with time and duration of access' },
+// Table 3 attribute names as printed in the standard (the keys above are their API names)
+export const T3_NAMES = { authProtocol: 'Authorization protocol and policy', dataLocality: 'Data locality', dataRetention: 'Data retention', dataStorage: 'Data storage', dataUsage: 'Data usage', dataAudit: 'Data audit' };
+// Table 4 "Some standard policy Labels", cell by cell as printed (p. 24-25)
+export const TABLE4_ROWS = { natureOfData: 'Nature of data', authProtocol: 'Authorization protocol and policy', consent: 'Consent', dataLocality: 'Data locality', dataRetention: 'Data retention', dataStorage: 'Data storage', dataUsage: 'Data usage', dataAudit: 'Data audit', dataMonetization: 'Data Monetization' };
+export const TABLE4 = {
+  public: { natureOfData: 'Information which can be made available to the public. It shall not contain any personally identifiable information', authProtocol: 'None', consent: 'None', dataLocality: 'None', dataRetention: 'None', dataStorage: 'Any', dataUsage: 'Any', dataAudit: 'None', dataMonetization: 'Not to be monetized' },
+  protected: { natureOfData: 'Contains anonymized information', authProtocol: 'Requires authorization using DX/UMA, no custom auth policy', consent: 'Provider', dataLocality: 'None', dataRetention: 'None', dataStorage: 'Any', dataUsage: 'License', dataAudit: 'Random audit', dataMonetization: "Provider's decision" },
+  private: { natureOfData: 'May contain personally identifiable information', authProtocol: 'Requires authorization using DX/UMA, custom auth policy specified in a policy language', consent: 'Requires consent of owners', dataLocality: 'Configurable or as per regulatory framework', dataRetention: 'Configurable or as per regulatory framework', dataStorage: 'Encrypted', dataUsage: 'Licensed with legal framework', dataAudit: 'Needs audit', dataMonetization: "Provider's decision" },
+  confidential: { natureOfData: 'May contain personally identifiable information and/or other data that is confidential within the organization', authProtocol: 'Requires authorization using DX/UMA, custom auth policy specified in a policy language', consent: 'Requires consent of owners', dataLocality: 'Only service based access', dataRetention: 'NA', dataStorage: 'NA', dataUsage: 'Licensed with legal framework', dataAudit: 'Needs audit', dataMonetization: 'NA' },
 };
+// A new policy starts from its label's Table 4 column (every row except "Nature of data", which describes the data).
+// The provider can then pick Table 3 values for the six Table 3 attributes (5.4: the list "is not exhaustive").
+export const LABEL_DEFAULTS = Object.fromEntries(Object.entries(TABLE4).map(([l, row]) => [l, Object.fromEntries(Object.entries(row).filter(([k]) => k !== 'natureOfData'))]));
+const EXTRA_ATTRS = ['consent', 'dataMonetization'];
 
 // Data models (6.4.2). Units follow UN/CEFACT common codes as in Annex 1 (X59 ppm, CEL degree Celsius).
 export const MODELS = {
@@ -104,7 +111,8 @@ export function validateItem(it, exists = () => true) {
     if (v.type === 'GeoProperty' && !(v.value?.geometry?.type || typeof v.value?.address === 'string')) errs.push(`"${k}" GeoProperty needs geometry or address`);
     if (k === 'location' && v.value?.geometry?.type !== 'Point') errs.push('"location" must be a GeoJSON Point (Table 6)');
     if (k === 'coverageRegion' && v.value?.geometry?.type !== 'Polygon') errs.push('"coverageRegion" must be a GeoJSON Polygon (Table 6)');
-    if (v.type === 'QuantitativeProperty' && isNaN(Number(v.value))) errs.push(`"${k}" QuantitativeProperty value must be a number`);
+    // 6.2: "number or array of numbers"; "A numeric quantity represented as a string is acceptable"
+    if (v.type === 'QuantitativeProperty' && !(Array.isArray(v.value) ? v.value : [v.value]).every(x => typeof x === 'number' ? Number.isFinite(x) : typeof x === 'string' && /^\s*-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?\s*$/.test(x))) errs.push(`"${k}" QuantitativeProperty value must be a number, a numeric string or an array of them`);
   }
   if (t === 'resourceItem') {
     if (!LABELS.includes(it.accessPolicyLabel?.value)) errs.push('item must be tagged public, protected, private or confidential (5.2)');
@@ -123,8 +131,22 @@ export function checkPolicy(policy) {
   if (!LABELS.includes(policy.label)) errs.push('policy label must be public, protected, private or confidential');
   if (!Array.isArray(policy.C) || policy.C.some(c => typeof c !== 'string')) errs.push('C must be a list of consumer ids (e-mail addresses)');
   for (const [k, v] of Object.entries(policy.A || {})) {
-    if (!T3[k]) errs.push(`A: "${k}" is not a Table 3 attribute`);
-    else if (!T3[k].includes(v)) errs.push(`A: "${v}" is not an allowed value for ${k}`);
+    const t4 = TABLE4[policy.label]?.[k];
+    if (!T3[k] && !EXTRA_ATTRS.includes(k)) errs.push(`A: "${k}" is not a Table 3 attribute or a Table 4 row`);
+    else if (v !== t4 && !(T3[k] || []).includes(v)) errs.push(`A: "${v}" is not an allowed value for ${k}: use a Table 3 value or the Table 4 value "${t4}"`);
   }
   return errs;
+}
+
+// 6.1.1 / 6.4: the JSON-LD contexts and base schemas the DX provides. They are served by the catalogue
+// (/catalogue/v1/context, /catalogue/v1/schemas) and are not catalogue items themselves.
+export function contextDoc(name) {
+  if (name === 'core') return { '@context': { dx: 'https://dx.demo-city.example/vocab#', ...Object.fromEntries(CORE.map(t => [t, 'dx:' + t])), type: '@type', value: 'dx:value', unitCode: 'https://schema.org/unitCode', unitText: 'https://schema.org/unitText', minValue: 'https://schema.org/minValue', maxValue: 'https://schema.org/maxValue' } };
+  if (name === 'common') { const attrs = [...new Set(Object.values(MANDATORY).flat().concat(['location', 'coverageRegion', 'createdAt', 'modifiedAt', 'itemStatus', 'accessPolicyLabel', 'resourceType', 'accessObject', 'organizationInfo']))].filter(a => a !== 'id' && a !== 'itemType'); return { '@context': { dx: 'https://dx.demo-city.example/vocab#', ...Object.fromEntries(attrs.map(a => [a, 'dx:' + a])), itemType: '@type' } }; }
+  return null;
+}
+export function baseSchema(type) {
+  if (!MANDATORY[type]) return null;
+  return { $schema: 'http://json-schema.org/draft-07/schema#', $id: `<catalogue-link>/${type}_schema.json`, title: `DX base schema for ${type} (Table 7 mandatory attributes)`, type: 'object',
+    required: ['@context', ...MANDATORY[type]], properties: Object.fromEntries(MANDATORY[type].filter(a => a !== 'id').map(a => [a, { type: 'object', required: ['type', 'value'], properties: { type: { enum: CORE } } }])) };
 }

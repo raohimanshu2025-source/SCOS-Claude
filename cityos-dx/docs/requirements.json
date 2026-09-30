@@ -139,7 +139,7 @@
   "doc": "BIS",
   "ref": "4 Data Exchange Reference Architecture",
   "page": "12",
-  "point": "A Consumer uses resources from one or more Resource Servers only on explicit Consent obtained from the Provider.",
+  "point": "A Consumer uses resources from one or more Resource Servers based on explicit Consent obtained from the Provider (public data needs no consent, Table 4).",
   "quote": "based on explicit Consent obtained from the Provider of the resources",
   "status": "working",
   "tab": "consumer",
@@ -625,7 +625,8 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete",
+    "[BIS-100][BIS-33] Figure 11: the provider revokes with body {\"token\"}; Table 2 Manage: create, delete and view policies, list consumers"
    ]
   }
  },
@@ -762,7 +763,7 @@
   "doc": "BIS",
   "ref": "4.4 Establishing Identities",
   "page": "17",
-  "point": "Providers and App Developers are identified by X.509 certificates; consumers by X.509 or ID tokens (OpenID Connect, SAML 2.0).",
+  "point": "The identity of Providers and App Developers is established with X.509 certificates; the identity of Consumers may be established with X.509 certificates or ID tokens (OpenID Connect, SAML 2.0 or industry standards).",
   "quote": "App Developers shall be established via X.509 certificates",
   "status": "demo",
   "tab": "trust",
@@ -770,7 +771,7 @@
   "how": "Every provider and developer in the demo holds a demo certificate. Consumers may use a certificate or a demo ID token. None are real X.509 or OIDC objects.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Certificates identify providers, apps and consumers. ID tokens from trusted OpenID Connect issuers identify consumers, but only for public data, because 5.4.2 requires a certificate for anything else (BIS-110). SAML 2.0 is not implemented.",
    "tests": [
     "[BIS-41] consumers may use an OpenID Connect style ID token; forged or foreign tokens are refused"
    ]
@@ -933,7 +934,7 @@
   "doc": "BIS",
   "ref": "4.5.2.1 Non-goals; 5.2 not in scope",
   "page": "19-23",
-  "point": "Out of scope of DX: data collection from edge devices, technical enforcement of policies such as retention, compliance of policies, information leakage, what consumers do after the retention period, correctness of providers' policy rules.",
+  "point": "Out of scope of DX: data collection from edge devices, technical enforcement of policies such as retention, compliance of policies, information leakage, what consumers do after the retention period, correctness of providers' policy rules. (The DX framework shall still support trusted execution environments: see BIS-111.)",
   "quote": "The following aspects of resource sharing are out of scope of DX authorization service",
   "status": "outscope",
   "tab": "overview",
@@ -941,7 +942,7 @@
   "how": "Listed on the overview as not handled, exactly as the standard says.",
   "server": {
    "status": "outscope",
-   "how": "Out of scope in the standard, and not done by the server.",
+   "how": "Out of scope in the standard, and not done by the server. Trusted execution environments: see BIS-111.",
    "tests": []
   }
  },
@@ -1015,9 +1016,10 @@
   "how": "The trusted CA list contains a demo 'CCA-licensed CA' entry. No real CA is contacted.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "CA certificates of licensed CAs (and their CRLs) are configured with DX_TRUSTED_CA_FILE and DX_TRUSTED_CRL_FILE; their certificates are accepted over TLS as class 2 identities, revoked ones are refused (tested with a stand-in CA). No real CCA-licensed CA is configured in the demo.",
    "tests": [
-    "[BIS-54] organisations can be registered and white-listed by the administrator only"
+    "[BIS-54] organisations can be registered and white-listed by the administrator only",
+    "[BIS-54][BIS-74] a certificate from a configured licensed CA is accepted over TLS as a class 2 identity; one on its CRL is refused"
    ]
   }
  },
@@ -1026,15 +1028,15 @@
   "doc": "BIS",
   "ref": "4.5.2.3 Actors: Resource server",
   "page": "20",
-  "point": "The resource server validates tokens; if a request has no valid token it starts the DX/UMA 2.0 authorization protocol.",
+  "point": "The resource server grants access after validating tokens issued by the DX authorization server or the provider's own authorization server; if it is DX/UMA 2.0 compliant and a request has no valid token, it starts the DX/UMA 2.0 authorization protocol.",
   "quote": "the resource server initiates a DX/UMA 2.0 complaint authorization protocol",
   "status": "working",
   "tab": "consumer",
   "anchor": "con-steps",
   "how": "Calling a protected item with no token returns a refusal that points the consumer to the authorization service, and the flow starts.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "The resource servers validate tokens of the DX authorization server by introspection and answer 401 with the authorization server address when no token is sent (tested). Tokens of a provider's own authorization server are not supported.",
    "tests": [
     "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
    ]
@@ -1083,7 +1085,7 @@
   "doc": "BIS",
   "ref": "4.5.2.3 Figure 2: Authorization Flow",
   "page": "21",
-  "point": "Thirteen-step flow: search catalogue, POST /auth/v1/token, run policy rules, 403 or 200 with token and expiry, GET resource with token, introspect, verify server identity, check token validity, return data or 403.",
+  "point": "Thirteen-step flow: search catalogue, HTTPS POST /auth/v1/token, run the owner's rules, 403 or 200 with token, token-type IUDX and expires-in, request the resource with Authorization: IUDX <token>, POST /auth/v1/token/introspect, verify the resource server's identity through DNS, check token validity, return data or 403.",
   "quote": "Figure 2: Authorization Flow",
   "status": "working",
   "tab": "consumer",
@@ -1091,9 +1093,10 @@
   "how": "The step list in the Consumer app follows the same numbered steps 1 to 13 and marks which branch was taken.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "All thirteen steps run, with the paths, headers and fields of Figure 2 (tested). Step 8 is done by matching the certificate name, not by DNS: see BIS-113.",
    "tests": [
-    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace",
+    "[BIS-58][BIS-99] Figure 2: \"Authorization: IUDX <token>\" is accepted and introspection carries the policy reference"
    ]
   }
  },
@@ -1260,9 +1263,10 @@
   "how": "Each item stores the owner's certificate DN. Trying to edit another provider's item is refused and logged.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Only a class 3 certificate can create, update or delete entries, and only the certificate whose DN created an entry can change it (tested with a second class 3 employee of the same organisation).",
    "tests": [
-    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete",
+    "[BIS-104] the organisation certificate only grants certificates to employees: it cannot manage the catalogue, and it validates its own employees' requests"
    ]
   }
  },
@@ -1290,7 +1294,7 @@
   "doc": "BIS",
   "ref": "5.4 Authorization Policies",
   "page": "23",
-  "point": "A policy is associated with every resource-item; attribute-level policy is not supported, so providers define views over raw data and give each view a policy.",
+  "point": "DX shall enable Providers to associate a policy with every resource-item; attribute-level policy is not supported, so providers define views over raw data and give each view a policy.",
   "quote": "providers may define views over underlying raw data, and associate a policy with every view",
   "status": "working",
   "tab": "provider",
@@ -1310,7 +1314,7 @@
   "doc": "BIS",
   "ref": "5.4 Authorization Policies",
   "page": "23",
-  "point": "A policy P = (C, A): C is the set of authorized consumers (in XACML or Aperture), A is a list of attribute-value requirements on consumers.",
+  "point": "A policy P = (C, A): C is the set of authorized consumers and may be defined in a policy language such as XACML or Aperture; a consumer can be an individual, organisation, role or trusted execution environment; A is a list of attribute-value requirements on consumers.",
   "quote": "A policy P is a pair of the form ( C , A )",
   "status": "working",
   "tab": "provider",
@@ -1329,7 +1333,7 @@
   "doc": "BIS",
   "ref": "5.4 Table 3: Authorization policy attributes",
   "page": "24",
-  "point": "Attributes: authorization protocol and policy, data locality, data retention, data storage, data usage, data audit, each with the listed values.",
+  "point": "Table 3 attributes and values: Authorization protocol and policy (None; OAuth/UMA; OAuth/UMA + XACML Policy; Token/DX + Aperture policy language); Data locality (Country; State; Organization (Service-based access); None); Data retention (Fixed period; Up to a certain event or date; None); Data storage (Encrypted with adequately protected keys; Encrypted with keys owned by data owner; Any); Data usage (Privacy preserving computation; Anonymization; Computation certified by a third party; Any); Data audit (Audit accesses along with time and duration of access; None). The list is not exhaustive.",
   "quote": "Table 3: Authorization policy attributes and values",
   "status": "working",
   "tab": "provider",
@@ -1348,7 +1352,7 @@
   "doc": "BIS",
   "ref": "5.4.1 Table 4: Policy labels",
   "page": "24-25",
-  "point": "Standard labels Public, Protected, Private, Confidential with default values for consent, locality, retention, storage, usage, audit and monetization.",
+  "point": "Table 4, 'Some standard policy Labels' (normative, may evolve): Public, Protected, Private, Confidential, each with a value for Nature of data, Authorization protocol and policy, Consent, Data locality, Data retention, Data storage, Data usage, Data audit and Data Monetization. Public data shall not contain any personally identifiable information.",
   "quote": "we define a set of policy labels that capture commonly used policy specifications",
   "status": "working",
   "tab": "provider",
@@ -1356,9 +1360,10 @@
   "how": "Choosing a label fills the attributes with the Table 4 defaults, which the provider may then adjust.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Table 4 is stored cell by cell and published by /catalogue/v1/policy-vocabulary; a new policy starts from its label's column word for word (tested).",
    "tests": [
-    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults"
+    "[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults",
+    "[BIS-72] Table 4 is published cell by cell, including Nature of data, Consent and Data Monetization"
    ]
   }
  },
@@ -1396,7 +1401,8 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued"
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
+    "[BIS-54][BIS-74] a certificate from a configured licensed CA is accepted over TLS as a class 2 identity; one on its CRL is refused"
    ]
   }
  },
@@ -1405,7 +1411,7 @@
   "doc": "BIS",
   "ref": "5.4.2 Identity (CSR process)",
   "page": "26",
-  "point": "CSRs are sent by email with subject \"Certificate request\"; organisations register and are white-listed; an organisation certificate only grants employee certificates whose email matches the organisation's domain.",
+  "point": "Individuals and App developers e-mail a CSR to the DX CA with subject \"Certificate request\"; organisations e-mail their CSR from their organisation domain; organisations register and are white-listed; the organisation certificate only grants employee certificates, and the employee's e-mail must match the organisation's domain.",
   "quote": "the domain name of the organization shall match with the e-mail of the employee for whom the certificate is granted",
   "status": "working",
   "tab": "trust",
@@ -1413,7 +1419,7 @@
   "how": "The CSR form checks the subject line, refuses organisations not on the white-list, and refuses an employee whose email domain does not match.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Requests are made through the API, standing in for the e-mail to the DX CA; the subject line, white-list and domain rules are checked (tested). The server asks for the \"Certificate request\" subject on every request, not only from individuals and app developers.",
    "tests": [
     "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
     "[BIS-75] employee certificates need the organisation to hold an organisation certificate"
@@ -1425,7 +1431,7 @@
   "doc": "BIS",
   "ref": "5.4.2 Certificate classes",
   "page": "27",
-  "point": "Five certificate classes: 1 resource servers; 2 protected data; 3 create/manage catalogue items; 4 protected and private data; 5 protected, private and confidential data.",
+  "point": "The DX CA shall issue five classes: 1 to resource servers, for validating tokens; 2 to individuals or employees of registered, white-listed organisations, for protected data; 3 to employees and data officers, to create and manage catalogue items; 4 to trusted employees, for protected and private data; 5 to trusted employees, for protected, private and confidential data.",
   "quote": "DX Certificate Authority shall issue 5 classes of certificates",
   "status": "working",
   "tab": "trust",
@@ -1433,10 +1439,11 @@
   "how": "The authorization decision checks the class: e.g. a class 2 holder is refused private data even if listed.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Classes follow the standard: 1 resource servers, 2 individuals and employees, 3 employees and data officers, 4 and 5 trusted employees (tested). The organisation certificate has no class (BIS-104).",
    "tests": [
     "[BIS-76] resource server certificates are class 1 with a DNS name under the organisation domain",
-    "[BIS-76][BIS-69] certificate class decides the label: class 2 is refused private data even when asked"
+    "[BIS-76][BIS-69] certificate class decides the label: class 2 is refused private data even when asked",
+    "[BIS-104] the organisation certificate only grants certificates to employees: it cannot manage the catalogue, and it validates its own employees' requests"
    ]
   }
  },
@@ -1455,7 +1462,8 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[BIS-77][BIS-05] every interface logs events and exposes statistics"
+    "[BIS-77][BIS-05] every interface logs events and exposes statistics",
+    "[BIS-77][BIS-79] Discover events are in the audit log; the status page reports each endpoint and each resource server"
    ]
   }
  },
@@ -1493,7 +1501,8 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[BIS-79][BIS-82] public status page: uptime, average response time and latency per interface; heartbeat API"
+    "[BIS-79][BIS-82] public status page: uptime, average response time and latency per interface; heartbeat API",
+    "[BIS-77][BIS-79] Discover events are in the audit log; the status page reports each endpoint and each resource server"
    ]
   }
  },
@@ -1638,7 +1647,7 @@
   "doc": "BIS",
   "ref": "6.2.1-6.2.5 Core type structure",
   "page": "31-34",
-  "point": "Each core type has mandatory 'type' and 'value'; Relationship value is a URI; GeoProperty value holds a GeoJSON geometry or an address; TimeProperty is a W3C date-time; QuantitativeProperty is a number with unitCode, unitText, minValue, maxValue.",
+  "point": "Each core type has mandatory 'type' and 'value'. Property value: string, number, array or object. Relationship value: a string or array of strings in URI format. GeoProperty value: a GeoJSON geometry or an address. TimeProperty value: a date-time, W3C format by default. QuantitativeProperty value: a number or array of numbers (a numeric string is acceptable), with optional unitCode, unitText, minValue and maxValue.",
   "quote": "Mandatory fields : “type”, “value”",
   "status": "working",
   "tab": "catalogue",
@@ -1648,7 +1657,8 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons",
+    "[BIS-120][BIS-121][BIS-87] base schemas and contexts are served (not as catalogue items); quantities may be numbers, numeric strings or arrays"
    ]
   }
  },
@@ -1772,7 +1782,7 @@
   "doc": "BIS",
   "ref": "Table 8: Resource types",
   "page": "43-44",
-  "point": "Resource types: file, table, message, messageStream, media stream.",
+  "point": "Resource types (Table 8): file, table, message, message stream, media stream (the server uses the names messageStream and mediaStream).",
   "quote": "Table 8: List of supported resource types",
   "status": "working",
   "tab": "catalogue",
@@ -1829,7 +1839,7 @@
   "id": "BIS-97",
   "doc": "BIS",
   "ref": "7.2 Create and manage metadata",
-  "page": "46-47",
+  "page": "46-48",
   "point": "Provider asks the Authorization Service for permission to use the catalogue; then creates or updates entries; for non-public resources sets data access policies. Pre-condition: valid certificate.",
   "quote": "a Provider is requesting the Authorization Service to allow access to use the Catalogue",
   "status": "working",
@@ -1838,7 +1848,7 @@
   "how": "The console asks the authorization service first (logged), and refuses if the certificate is not valid or not class 3.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "A class 3 provider creates and manages entries and sets policies (tested). The \"request the authorization service for permission\" step is the class 3 certificate check itself; there is no separate permission request.",
    "tests": [
     "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete",
     "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation"
@@ -1868,9 +1878,9 @@
  {
   "id": "BIS-99",
   "doc": "BIS",
-  "ref": "7.4 Request Consent and Access Data",
+  "ref": "7.4 Request Consent and Access Data, Figure 10",
   "page": "49-50",
-  "point": "If no policy or a valid token, the resource server serves the data; else it starts DX/UMA 2.0: policies in a policy language, X.509 identities, claims pushed (no interactive claims gathering), access tokens reference the policy object.",
+  "point": "If the item has no policy or the request has a valid token, the resource server serves the data; else it starts DX/UMA 2.0 with: policies in a policy language; identities from X.509 certificates of the DX CA; claims from X.509 certificates of trusted CAs; claims pushed (no interactive claims gathering); a reference to the policy object in access tokens.",
   "quote": "Include a reference to the policy object in access tokens issued",
   "status": "working",
   "tab": "consumer",
@@ -1878,10 +1888,11 @@
   "how": "Token details show the policy reference; claims (certificate class and identity) are pushed with the request, never asked for interactively.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Tokens reference the policy version and introspection returns it (tested). Claims are pushed through certificates; there is no interactive claims gathering, as the standard says. Policies use the server's own form P = (C, A), not XACML or Aperture text.",
    "tests": [
     "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation",
-    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace",
+    "[BIS-58][BIS-99] Figure 2: \"Authorization: IUDX <token>\" is accepted and introspection carries the policy reference"
    ]
   }
  },
@@ -1901,7 +1912,8 @@
    "how": "Checked by the automated tests listed.",
    "tests": [
     "[BIS-95][BIS-96][BIS-97][BIS-98][BIS-99][BIS-100][BIS-53][BIS-24][BIS-47] minimal scenarios end to end with a new provider organisation",
-    "[BIS-100][BIS-66] provider revokes access: token stops working and consumer leaves the policy"
+    "[BIS-100][BIS-66] provider revokes access: token stops working and consumer leaves the policy",
+    "[BIS-100][BIS-33] Figure 11: the provider revokes with body {\"token\"}; Table 2 Manage: create, delete and view policies, list consumers"
    ]
   }
  },
@@ -1944,11 +1956,441 @@
   }
  },
  {
+  "id": "BIS-103",
+  "doc": "BIS",
+  "ref": "3.1.11 Authorization Token",
+  "page": "10",
+  "point": "Every authorization token shall have a valid expiration time.",
+  "quote": "All Authorization Tokens shall have a valid expiration time.",
+  "status": "notcovered",
+  "tab": "consumer",
+  "anchor": "con-token",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Every token carries expires-in and an expiry; expired tokens are refused at introspection (tested).",
+   "tests": [
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace",
+    "[BIS-58][BIS-99] Figure 2: \"Authorization: IUDX <token>\" is accepted and introspection carries the policy reference"
+   ]
+  }
+ },
+ {
+  "id": "BIS-104",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "The organisation's own certificate can only be used to grant certificates to the organisation's employees.",
+  "quote": "The certificate provided to organization can only be used to grant certificates to employees of the organization.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-104] the organisation certificate only grants certificates to employees: it cannot manage the catalogue, and it validates its own employees' requests"
+   ]
+  }
+ },
+ {
+  "id": "BIS-105",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "DX shall only accept certificate requests from white-listed organisations.",
+  "quote": "DX shall only accept certificate requests from organizations in the white-list.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Requests for organisations, employees, officers and resource servers of an organisation not on the white-list are refused (tested).",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
+    "[BIS-75] employee certificates need the organisation to hold an organisation certificate"
+   ]
+  }
+ },
+ {
+  "id": "BIS-106",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "Employees send CSRs to the DX CA; their organisation, acting as sub-CA or registration authority, validates the CSR.",
+  "quote": "The organization that will act as a sub-CA or a registration-authority will validate the CSR and will respond back with a certificate.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "The organisation certificate can list and decide its own employees' and officers' requests, and nothing else (tested); the DX administrator can also decide.",
+   "tests": [
+    "[BIS-104] the organisation certificate only grants certificates to employees: it cannot manage the catalogue, and it validates its own employees' requests"
+   ]
+  }
+ },
+ {
+  "id": "BIS-107",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "An organisation may add employee details to a certificate: organisation, unit, first and last name, role, state, city.",
+  "quote": "Organizations while generating a certificate may add more details about the employee such as: organization, organization unit, first name, last name, role of the employee, state, city, etc.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Checked by the automated tests listed.",
+   "tests": [
+    "[BIS-107] an organisation may add employee details (organisation, unit, first and last name, role, state, city) and they stay in the certificate"
+   ]
+  }
+ },
+ {
+  "id": "BIS-108",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "DX may issue certificates to users based on their e-mail IDs.",
+  "quote": "DX may issue certificates to users based on their email IDs.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Individuals get class 2 certificates for their e-mail address, with no organisation needed (tested).",
+   "tests": [
+    "[BIS-75][BIS-96][BIS-51][BIS-74] CSR by \"e-mail\": subject line, white-list and domain rules, admin approval, real X.509 issued",
+    "[BIS-75] employee certificates need the organisation to hold an organisation certificate"
+   ]
+  }
+ },
+ {
+  "id": "BIS-109",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "DX may provide organisations with scripts to grant certificates.",
+  "quote": "The scripts to grant certificates may be provided by the DX to organizations.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-csr",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "Organisations decide their employees' requests through the API (POST /identity/v1/csr/decide); no separate script is shipped to organisations.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-110",
+  "doc": "BIS",
+  "ref": "5.4.2 Identity",
+  "page": "26",
+  "point": "Anyone accessing protected, private or confidential data shall have a valid certificate.",
+  "quote": "Individuals, app developers, or employees of an organization who wish to access protected private, or confidential data shall require a valid certificate.",
+  "status": "notcovered",
+  "tab": "trust",
+  "anchor": "trust-classes",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Protected, private and confidential items need a certificate of the right class; an ID token alone reaches public data only (tested).",
+   "tests": [
+    "[BIS-41] consumers may use an OpenID Connect style ID token; forged or foreign tokens are refused"
+   ]
+  }
+ },
+ {
+  "id": "BIS-111",
+  "doc": "BIS",
+  "ref": "4.5.2.1 Non-goals",
+  "page": "19",
+  "point": "The DX framework shall support trusted execution environments for policy enforcement at the time of data use.",
+  "quote": "the DX framework shall support technologies such as trusted execution environments for policy enforcement at the time of data use.",
+  "status": "notcovered",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "notmet",
+   "how": "Not implemented. The server has no trusted execution environment support.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-112",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Figure 2 (text inside the figure)",
+  "page": "21",
+  "point": "Figure 2 details: token response 'token', 'token-type:IUDX', 'expires-in'; resource request header 'Authorization: IUDX <token>'; introspection 'HTTPS POST /auth/v1/token/introspect body={\"token\": <token>}'; step 10 response 'consumer', 'consumer-certificate-class', 'expiry', 'request'; green arrows are mutually authenticated TLS.",
+  "quote": "Figure 2: Authorization Flow",
+  "status": "notcovered",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Response fields token, token-type IUDX and expires-in; header Authorization: IUDX <token>; introspection path and body; step 10 fields consumer, consumer-certificate-class, expiry, request; mutual TLS on the token, introspection and data calls (tested). Tokens are also bound to the consumer's certificate, which is stricter than the figure.",
+   "tests": [
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace",
+    "[BIS-58][BIS-99] Figure 2: \"Authorization: IUDX <token>\" is accepted and introspection carries the policy reference"
+   ]
+  }
+ },
+ {
+  "id": "BIS-113",
+  "doc": "BIS",
+  "ref": "4.5.2.3 Figure 2, step 8 (text inside the figure)",
+  "page": "21",
+  "point": "Step 8: 'Verify resource-server's identity through DNS'.",
+  "quote": "Figure 2: Authorization Flow",
+  "status": "notcovered",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "The resource server is identified by its class 1 certificate, whose CN must be the host in the catalogue entry of the resource server. No DNS lookup is made.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-114",
+  "doc": "BIS",
+  "ref": "6.3 Table 6",
+  "page": "39",
+  "point": "Table 6 defines about 30 common attributes, each with its core type and value format (for example statusSchema 'active' or 'deprecated'; accessObjectType 'openAPI', 'asyncAPI' or 'custom').",
+  "quote": "Table 6: List of DX common attributes",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "The demo items use the Table 6 attributes with their core types, and location and coverageRegion formats are checked (tested). The value format of every other Table 6 row is not checked.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-115",
+  "doc": "BIS",
+  "ref": "6.4.1 Table 7",
+  "page": "43",
+  "point": "Table 7 gives the mandatory attributes of providerItem, resourceServer, resourceServerGroup and resourceItem.",
+  "quote": "Table 7: Mandatory attributes for DX base schemas",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "All four Table 7 rows are enforced when an item is created; every test run creates the whole demo catalogue through these checks. (Table 7 calls the provider row providerItem; Table 5 and the server say provider.)",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons"
+   ]
+  }
+ },
+ {
+  "id": "BIS-116",
+  "doc": "BIS",
+  "ref": "7.2 Figure 7",
+  "page": "47",
+  "point": "Figure 7: the provider app POSTs the item as JSON using its X.509 certificate; the catalogue validates it and answers 201 Created.",
+  "quote": "Figure 7: Resource Provider creating an item in the Catalogue",
+  "status": "notcovered",
+  "tab": "provider",
+  "anchor": "prov-items",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "POST /catalogue/v1/items with a class 3 certificate is validated and answers 201 Created (tested).",
+   "tests": [
+    "[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of the owning organisation can create, update or delete"
+   ]
+  }
+ },
+ {
+  "id": "BIS-117",
+  "doc": "BIS",
+  "ref": "4.1 Principle 3; 5 Security and Privacy",
+  "page": "22",
+  "point": "Providers shall deal with PII as per the laws of the land; privacy requirements shall adhere to the laws of the land.",
+  "quote": "Privacy requirements in particular shall adhere to the laws of the land",
+  "status": "notcovered",
+  "tab": "overview",
+  "anchor": "ov-scope",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "explained",
+   "how": "A duty of the provider and the operator. docs/OPERATIONS.md lists a data protection review under the Digital Personal Data Protection Act, 2023 before real use.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-118",
+  "doc": "BIS",
+  "ref": "4.1 Principle 6",
+  "page": "12",
+  "point": "Provider empowerment shall follow the consent architecture of reference [b.2] (MeitY Electronic Consent Framework).",
+  "quote": "Mechanisms for dynamic discovery, empowerment of the Provider in accordance with the consent architecture proposed in [b.2] shall be incorporated",
+  "status": "notcovered",
+  "tab": "provider",
+  "anchor": "prov-inbox",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "Consent requests go to the provider, who approves or rejects them (tested), but the consent artefact architecture of reference [b.2] is not implemented.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
+  "id": "BIS-119",
+  "doc": "BIS",
+  "ref": "7.2 Figure 8",
+  "page": "48",
+  "point": "Figure 8: [1] install the resource server certificate; [2] publish data; [3] create a catalogue entry; [4] HTTPS POST /auth/1.0/acl body=<policy>.",
+  "quote": "Figure 8: Setting up a permissions for a resource by the provider",
+  "status": "notcovered",
+  "tab": "provider",
+  "anchor": "prov-policy",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Steps 3 and 4 run through the API, including POST /auth/1.0/acl exactly as printed (tested). Steps 1 and 2 are internal to the resource server, as the figure marks them.",
+   "tests": [
+    "[BIS-119] Figure 8 step 4: HTTPS POST /auth/1.0/acl body=<policy>"
+   ]
+  }
+ },
+ {
+  "id": "BIS-120",
+  "doc": "BIS",
+  "ref": "6.1.1 Catalogue item structure",
+  "page": "31",
+  "point": "Base schemas and data models are not catalogue items, but a repository of them is available to catalogue implementations.",
+  "quote": "The base schemas and data models are not stored as catalogue items. However, a repository of base schemas and data models will be available to DX catalogue implementations.",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Base schemas (/catalogue/v1/schemas) and data models (/catalogue/v1/datamodels) are served by the catalogue and are not catalogue items (tested).",
+   "tests": [
+    "[BIS-120][BIS-121][BIS-87] base schemas and contexts are served (not as catalogue items); quantities may be numbers, numeric strings or arrays"
+   ]
+  }
+ },
+ {
+  "id": "BIS-121",
+  "doc": "BIS",
+  "ref": "6.1.1 Catalogue item structure",
+  "page": "31",
+  "point": "DX provides the JSON-LD context for the core attribute types and the common attributes.",
+  "quote": "DX will necessarily provide context for DX core attribute types and DX common attributes.",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "The core and common JSON-LD contexts are served at /catalogue/v1/context (tested).",
+   "tests": [
+    "[BIS-120][BIS-121][BIS-87] base schemas and contexts are served (not as catalogue items); quantities may be numbers, numeric strings or arrays"
+   ]
+  }
+ },
+ {
+  "id": "BIS-122",
+  "doc": "BIS",
+  "ref": "6.4.2 Data models",
+  "page": "36",
+  "point": "Data model attributes shall belong to one of the core attribute types.",
+  "quote": "The attributes contained in the data model , in a fashion similar to DX common attributes , shall belong to one of the core attribute types.",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Every attribute of every data model has one of the five core types, and items are checked against them (tested).",
+   "tests": [
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+   ]
+  }
+ },
+ {
+  "id": "BIS-123",
+  "doc": "BIS",
+  "ref": "6.2.4 QuantitativeProperty, footnote 6",
+  "page": "33",
+  "point": "A numeric string is an acceptable quantity; strings with non-numeric characters are not.",
+  "quote": "A numeric quantity represented as a string is acceptable. Any non-numeric characters in the string will not be accepted.",
+  "status": "notcovered",
+  "tab": "catalogue",
+  "anchor": "cat-validate",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "working",
+   "how": "Numbers, numeric strings and arrays of them are accepted; \"12 kg\" is refused (tested).",
+   "tests": [
+    "[BIS-61][BIS-87][BIS-89][BIS-94] items failing the model are refused with reasons",
+    "[BIS-120][BIS-121][BIS-87] base schemas and contexts are served (not as catalogue items); quantities may be numbers, numeric strings or arrays"
+   ]
+  }
+ },
+ {
+  "id": "BIS-124",
+  "doc": "BIS",
+  "ref": "6.4.3 Resource groups",
+  "page": "39",
+  "point": "Operations such as get data and status can be defined on all the resources of a group.",
+  "quote": "The concept of resource groups allow operations (e.g., get data, status etc.) to be defined on multiple resources belonging to the same group.",
+  "status": "notcovered",
+  "tab": "consumer",
+  "anchor": "con-steps",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "notmet",
+   "how": "Not implemented. Data and status are read per resource item, not per group.",
+   "tests": []
+  }
+ },
+ {
+  "id": "BIS-125",
+  "doc": "BIS",
+  "ref": "4.3 Consent",
+  "page": "16",
+  "point": "After a consent transaction, the authorization token is used to update the access control policy of those resources and is logged.",
+  "quote": "The Authorization Token will be used to update the access control policy for those resources.",
+  "status": "notcovered",
+  "tab": "provider",
+  "anchor": "prov-inbox",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "Approving consent adds the consumer to the policy, and every token is logged (tested); the token itself is not what updates the policy.",
+   "tests": [
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+   ]
+  }
+ },
+ {
   "id": "COS-01",
   "doc": "COS",
   "ref": "1 Introduction",
   "page": "3",
-  "point": "A data exchange alone is not enough; a City Operating System (COS) that includes the data exchange should be the basic building block of city IT.",
+  "point": "A data exchange alone is not enough; a City Operating System (COS) that includes the data exchange is the basic building block, and all ICCC and other IT systems in cities must be built upon a COS.",
   "quote": "a data exchange is only one aspect of a",
   "status": "working",
   "tab": "overview",
@@ -2081,15 +2523,15 @@
   "doc": "COS",
   "ref": "1 Introduction, Figure 2",
   "page": "4",
-  "point": "Federated deployment: each city has a COS; the DX layer is a backplane between COSs; state and national aggregation; sources differ per city but output APIs are common; centralised access control policies may be set nationally.",
+  "point": "Federated deployment, possibly with one COS per smart city: the Data Exchange Layer is a data backplane between COSs; state-level (State UAC) and national-level (National UAC) aggregation; sources may differ per city but output APIs are common; centralised access control policies may be set at national level.",
   "quote": "all the COS’s will all have common APIs at the output level",
   "status": "working",
   "tab": "federation",
   "anchor": "fed-map",
   "how": "Three demo cities with different sources answer the same API. State and national views aggregate them, and a national policy switch applies to all three.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "City-to-city federation over mutual TLS works and is tested with two cities; state-level and national-level tiers and central access policies are not implemented, and federation calls the other city's CIL API rather than going through its data exchange layer.",
    "tests": [
     "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
    ]
@@ -2100,7 +2542,7 @@
   "doc": "COS",
   "ref": "1 Introduction",
   "page": "4",
-  "point": "Data collecting systems like IoT systems and citizen grievance aggregators connect directly to the DX layer.",
+  "point": "Data collecting systems such as IoT systems and citizen grievance aggregators can be directly interfaced with the DX layer.",
   "quote": "citizen grievance aggregators, etc., can be directly interfaced with the Data Exchange Layer",
   "status": "working",
   "tab": "catalogue",
@@ -2119,7 +2561,7 @@
   "doc": "COS",
   "ref": "2 Usage and benefits, Figures 3-4",
   "page": "5",
-  "point": "The ICCC RFP lifecycle of four phases (requirements, solution process, visualisation/delivery, tenders) becomes two (deploy COS, develop end-user applications).",
+  "point": "The ICCC RFP lifecycle of four phases (requirements, solution process, visualisation/delivery, and tenders for consumer application development; each phase ends in its own tender in Figure 3) becomes two (deploy the COS, develop end-user applications).",
   "quote": "COS will amalgamate the four lifecycles into two lifecycles",
   "status": "explained",
   "tab": "federation",
@@ -2136,7 +2578,7 @@
   "doc": "COS",
   "ref": "2, Figure 5",
   "page": "5-6",
-  "point": "City officials can shift attention to more impactful use cases such as quality of service and revenue/expenditure optimisation.",
+  "point": "City officials can shift attention to more impactful use cases. Figure 5 lists, before COS: bus position ETA, SWM route optimisation, air quality heatmaps, flood sensor alerts; with COS: QoS improvement, monetization optimisation, waste isolation and triaging, emission control policies, activity scheduling, land use demarcation, sewer/road topology planning.",
   "quote": "improvement of quality of services and optimization of revenue and expenditures",
   "status": "explained",
   "tab": "federation",
@@ -2160,8 +2602,8 @@
   "anchor": "fed-dev",
   "how": "The Developer builder combines the ETA API with stop data to make a small journey app, and shows how many parts the developer did not have to build.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "Developers can combine the CIL APIs through OpenAPI (tested). Of the transit example only the bus ETA API exists: see COS-37.",
    "tests": [
     "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat"
    ]
@@ -2217,8 +2659,8 @@
   "anchor": "fed-kpi",
   "how": "The federation screen compares bus on-time rate between demo cities and cost recovery of bus and metro, using the same KPI definition.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "Bus regularity (on-time percent) is aggregated across two cities (tested). No bus versus metro financial comparison exists.",
    "tests": [
     "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
    ]
@@ -2236,8 +2678,8 @@
   "anchor": "cil-explorer",
   "how": "The air quality API interpolates between demo sensors onto a grid, marks hotspots and raises alerts above a threshold.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "Interpolation to a grid and alerts above 90 µg/m³ work (tested). The time window is averaged, so no forecast values are produced, and hotspots are shown as grid cells above the alert level rather than a separate result.",
    "tests": [
     "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
    ]
@@ -2352,7 +2794,7 @@
   "how": "Each CIL API shows its OpenAPI 3.0 description, generated from its ontology specification.",
   "server": {
    "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "how": "Each API has an OpenAPI description with its ontology terms (tested). Responses also carry bookkeeping fields (api, city, computedAt).",
    "tests": [
     "[COS-22] every CIL API has an OpenAPI 3 description with ontology-specific bodies"
    ]
@@ -2370,8 +2812,8 @@
   "anchor": "cil-explorer",
   "how": "The same path, body fields, input types and MeshGrid output are used. A demo UAC address replaces the one in the figure.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "The path and request fields match Figure 9 and the output is a MeshGrid heat map (tested). forecastStart and forecastEnd select a past window that is averaged; no forecast is made.",
    "tests": [
     "[COS-23] air quality API takes spatialRange, forecastStart, forecastEnd and returns a MeshGrid"
    ]
@@ -2401,7 +2843,7 @@
   "doc": "COS",
   "ref": "4 Design principles",
   "page": "10",
-  "point": "COS follows the BIS Urban Data Exchange specification; the Data Exchange is the heart of the COS and serves semantically homogenised data to the CIL.",
+  "point": "The COS is designed with the interoperability and interpretability of homogenised data promulgated by the Urban Data Exchange specifications; the Data Exchange is the heart of the COS and serves semantically homogenised data to the CIL.",
   "quote": "The Data Exchange acts as the heart of the COS",
   "status": "working",
   "tab": "cil",
@@ -2458,7 +2900,7 @@
   "doc": "COS",
   "ref": "4 Pluggable Analytics",
   "page": "11",
-  "point": "Analytics providers host and run analytics on DX data; the platform handles periodic execution, rule-based alerts and data serving through domain APIs.",
+  "point": "Analytics providers host and run analytics on the data coming from the Data Exchange and on transformed versions of that data; the platform handles periodic execution, rule-based alerts and data serving through domain APIs.",
   "quote": "The platform will then take the responsibility of periodic execution, generation of alerts based on rules",
   "status": "working",
   "tab": "analytics",
@@ -2523,8 +2965,8 @@
   "anchor": "cil-sources",
   "how": "Figure 11 is redrawn; each box is linked to where it works in the demo. NGSI-LD output is shown as a formatted entity; the chatbot is the question box.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "OLAP, analytic executor, rules and alerts, scheduler, questions, pluggable analytics, CIL APIs, reports and NGSI-LD output exist (tested). File, object-store and data-warehouse sources are not.",
    "tests": [
     "[COS-31] OLAP access pivots a measure over two dimensions under DX rules",
     "[COS-31] outputs are also available as NGSI-LD entities"
@@ -2555,15 +2997,15 @@
   "doc": "COS",
   "ref": "4, Figure 13",
   "page": "12",
-  "point": "Analytics providers specify input schema, output schema, procedure, provenance and visualisation; a customization service (schema matching, behaviour specification, visualisation) feeds dashboards, alerts, reports and intelligence.",
+  "point": "Analytics providers specify input schema, procedure, output schema and provenance, and visualisation specifications; analytics are kept in an analytic repository (domain specific and generic) that can be searched; a customization service (schema matching, behaviour specification, visualization) feeds dashboards, alerts, reports and intelligence.",
   "quote": "clearly specify the input datatypes, output datatypes, visualisation specifications and other details of analytics processes",
   "status": "working",
   "tab": "analytics",
   "anchor": "an-register",
   "how": "The register form asks for all five parts and runs schema matching against the data exchange items before accepting.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "Specifications with input schema, procedure, output schema, provenance and visualisation are checked by schema matching and run (tested). There is no behaviour specification and no separate domain-specific versus generic repository.",
    "tests": [
     "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled"
    ]
@@ -2581,8 +3023,8 @@
   "anchor": "fed-kpi",
   "how": "The state view produces a state-level report and a sector-wise table from the three demo cities.",
   "server": {
-   "status": "working",
-   "how": "Checked by the automated tests listed.",
+   "status": "partial",
+   "how": "A federated aggregate of one KPI across cities works (tested); state-level and sector-wise reports are not produced.",
    "tests": [
     "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
    ]
@@ -2600,8 +3042,8 @@
   "anchor": "ov-scope",
   "how": "Not covered. This demo is a single page and is not published as an open source repository.",
   "server": {
-   "status": "partial",
-   "how": "Built only from open source parts (Node.js, OpenSSL, SQLite) under the Apache 2.0 licence. Publishing to a public Git repository is still to be done.",
+   "status": "working",
+   "how": "Built only from open source parts (Node.js, OpenSSL, SQLite) under the Apache 2.0 licence and published at github.com/raohimanshu2025-source/SCOS-Claude.",
    "tests": []
   }
  },
@@ -2619,6 +3061,23 @@
   "server": {
    "status": "explained",
    "how": "A claim about development cost; the software does not measure it.",
+   "tests": []
+  }
+ },
+ {
+  "id": "COS-37",
+  "doc": "COS",
+  "ref": "2, Figures 6-7",
+  "page": "7",
+  "point": "Figure 7 lists the CIL APIs of the multimodal transit example, provided considering current weather and event conditions: walking, autorickshaw, bicycle/scooter and car/cab travel time prediction; bus ETA and occupancy; metro ETA and occupancy; suburban rail ETA (and suburban rail occupancy in Figure 6).",
+  "quote": "Figure 7: Application development considerations with COS/CIL",
+  "status": "notcovered",
+  "tab": "federation",
+  "anchor": "fed-dev",
+  "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
+  "server": {
+   "status": "partial",
+   "how": "Only the bus ETA API exists, and it does not use weather or event conditions. Walking, autorickshaw, bicycle, car, metro and suburban rail predictions and occupancy predictions are not implemented.",
    "tests": []
   }
  }

@@ -19,7 +19,7 @@ test('[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, to
   assert.match(noTok.headers['www-authenticate'], /DX realm=.*as_uri="https:\/\/auth\.demo-city\.example\/auth\/v1\/token"/);
   const t = await c.req('POST', '/auth/v1/token', { as: 'control@mc.demo-city.example', body: { request: [{ id: DRAIN }], purpose: 'flood watch' } });
   assert.equal(t.status, 200, JSON.stringify(t.body));
-  assert.equal(t.body['token-type'], 'DX');
+  assert.equal(t.body['token-type'], 'IUDX'); // Figure 2 step 5
   assert.equal(t.body['expires-in'], 3600);
   const r = await c.req('GET', `/resource/v1/latest?id=${DRAIN}&trace=1`, { as: 'control@mc.demo-city.example', token: t.body.token });
   assert.equal(r.status, 200);
@@ -135,7 +135,9 @@ test('[BIS-32][BIS-21] licence agreement lets an app developer in without separa
 test('[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; bad values refused; label change resets A to Table 4 defaults', async () => {
   const p = await c.req('GET', `/auth/v1/acl?id=${WASTE}`, { as: 'officer@mc.demo-city.example' });
   assert.equal(p.body.label, 'private');
-  assert.equal(p.body.A.dataLocality, 'Country');
+  // Table 4, Private column, as printed
+  assert.equal(p.body.A.dataLocality, 'Configurable or as per regulatory framework');
+  assert.equal(p.body.A.dataUsage, 'Licensed with legal framework'); assert.equal(p.body.A.dataAudit, 'Needs audit'); assert.equal(p.body.A.consent, 'Requires consent of owners');
   assert.match(p.body.text, /^P = \( C = \{.*planner@mc\.demo-city\.example.*class ∈ \{4,5\}/);
   const bad = await c.req('PUT', `/auth/v1/acl?id=${WASTE}`, { as: 'officer@mc.demo-city.example', body: { A: { dataLocality: 'Mars' } } });
   assert.equal(bad.status, 400);
@@ -143,7 +145,10 @@ test('[BIS-70][BIS-71][BIS-72][BIS-28] policy P = (C, A) with Table 3 values; ba
   assert.equal(notOwner.status, 403);
   const ch = await c.req('PUT', `/auth/v1/acl?id=${WASTE}`, { as: 'officer@mc.demo-city.example', body: { label: 'confidential' } });
   assert.equal(ch.status, 200);
-  assert.equal(ch.body.A.authProtocol, 'Token/DX + Aperture policy language');
+  assert.equal(ch.body.A.authProtocol, 'Requires authorization using DX/UMA, custom auth policy specified in a policy language');
+  assert.equal(ch.body.A.dataLocality, 'Only service based access'); assert.equal(ch.body.A.dataMonetization, 'NA');
+  const t3 = await c.req('PUT', `/auth/v1/acl?id=${WASTE}`, { as: 'officer@mc.demo-city.example', body: { A: { authProtocol: 'Token/DX + Aperture policy language' } } });
+  assert.equal(t3.status, 200, 'a Table 3 value can replace the Table 4 default');
   const planner = await c.req('POST', '/auth/v1/token', { as: 'planner@mc.demo-city.example', body: { request: [{ id: WASTE }] } });
   assert.equal(planner.status, 403, 'class 4 planner loses access when data becomes confidential');
   await c.req('PUT', `/auth/v1/acl?id=${WASTE}`, { as: 'officer@mc.demo-city.example', body: { label: 'private' } });

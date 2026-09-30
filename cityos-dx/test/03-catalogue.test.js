@@ -62,7 +62,7 @@ test('[BIS-67][BIS-33][BIS-97][BIS-17][BIS-52] only a class 3 data officer of th
   const otherOrg = await c.req('POST', '/catalogue/v1/items', { as: 'officer@wd.demo-city.example', body: { item: newItem('urn:demo-cat:aqm/aqm-99') } });
   assert.equal(otherOrg.status, 403);
   const ok = await c.req('POST', '/catalogue/v1/items', { as: 'officer@pcc.demo-city.example', body: { item: newItem('urn:demo-cat:aqm/aqm-99') } });
-  assert.equal(ok.status, 200, JSON.stringify(ok.body));
+  assert.equal(ok.status, 201, "Figure 7: 201 Created" + JSON.stringify(ok.body));
   assert.ok(ok.body.createdAt.value);
   const upd = await c.req('PUT', '/catalogue/v1/items?id=urn:demo-cat:aqm/aqm-99', { as: 'officer@pcc.demo-city.example', body: { item: newItem('urn:demo-cat:aqm/aqm-99', { name: { type: 'Property', value: 'Noise sensor one' } }) } });
   assert.equal(upd.body.name.value, 'Noise sensor one'); assert.ok(upd.body.modifiedAt);

@@ -36,7 +36,8 @@ test('[BIS-59] the trusted CA list is published', async () => {
   const r = await c.req('GET', '/identity/v1/trusted-cas');
   assert.equal(r.body.cas.length, 2);
   assert.ok(r.body.cas.every(x => x.pem.includes('BEGIN CERTIFICATE') && x.fingerprint));
-  assert.equal(Object.keys(r.body.classes).length, 5);
+  for (const k of ['1', '2', '3', '4', '5']) assert.ok(r.body.classes[k], 'class ' + k);
+  assert.match(r.body.classes['0'], /only grants certificates to its employees/);
 });
 
 test('[BIS-75][BIS-96][BIS-51][BIS-74] CSR by "e-mail": subject line, white-list and domain rules, admin approval, real X.509 issued', async () => {
@@ -98,7 +99,10 @@ test('[BIS-41] consumers may use an OpenID Connect style ID token; forged or for
   const me = await c.req('GET', '/auth/v1/me', { headers: { 'x-id-token': good } });
   assert.equal(me.body.principal.via, 'id-token'); assert.equal(me.body.principal.email, 'citizen@demo-mail.example');
   const tok = await c.req('POST', '/auth/v1/token', { headers: { 'x-id-token': good }, body: { request: [{ id: 'urn:demo-cat:fare/fare-revenue' }] } });
-  assert.equal(tok.status, 403, 'protected data still needs consent'); assert.ok(tok.body.denied[0].consent);
+  // BIS 5.4.2: protected, private or confidential data "shall require a valid certificate"; an ID token alone reaches public data only
+  assert.equal(tok.status, 403); assert.match(tok.body.error, /class 0 identity \(ID token\) cannot access protected data/); assert.equal(tok.body.denied[0].consent, undefined);
+  const pub = await c.req('POST', '/auth/v1/token', { headers: { 'x-id-token': good }, body: { request: [{ id: 'urn:demo-cat:aqm/aqm-1' }] } });
+  assert.equal(pub.status, 200, JSON.stringify(pub.body));
   const { generateKeyPairSync } = await import('node:crypto');
   const forged = mintIdToken(generateKeyPairSync('ed25519').privateKey.export({ type: 'pkcs8', format: 'pem' }), { email: 'citizen@demo-mail.example', aud: 'dx.demo-city.example' });
   assert.equal((await c.req('GET', '/auth/v1/me', { headers: { 'x-id-token': forged } })).status, 401);

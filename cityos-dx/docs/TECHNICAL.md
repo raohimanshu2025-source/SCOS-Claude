@@ -50,7 +50,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 82 end-to-end tests |
+| `test/` | 84 end-to-end tests |
 
 ## 2. Identity and authentication
 

@@ -15,6 +15,7 @@ services:
     restart: unless-stopped
     volumes: ["dx-state:/var/lib/cityos-dx"]
     environment: { DX_BACKUP_KEEP: "14" }
+    healthcheck: { disable: true }  # the image health check probes the server, which runs in the dx service
     # one online backup a day, kept for 14 days
     entrypoint: ["sh", "-c", "while true; do sleep 86400; node --no-warnings scripts/backup.js daily; done"]
 volumes:

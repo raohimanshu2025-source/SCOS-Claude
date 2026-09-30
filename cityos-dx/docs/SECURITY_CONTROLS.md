@@ -34,7 +34,7 @@ Status values: **In software** (the code does it, with a test where one is named
 | 8.25 Secure development life cycle | Supported | Tests run on every change; test report with coverage | `docs/TEST_REPORT.md` |
 | 8.26 Application security requirements | In software | Input checked against data models and item schemas; 1 MB body limit; SQL values passed as parameters | `03-catalogue.test.js`, `04-resource.test.js` |
 | 8.28 Secure coding | In software | No dependencies; no eval or uploaded code; strict Content-Security-Policy with no inline script | `06-operations.test.js`, `07-scenarios.test.js` |
-| 8.29 Security testing | In software | 82 end-to-end tests over HTTPS, including refusals and tampering | `docs/TEST_REPORT.md` |
+| 8.29 Security testing | In software | 84 end-to-end tests over HTTPS, including refusals and tampering | `docs/TEST_REPORT.md` |
 | 8.32 Change management | Operator | Change approval process of the city | none |
 | 8.34 Protection during audit testing | Operator | Plan audits on a copy or in a window | none |
 

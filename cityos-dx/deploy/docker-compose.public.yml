@@ -1,0 +1,13 @@
+# Public demo for officials, on one small cloud machine. Used by deploy/setup-public-demo.sh:
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.public.yml up -d --build
+# The server answers on port 443 itself, so client certificates (mutual TLS, BIS 5.1) keep working.
+services:
+  dx:
+    ports: ["443:8443"]
+    environment:
+      DX_PUBLIC_NAME: ${DX_DOMAIN}
+      DX_PUBLIC_TLS_CERT: /tls/fullchain.pem
+      DX_PUBLIC_TLS_KEY: /tls/privkey.pem
+      DX_SEED_PASSWORD: ${DX_SEED_PASSWORD}
+      DX_SEED_ADMIN_PASSWORD: ${DX_SEED_ADMIN_PASSWORD}
+    volumes: ["/opt/cityos-dx/tls:/tls:ro"]

@@ -235,12 +235,24 @@ export function createApp(overrides = {}) {
     fs.createReadStream(file).pipe(res);
   }
 
-  const server = https.createServer({
-    key: fs.readFileSync(pki.serverKey), cert: fs.readFileSync(pki.serverCrt) + fs.readFileSync(pki.caCrt),
+  const publicTls = !!(cfg.publicTlsCert && cfg.publicTlsKey);
+  const serverKeyPair = () => publicTls
+    ? { key: fs.readFileSync(cfg.publicTlsKey), cert: fs.readFileSync(cfg.publicTlsCert) }
+    : { key: fs.readFileSync(pki.serverKey), cert: fs.readFileSync(pki.serverCrt) + fs.readFileSync(pki.caCrt) };
+  const tlsOptions = () => ({
+    ...serverKeyPair(),
     ca: [fs.readFileSync(pki.rootCrt), fs.readFileSync(pki.caCrt), ...externalCas(cfg).map(x => x.toString())],
     requestCert: cfg.requestClientCert, rejectUnauthorized: false, // unauthorised peers are refused per request with a clear message
     minVersion: 'TLSv1.2',
-  }, (req, res) => { handle(req, res); });
+  });
+  const server = https.createServer(tlsOptions(), (req, res) => { handle(req, res); });
+  // A public web certificate is renewed every few months: pick up the new files without a restart.
+  let tlsStamp = publicTls ? fs.statSync(cfg.publicTlsCert).mtimeMs : 0;
+  const tlsTimer = publicTls ? setInterval(() => {
+    try { const m = fs.statSync(cfg.publicTlsCert).mtimeMs; if (m !== tlsStamp) { server.setSecureContext(tlsOptions()); tlsStamp = m; } } catch { /* keep the current certificate */ }
+  }, 3600e3) : null;
+  tlsTimer?.unref();
+  server.on('close', () => tlsTimer && clearInterval(tlsTimer));
 
   let simTimer = null;
   return {

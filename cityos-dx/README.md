@@ -48,7 +48,7 @@ With Docker: `docker compose -f deploy/docker-compose.yml up -d --build`.
 ## Tests
 
 ```sh
-npm test             # 84 tests; each starts a fresh city and talks to it over HTTPS with client certificates
+npm test             # 85 tests; each starts a fresh city and talks to it over HTTPS with client certificates
 npm run test:report  # also writes docs/TEST_REPORT.md with coverage and requirement traceability
 npm run trace        # then updates the "server" status of every point in docs/requirements.json
 ```

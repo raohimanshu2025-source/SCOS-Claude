@@ -28,6 +28,14 @@ function heat(cells) {
   const col = v => { const f = (v - mn) / ((mx - mn) || 1); return `hsl(${Math.round(220 - 220 * f)} 70% 50%)`; };
   return `<div class="grid-heat" data-n="${n}">${cells.slice().reverse().flat().map(v => `<div title="${v}" data-c="${col(v)}"></div>`).join('')}</div><p class="hint">North at top. ${mn} to ${mx}.</p>`;
 }
+// Rows pasted as a JSON list or as CSV with a header line. CSV cells that read as JSON (numbers, objects) are kept as such.
+function parseRows(t) {
+  t = t.trim(); if (!t) return [];
+  if (t.startsWith('[')) return JSON.parse(t);
+  const lines = t.split(/\r?\n/).filter(l => l.trim()); const head = lines.shift().split(',').map(h => h.trim());
+  const val = v => { v = v.trim(); try { return JSON.parse(v); } catch { return v; } };
+  return lines.map(l => { const c = l.split(','); return Object.fromEntries(head.map((h, i) => [h, val(c[i] ?? '')])); });
+}
 function paintHeat(root) { root.querySelectorAll("[data-n]").forEach(g => { g.style.gridTemplateColumns = `repeat(${g.dataset.n},1fr)`; }); root.querySelectorAll('[data-c]').forEach(d => { d.style.background = d.dataset.c; }); }
 
 const SCREENS = [
@@ -130,7 +138,13 @@ const VIEWS = {
       ${card('Policy of an item', `<form id="pf" class="row"><input name="id" class="grow" placeholder="item id you own" required><button class="btn">Load</button></form><div id="po"></div>`, 'BIS-70 BIS-71 BIS-72 BIS-66')}
       ${card('Licence agreement with an app developer', `<form id="lf" class="col"><div class="row"><input name="id" placeholder="item id" required><input name="app" placeholder="app name" required><input name="developer" placeholder="developer e-mail" required></div><input name="terms" placeholder="terms" required><button class="btn">Record licence</button></form><div id="lo"></div>`, 'BIS-32')}
       ${card('Revoke a consumer', `<form id="vf" class="row"><input name="id" placeholder="item id" required><input name="consumer" placeholder="consumer e-mail" required><button class="btn danger">Revoke access</button></form><div id="vo"></div>`, 'BIS-100')}
-      ${card('All consent and data flows', '<div id="pfl"></div>', 'BIS-80')}</div>`;
+      ${card('All consent and data flows', '<div id="pfl"></div>', 'BIS-80')}
+      ${card("Your department's datasets", `<div id="dm"></div>
+        <details id="dprov"><summary>1. Provider entry for your department</summary><form id="dpf" class="col"><input name="name" placeholder="department name, e.g. Kanpur Jal Sansthan" required><input name="description" placeholder="what data you provide" required><input name="url" placeholder="website (optional)"><button class="btn">Create provider entry</button></form></details>
+        <details><summary>2. Add a dataset group (one data model, one resource server)</summary><form id="dgf" class="col"><input name="name" placeholder="group name, e.g. Pumping stations" required><input name="description" placeholder="description" required><input name="tags" placeholder="tags, comma separated"><div class="row"><label class="f">Data model<select name="model" id="dgm"></select></label><label class="f">Resource server<select name="resourceServer" id="dgr"></select></label><label class="f">Access object<select name="accessObjectType"><option>openAPI</option><option>asyncAPI</option><option>custom</option></select></label></div><button class="btn">Add group</button></form></details>
+        <details><summary>3. Add a dataset to a group</summary><form id="ddf" class="col"><div class="row"><label class="f">Group<select name="group" id="ddg"></select></label><label class="f">Access label<select name="label"><option>public</option><option>protected</option><option>private</option><option>confidential</option></select></label><label class="f">Type<select name="resourceType"><option>messageStream</option><option>table</option><option>file</option></select></label></div><input name="name" placeholder="dataset name, e.g. Pump station 4" required><input name="description" placeholder="description" required><input name="tags" placeholder="tags, comma separated"><div class="row"><input name="lon" placeholder="longitude (optional)"><input name="lat" placeholder="latitude (optional)"></div><button class="btn">Add dataset</button></form></details>
+        <details><summary>4. Add data to a dataset</summary><form id="dif" class="col"><div class="row"><label class="f">Dataset<select name="id" id="dii"></select></label><label class="f">Tables<select name="mode"><option value="replace">replace rows</option><option value="append">add rows</option></select></label></div><textarea name="rows" rows="6" placeholder="CSV with a header line, or a JSON list. Column names must match the data model, e.g.&#10;level,flow,capacity,observationDateTime&#10;1.2,3.4,2.5,2026-10-01T10:00:00Z"></textarea><button class="btn">Add data</button></form></details>
+        <div id="dout"></div>`)}</div>`;
     const load = async () => {
       const [c, f] = await Promise.all([api('GET', '/auth/v1/consent'), api('GET', '/auth/v1/flows')]);
       $('#pc').innerHTML = c.body.length ? c.body.map(x => `<div class="inbox-item"><div class="row">${pill(x.status, x.status === 'pending' ? 'pending' : x.status === 'approved' ? 'ok' : 'bad')}<b>${esc(x.id)}</b> ${esc(x.consumer)} (class ${x.cls}) asks for <span class="mono">${esc(x.item_id)}</span></div><div class="hint">Purpose: ${esc(x.purpose)} · ${esc(x.created_at)}</div>${x.status === 'pending' ? `<div class="row"><button class="btn sm primary" data-a="${esc(x.id)}">Approve</button><button class="btn sm danger" data-r="${esc(x.id)}">Reject</button></div>` : ''}</div>`).join('') : '<p class="hint">No consent requests.</p>';
@@ -145,7 +159,20 @@ const VIEWS = {
     };
     $('#lf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); out($('#lo'), await api('POST', '/auth/v1/licence', f)); };
     $('#vf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); out($('#vo'), await api('POST', '/auth/v1/token/revoke', f)); load(); };
-    load();
+    const mine = async () => {
+      const [mi, dms, rss] = await Promise.all([api('GET', '/catalogue/v1/mine'), api('GET', '/catalogue/v1/datamodels'), api('GET', '/resource/v1/servers')]);
+      if (!mi.ok) { $('#dm').innerHTML = `<p class="hint">${esc(mi.body.error)}</p>`; return; }
+      $('#dm').innerHTML = table(mi.body);
+      $('#dprov').hidden = mi.body.some(i => i.type === 'provider');
+      const opts = (list, f) => list.map(x => `<option value="${esc(f(x)[0])}">${esc(f(x)[1])}</option>`).join('');
+      $('#dgm').innerHTML = opts(dms.body, x => [x, x]); $('#dgr').innerHTML = opts(rss.body, x => [x.id, x.id]);
+      $('#ddg').innerHTML = opts(mi.body.filter(i => i.type === 'resourceServerGroup'), x => [x.id, x.name]);
+      $('#dii').innerHTML = opts(mi.body.filter(i => i.type === 'resourceItem'), x => [x.id, x.name + ' (' + x.id + ')']);
+    };
+    const add = type => async e => { e.preventDefault(); const r = await api('POST', '/catalogue/v1/items/simple', { type, ...Object.fromEntries(new FormData(e.target)) }); out($('#dout'), r); if (r.ok) { toast('Added to the catalogue'); e.target.reset(); mine(); } };
+    $('#dpf').onsubmit = add('provider'); $('#dgf').onsubmit = add('group'); $('#ddf').onsubmit = add('dataset');
+    $('#dif').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); let data; try { data = parseRows(f.get('rows')); } catch (x) { return toast('Could not read the rows: ' + x.message); } out($('#dout'), await api('POST', '/resource/v1/ingest', { id: f.get('id'), mode: f.get('mode'), data })); };
+    load(); mine();
   },
 
   async cil(m) {
@@ -186,8 +213,15 @@ const VIEWS = {
       ${card('Issued certificates', table(certs.body.map(c => ({ serial: c.serial, holder: c.email, cn: c.cn, class: c.cls, kind: c.kind, status: c.status, expires: c.not_after }))) + (admin ? `<form id="vf" class="row"><input name="serial" placeholder="serial" required><select name="reason"><option>keyCompromise</option><option>affiliationChanged</option><option>superseded</option><option>cessationOfOperation</option></select><button class="btn danger">Revoke</button></form><div id="vo"></div>` : ''), 'BIS-76 BIS-65')}
       <div class="grid2">${card('Revocation list', `<p class="small">Last update ${esc(crl.body.lastUpdate)}, next ${esc(crl.body.nextUpdate)}</p>${table(crl.body.revokedSerials.map(s => ({ serial: s })))}<p><a href="/identity/v1/crl.pem">Download CRL (PEM)</a></p>`, 'BIS-65')}
       ${card('Trusted certificate authorities', table(cas.body.cas.map(c => ({ subject: c.subject, expires: c.notAfter }))), 'BIS-59')}</div>
-      ${card('Organisations and white-list', table(orgs.body.map(o => ({ id: o.id, name: o.name, domain: o.domain, whitelisted: o.whitelisted ? 'yes' : 'no' }))), 'BIS-75')}</div>`;
+      ${card('Organisations and white-list', table(orgs.body.map(o => ({ id: o.id, name: o.name, domain: o.domain, whitelisted: o.whitelisted ? 'yes' : 'no' }))), 'BIS-75')}
+      ${admin ? `<div class="grid2">${card('Add a department', `<form id="adf" class="col"><p class="hint">Registers and white-lists the department and gives it an organisation certificate, so its staff can have certificates (BIS 5.4.2).</p><input name="id" placeholder="short id, e.g. kjs" required><input name="name" placeholder="name, e.g. Kanpur Jal Sansthan" required><input name="domain" placeholder="e-mail domain, e.g. kjs.demo-city.example" required><button class="btn primary">Add department</button></form><div id="ado"></div>`)}
+      ${card('Add a person', `<form id="apf" class="col"><p class="hint">Issues a certificate and a login. The e-mail domain decides the department. The person must change the password at first login.</p><input name="name" placeholder="full name" required><input name="email" placeholder="e-mail, e.g. ee@kjs.demo-city.example" required><div class="row"><label class="f">Kind<select name="kind"><option value="officer">Data officer (class 3)</option><option value="emp">Employee</option><option value="ind">Individual (class 2)</option></select></label><label class="f">Class<select name="cls"><option>3</option><option>2</option><option>4</option><option>5</option></select></label><label class="f">Role<select name="role">${['provider', 'consumer', 'operator', 'analytics_provider', 'auditor'].map(r => `<option>${r}</option>`).join('')}</select></label></div><div class="row"><input name="username" placeholder="username" required><input name="password" placeholder="temporary password (12+ letters and digits)" required></div><button class="btn primary">Add person</button></form><div id="apo"></div>`)}</div>
+      ${card('Logins', '<div id="acc"></div>')}` : ''}</div>`;
     if (admin) {
+      const accts = async () => { const a = await api('GET', '/identity/v1/accounts'); $('#acc').innerHTML = table(a.body.map(x => ({ username: x.username, name: x.display_name, role: x.role, certificate: x.cert_serial || '', locked: x.locked_until && new Date(x.locked_until) > new Date() ? 'yes' : '' }))) + `<form id="uf" class="row"><input name="username" placeholder="username" required><button class="btn">Unlock</button></form>`; $('#uf').onsubmit = async e => { e.preventDefault(); const r = await api('POST', '/identity/v1/accounts/unlock', Object.fromEntries(new FormData(e.target))); toast(r.ok ? 'Unlocked' : r.body.error); }; };
+      $('#adf').onsubmit = async e => { e.preventDefault(); const r = await api('POST', '/identity/v1/departments', Object.fromEntries(new FormData(e.target))); out($('#ado'), r); if (r.ok) toast('Department added. Reopen this screen to see it in the lists.'); };
+      $('#apf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); f.cls = Number(f.cls); const r = await api('POST', '/identity/v1/people', f); out($('#apo'), r); if (r.ok) accts(); };
+      accts();
       $('#df').onsubmit = async e => { e.preventDefault(); const id = new FormData(e.target).get('id'); const r = await api('POST', '/identity/v1/csr/decide', { id, approve: e.submitter.value === '1' }); out($('#do'), r); };
       $('#vf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); if (!confirm('Revoke certificate ' + f.serial + '? This cannot be undone.')) return; out($('#vo'), await api('POST', '/identity/v1/certs/revoke', f)); };
     }

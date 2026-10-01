@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # One-command public demo on a fresh Ubuntu 22.04/24.04 cloud machine (1 GB RAM is enough).
-# Run as root:  curl -fsSL https://raw.githubusercontent.com/raohimanshu2025-source/SCOS-Claude/main/cityos-dx/deploy/setup-public-demo.sh | bash
+# Run:  curl -fsSL https://raw.githubusercontent.com/raohimanshu2025-source/SCOS-Claude/main/cityos-dx/deploy/setup-public-demo.sh | sudo bash
 # Optional: DX_DOMAIN=demo.example.in (your own domain pointing at this machine). Without it, <ip>.sslip.io is used.
 # Demo data only. This is not a live, certified or approved city system.
 set -euo pipefail
+[ "$(id -u)" -eq 0 ] || { echo "Please run as root: put sudo in front, e.g.  curl -fsSL <link> | sudo bash"; exit 1; }
 REPO=${REPO:-https://github.com/raohimanshu2025-source/SCOS-Claude.git}
 BRANCH=${BRANCH:-main}
 DIR=/opt/cityos-dx
@@ -11,6 +12,10 @@ IP=$(curl -fsS https://api.ipify.org)
 DX_DOMAIN=${DX_DOMAIN:-${IP//./-}.sslip.io}
 echo "== Setting up the City OS demo at https://$DX_DOMAIN"
 
+# Small machines (1 GB, such as Azure B1s): add swap so the Docker build and the server have room.
+if [ "$(awk '/MemTotal/ {print $2}' /proc/meminfo)" -lt 2000000 ] && ! swapon --show | grep -q .; then
+  fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
 apt-get update -qq
 apt-get install -y -qq docker.io docker-compose-v2 certbot git openssl >/dev/null
 systemctl enable --now docker >/dev/null
@@ -25,7 +30,8 @@ cp -L /etc/letsencrypt/live/$DX_DOMAIN/fullchain.pem /etc/letsencrypt/live/$DX_D
 chown 1000:1000 $DIR/tls/*.pem; chmod 600 $DIR/tls/privkey.pem
 HOOK
 chmod +x /etc/letsencrypt-copy.sh
-certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email -d "$DX_DOMAIN" --deploy-hook /etc/letsencrypt-copy.sh
+certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email -d "$DX_DOMAIN" --deploy-hook /etc/letsencrypt-copy.sh \
+  || { echo "Could not get the web certificate. Check that ports 80 and 443 are open to the internet (on Azure: VM > Networking > inbound port rules), then run this again."; exit 1; }
 /etc/letsencrypt-copy.sh
 
 # Demo logins: one shared password for the demo accounts, a separate one for the administrator.

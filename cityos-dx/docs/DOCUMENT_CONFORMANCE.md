@@ -88,6 +88,8 @@ These are deliberate. Each is stated in the verification PDF.
 - The ISO/IEC 27001 self-assessment.
 - Advice on the DPDP Act and CERT-In.
 - The synthetic "Demo City" data and its simulator.
+- The Kanpur profile (`DX_CITY_PROFILE=kanpur`, file `src/seed-kanpur.js`). It uses the names of 11 Kanpur departments (Nagar Nigam, Jal Sansthan, KESCO, Traffic Police, Fire Service, CMO health, KDA, PWD, UPPCB, City Transport, ICCC control room), each marked "(demo)". Its zones, place points and all readings are synthetic. No department has given or approved any data.
+- Eight data models for that profile: power feeder, pump station, water supply, traffic junction, fire call, hospital beds, building permit and road work. The documents do not define these. They follow the same data model rules (BIS Section 6) as the other models.
 
 None of these changes what the documents require. They are there for security, operation and demonstration.
 

@@ -47,13 +47,27 @@ If the certificate step fails, open the VM's **Networking** page and check that 
 Use this when no cloud machine is available. Codespaces is free in the GitHub Student Developer Pack and needs no card. The site runs only while the codespace is open, and the link can change between codespaces.
 
 1. On the repository page on GitHub, click **Code > Codespaces > Create codespace on main**. Wait until the editor opens.
-2. In the terminal at the bottom, run `bash cityos-dx/deploy/start-codespace.sh`. It prints the link and the logins (also kept in `~/cityos-dx-state/logins.txt`).
+2. In the terminal at the bottom, run `bash cityos-dx/deploy/start-codespace.sh`. It prints the link and the logins (also kept in `~/cityos-dx-state/logins.txt`). In Codespaces the site uses the Kanpur profile (11 Kanpur departments, synthetic demo data). For the old made-up Demo City, run `DX_CITY_PROFILE=demo bash cityos-dx/deploy/start-codespace.sh` with an empty state folder.
 3. The script makes port 8080 public by itself when GitHub allows it, and says so. If it says the link is still private: press Ctrl+J if no panel shows, open the **PORTS** tab, right-click port **8080**, choose **Port Visibility > Public**. (Port 8080 is a small plain-HTTP front door to the server on 8443, so GitHub's forwarding needs no protocol setting.)
 4. Keep the browser tab open during the demo. Press Ctrl+C to stop. Next time, open the same codespace from **Code > Codespaces** and run step 2 again; the data and passwords are kept.
 
 Through the Codespaces link, people use the website with their logins as usual. Machine-to-machine API calls with client certificates (BIS 5.1 mutual TLS) do not pass through the Codespaces link; use a cloud machine for those.
 
 ## Logins
+
+**Kanpur profile** (the Codespaces default, or set `DX_CITY_PROFILE=kanpur` before seeding):
+
+| Give to officials | Role |
+|---|---|
+| `officer.<dept>` | The department's data officer: publishes datasets, adds data, sets who may see it, approves or refuses requests |
+| `staff.<dept>` | Department staff: searches the catalogue, asks for data, reads what is allowed |
+| `control` | ICCC control room: dashboard, analytics and alerts |
+| `analyst`, `developer` | Analytics provider and app developer |
+| `auditor` | Read-only audit |
+
+`<dept>` is one of `knn` (Nagar Nigam), `kjs` (Jal Sansthan), `kesco` (KESCO), `traffic` (Traffic Police), `fire` (Fire Service), `cmo` (CMO health), `kda` (KDA), `pwd` (PWD), `uppcb` (UPPCB), `kctsl` (City Transport), `iccc` (ICCC control room).
+
+**Demo City profile** (the default elsewhere):
 
 | Give to officials | Role |
 |---|---|
@@ -67,7 +81,7 @@ All of these share one demo password. Keep `admin` for yourself: it has its own 
 
 ## Reset after a meeting
 
-Officials may change policies or data during a demo. To go back to the starting state:
+Officials may change policies or data during a demo. In Codespaces, press Ctrl+C, then run `rm -rf ~/cityos-dx-state && bash cityos-dx/deploy/start-codespace.sh` (this also makes new passwords). On a server:
 
 ```sh
 cd /opt/cityos-dx/src/cityos-dx

@@ -43,6 +43,8 @@ curl --cacert pki/root/root.crt \
      https://localhost:8443/auth/v1/token
 ```
 
+The default seed is a made-up "Demo City". For Kanpur department names with synthetic demo data, run `DX_CITY_PROFILE=kanpur npm run seed` and start with the same variable set (see `docs/HOSTING.md` for the logins). The Kanpur profile is our addition, not part of the two documents.
+
 With Docker: `docker compose -f deploy/docker-compose.yml up -d --build`.
 
 ## Tests

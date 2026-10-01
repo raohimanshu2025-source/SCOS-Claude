@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createApp } from '../src/server.js';
 import { seed } from '../src/seed.js';
+import { seedKanpur } from '../src/seed-kanpur.js';
 import { pkiPaths } from '../src/identity/ca.js';
 
 export const PASSWORD = 'Test-password-2026';
@@ -15,7 +16,7 @@ export async function startCity(opts = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cityos-dx-'));
   const pkiDir = opts.pkiDir || fs.mkdtempSync(path.join(os.tmpdir(), 'cityos-dx-pki-'));
   const app = createApp({ dataDir: path.join(dir, 'data'), pkiDir, backupDir: path.join(dir, 'backups'), schedulerEnabled: false, simulator: false, heartbeatMs: 3600e3, schedulerMinuteMs: 60000, ...opts.config });
-  const seeded = seed(app, { password: PASSWORD });
+  const seeded = (app.cfg.cityProfile === 'kanpur' ? seedKanpur : seed)(app, { password: PASSWORD });
   const addr = await app.listen(0, '127.0.0.1');
   const pki = pkiPaths(pkiDir);
   const ca = [fs.readFileSync(pki.rootCrt)];

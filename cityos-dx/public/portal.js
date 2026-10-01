@@ -195,6 +195,7 @@ function renderGreeting(city) {
   $('#greet-line').textContent = `${t(part)} · ${date}`;
   if (D.wx.length) {
     const temp = r1(avg(D.wx.map(w => w.airTemperature))), hum = Math.round(avg(D.wx.map(w => w.relativeHumidity))), rain = Math.max(...D.wx.map(w => w.rainfall || 0));
+    window.citySky?.setRain(rain);
     const chip = $('#wx-chip'); chip.hidden = false;
     chip.innerHTML = `${icon('temp')} <b>${temp} °C</b> · ${esc(t('humidity'))} ${hum}% · ${icon('rain')} ${esc(rain > 0 ? t('rainNow', { mm: r1(rain) }) : t('noRain'))} <span class="demo-tag">${esc(t('demoTag'))}</span>`;
   }

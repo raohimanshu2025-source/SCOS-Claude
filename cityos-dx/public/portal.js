@@ -15,7 +15,7 @@ const T = {
     contrast: 'High contrast', portalName: 'City Data Portal', portalSub: 'Shared city data and live dashboards for departments and citizens', officerLogin: 'Officer login',
     navHome: 'City today', navMap: 'Map', navDash: 'Dashboards', navDepts: 'Departments', navData: 'Open data', navStatus: 'Service status', navAbout: 'About',
     heroTitle: "One place for the city's data", heroLead: 'Departments publish their data once on a shared data exchange. Citizens see the public parts here. Officers log in to share protected data with other departments, with consent and a full audit trail.',
-    updated: 'Updated', refreshNote: 'Refreshes every minute.', glanceTitle: 'The city today', mapTitle: 'City map', mapNote: 'Zones are a synthetic grid and all points are approximate demo locations.',
+    updated: 'Updated', liveNow: 'Live city data', ctaDash: 'See live dashboards', ctaData: 'Browse open data', refreshNote: 'Refreshes every minute.', glanceTitle: 'The city today', mapTitle: 'City map', mapNote: 'Zones are a synthetic grid and all points are approximate demo locations.',
     dashTitle: 'Live dashboards', deptTitle: 'Departments on the data exchange', deptNote: 'Each department publishes its own data and decides who may see it. Names are used for demonstration only; no department has supplied or approved this data.',
     dataTitle: 'Open data catalogue', search: 'Search', department: 'Department', access: 'Access', statusTitle: 'Service status', aboutTitle: 'About this portal',
     about1: 'This portal shows how a City Operating System could work: a data exchange where departments publish data with access rules, and a city intelligence layer that turns the data into dashboards and alerts.',
@@ -34,7 +34,7 @@ const T = {
     pAq: 'Air quality by station', pAqTrend: 'City average PM2.5, last 24 hours', pWx: 'Weather stations', pWater: 'Water supply by zone', pWaterTrend: 'City average supply hours, last 14 days',
     pBeds: 'Hospital beds', pTraffic: 'Traffic at main junctions', pBus: 'City bus service', pRoad: 'Road works and lane closures', pPermit: 'Building permissions', pFlood: 'Flood alerts',
     station: 'Station', rainMm: 'Rain mm', humid: 'Humidity', wind: 'Wind', zone: 'Zone', hrs: 'h', bar: 'bar', free: 'free', of: 'of', occupied: 'occupied', vehicles: 'vehicles/15 min', kmh: 'km/h',
-    bus: 'Bus', route: 'Route', onTime: 'On time', delay: 'Delay', status: 'Status', road: 'Road', from: 'From', to: 'to', lanes: 'Lanes closed', byZone: 'Applications by zone',
+    bus: 'Bus', busesN: 'buses', route: 'Route', onTime: 'On time', delay: 'Delay', status: 'Status', road: 'Road', from: 'From', to: 'to', lanes: 'Lanes closed', byZone: 'Applications by zone',
     dataset: 'Dataset', model: 'Data type', get: 'Get data', all: 'All', loginToAsk: 'Officers ask for access after login', download: 'JSON', items: 'datasets', publicN: 'public',
     viewData: 'See its datasets', up: 'Up', down: 'Down', uptime: 'uptime, last 24 h', by: 'Data from', noData: 'No data yet.', latestN: 'latest {n}', rowsTotal: 'rows in total', minutes: 'min',
     accessName: { public: 'Public', protected: 'Protected', private: 'Private', confidential: 'Confidential' },
@@ -45,7 +45,7 @@ const T = {
     contrast: 'उच्च कंट्रास्ट', portalName: 'सिटी डेटा पोर्टल', portalSub: 'विभागों और नागरिकों के लिए साझा शहर डेटा और लाइव डैशबोर्ड', officerLogin: 'अधिकारी लॉगिन',
     navHome: 'आज का शहर', navMap: 'नक्शा', navDash: 'डैशबोर्ड', navDepts: 'विभाग', navData: 'खुला डेटा', navStatus: 'सेवा स्थिति', navAbout: 'परिचय',
     heroTitle: 'शहर के डेटा के लिए एक जगह', heroLead: 'विभाग अपना डेटा एक साझा डेटा एक्सचेंज पर एक बार प्रकाशित करते हैं। नागरिक यहाँ सार्वजनिक भाग देखते हैं। अधिकारी लॉगिन करके सहमति और पूरे ऑडिट रिकॉर्ड के साथ संरक्षित डेटा दूसरे विभागों से साझा करते हैं।',
-    updated: 'अद्यतन', refreshNote: 'हर मिनट अपने आप अद्यतन होता है।', glanceTitle: 'आज का शहर', mapTitle: 'शहर का नक्शा', mapNote: 'ज़ोन एक कृत्रिम ग्रिड हैं और सभी स्थान अनुमानित डेमो स्थान हैं।',
+    updated: 'अद्यतन', liveNow: 'लाइव शहर डेटा', ctaDash: 'लाइव डैशबोर्ड देखें', ctaData: 'खुला डेटा देखें', refreshNote: 'हर मिनट अपने आप अद्यतन होता है।', glanceTitle: 'आज का शहर', mapTitle: 'शहर का नक्शा', mapNote: 'ज़ोन एक कृत्रिम ग्रिड हैं और सभी स्थान अनुमानित डेमो स्थान हैं।',
     dashTitle: 'लाइव डैशबोर्ड', deptTitle: 'डेटा एक्सचेंज पर विभाग', deptNote: 'हर विभाग अपना डेटा खुद प्रकाशित करता है और तय करता है कि कौन देख सकता है। नाम केवल प्रदर्शन के लिए हैं; किसी विभाग ने यह डेटा नहीं दिया है और न ही स्वीकृत किया है।',
     dataTitle: 'खुला डेटा सूची', search: 'खोजें', department: 'विभाग', access: 'पहुँच', statusTitle: 'सेवा स्थिति', aboutTitle: 'इस पोर्टल के बारे में',
     about1: 'यह पोर्टल दिखाता है कि सिटी ऑपरेटिंग सिस्टम कैसे काम कर सकता है: एक डेटा एक्सचेंज जहाँ विभाग पहुँच नियमों के साथ डेटा प्रकाशित करते हैं, और एक सिटी इंटेलिजेंस लेयर जो डेटा को डैशबोर्ड और अलर्ट में बदलती है।',
@@ -63,7 +63,7 @@ const T = {
     pAq: 'स्टेशन अनुसार वायु गुणवत्ता', pAqTrend: 'शहर औसत PM2.5, पिछले 24 घंटे', pWx: 'मौसम स्टेशन', pWater: 'ज़ोन अनुसार जल आपूर्ति', pWaterTrend: 'शहर औसत आपूर्ति घंटे, पिछले 14 दिन',
     pBeds: 'अस्पताल बिस्तर', pTraffic: 'मुख्य चौराहों पर यातायात', pBus: 'सिटी बस सेवा', pRoad: 'सड़क कार्य और लेन बंदी', pPermit: 'भवन अनुमतियाँ', pFlood: 'बाढ़ अलर्ट',
     station: 'स्टेशन', rainMm: 'वर्षा मिमी', humid: 'आर्द्रता', wind: 'हवा', zone: 'ज़ोन', hrs: 'घं', bar: 'बार', free: 'खाली', of: 'में से', occupied: 'भरे', vehicles: 'वाहन/15 मिनट', kmh: 'किमी/घं',
-    bus: 'बस', route: 'रूट', onTime: 'समय पर', delay: 'देरी', status: 'स्थिति', road: 'सड़क', from: 'से', to: 'तक', lanes: 'बंद लेन', byZone: 'ज़ोन अनुसार आवेदन',
+    bus: 'बस', busesN: 'बसें', route: 'रूट', onTime: 'समय पर', delay: 'देरी', status: 'स्थिति', road: 'सड़क', from: 'से', to: 'तक', lanes: 'बंद लेन', byZone: 'ज़ोन अनुसार आवेदन',
     dataset: 'डेटासेट', model: 'डेटा प्रकार', get: 'डेटा लें', all: 'सभी', loginToAsk: 'अधिकारी लॉगिन के बाद पहुँच माँगते हैं', download: 'JSON', items: 'डेटासेट', publicN: 'सार्वजनिक',
     viewData: 'इसके डेटासेट देखें', up: 'चालू', down: 'बंद', uptime: 'उपलब्धता, पिछले 24 घंटे', by: 'डेटा स्रोत', noData: 'अभी कोई डेटा नहीं।', latestN: 'नवीनतम {n}', rowsTotal: 'कुल पंक्तियाँ', minutes: 'मिनट',
     accessName: { public: 'सार्वजनिक', protected: 'संरक्षित', private: 'निजी', confidential: 'गोपनीय' },
@@ -123,7 +123,7 @@ async function load() {
   const water = waterRaw.map(w => ({ ...w, date: String(w.date || '').slice(0, 10) })); // one day per row, whether given as a date or a date-time
   // Public datasets that have no built-in dashboard (for example ones a department adds later) get a simple table panel.
   const others = await Promise.all(pub.filter(i => !KNOWN.has(i.group)).slice(0, 12).map(async i => ({ item: i, rows: (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || [] })));
-  D = { others, pdesc, info, status, alerts: alerts || [], fleet, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, at: new Date() };
+  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, at: new Date() };
 }
 
 // ---------- helpers ----------
@@ -147,34 +147,63 @@ const providerOf = g => D.items.find(i => i.group === g)?.providerName || '';
 const fmtTime = d => d.toLocaleTimeString(LANG === 'hi' ? 'hi-IN' : 'en-IN', { hour: '2-digit', minute: '2-digit' });
 const paint = root => root.querySelectorAll('[data-w]').forEach(e => { e.style.width = e.dataset.w + '%'; });
 
+// ---------- icons (stroke icons drawn here; no icon font or external file) ----------
+const IC = {
+  air: '<path d="M3 8h10a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/>',
+  temp: '<path d="M10 14V4a2 2 0 1 1 4 0v10a4 4 0 1 1-4 0Z"/>',
+  rain: '<path d="M7 15a4 4 0 1 1 1-7.9A5 5 0 0 1 18 9a3 3 0 0 1 0 6H7Z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/>',
+  water: '<path d="M12 3s6 7 6 11a6 6 0 0 1-12 0c0-4 6-11 6-11Z"/>',
+  bed: '<path d="M3 18V7M3 13h18v5M21 13a3 3 0 0 0-3-3h-7v3"/><circle cx="7" cy="10" r="1.6"/>',
+  car: '<path d="M5 16V11l2-5h10l2 5v5M5 16h14M5 16v2M19 16v2"/><circle cx="8" cy="13" r="1"/><circle cx="16" cy="13" r="1"/>',
+  bus: '<rect x="5" y="3" width="14" height="14" rx="2"/><path d="M5 11h14M8 20v-3M16 20v-3"/><circle cx="8.5" cy="14" r=".8"/><circle cx="15.5" cy="14" r=".8"/>',
+  cone: '<path d="M9 4h6l4 16H5L9 4ZM7.5 10h9M6.5 15h11M3 20h18"/>',
+  flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19M12 3l5 6H7l5-6Z"/>',
+  data: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/>',
+};
+const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || ''}</svg>`;
+
+// ---------- city pulse (hero) ----------
+function renderPulse() {
+  const c = [];
+  const card = (ic, col, n, unit, label, st) => c.push(`<div class="pc"><div class="ic" data-bg="${col}">${icon(ic)}</div><div class="n">${esc(n)}${unit ? `<small>${esc(unit)}</small>` : ''}</div><div class="l">${esc(label)}</div>${st ? `<span class="st">${esc(st)}</span>` : ''}</div>`);
+  if (D.aq.length) { const v = avg(D.aq.map(a => a.PM2_5)); card('air', QCOL[band(v)], r1(v), 'PM2.5', t('aq'), t('band')[band(v)]); }
+  if (D.wx.length) card('temp', '#f59e0b', r1(avg(D.wx.map(w => w.airTemperature))), '°C', t('temp'), `${t('humidity')} ${r1(avg(D.wx.map(w => w.relativeHumidity)))}%`);
+  if (D.beds.length) card('bed', '#3b82f6', D.beds.reduce((s, b) => s + b.bedsFree, 0), '', t('beds'), `ICU ${D.beds.reduce((s, b) => s + (b.icuFree || 0), 0)}`);
+  if (D.fleet?.fleetOnTimePercent != null) card('bus', '#a855f7', D.fleet.fleetOnTimePercent, '%', t('buses'), `${D.fleet.rows.length} ${t('busesN')}`);
+  else if (D.junc.length) card('car', '#f97316', r1(avg(D.junc.map(j => j.avgSpeed))), t('kmh'), t('traffic'), '');
+  $('#pulse').innerHTML = c.join('');
+  $('#pulse').querySelectorAll('[data-bg]').forEach(e => { e.style.background = e.dataset.bg + '33'; e.style.color = e.dataset.bg; });
+}
+
 // ---------- tiles ----------
 function renderTiles() {
   const out = [];
-  const tile = (k, v, unit, s, cls, src) => out.push(`<div class="tile ${cls || ''}"><div class="k">${esc(k)}</div><div class="v">${esc(v)}${unit ? ` <small>${esc(unit)}</small>` : ''}</div><div class="s">${s}</div>${src ? `<div class="src">${esc(t('source'))}: ${esc(src)}</div>` : ''}</div>`);
-  if (D.aq.length) { const v = avg(D.aq.map(a => a.PM2_5)); const b = band(v); tile(t('aq'), r1(v), 'µg/m³', `<b>${esc(t('band')[b])}</b> · ${esc(t('avgOf', { n: D.aq.length }))}`, 'q' + b, providerOf('aqm')); }
+  let ic = 'data';
+  const tile = (k, v, unit, s, cls, src) => out.push(`<div class="tile ${cls || ''}"><div class="top"><span class="ic">${icon(ic)}</span><div class="k">${esc(k)}</div></div><div class="v">${esc(v)}${unit ? ` <small>${esc(unit)}</small>` : ''}</div><div class="s">${s}</div>${src ? `<div class="src">${esc(t('source'))}: ${esc(src)}</div>` : ''}</div>`);
+  if (D.aq.length) { ic = 'air'; const v = avg(D.aq.map(a => a.PM2_5)); const b = band(v); tile(t('aq'), r1(v), 'µg/m³', `<b>${esc(t('band')[b])}</b> · ${esc(t('avgOf', { n: D.aq.length }))}`, 'q' + b, providerOf('aqm')); }
   if (D.wx.length) {
-    tile(t('temp'), r1(avg(D.wx.map(w => w.airTemperature))), '°C', `${esc(t('humidity'))} ${r1(avg(D.wx.map(w => w.relativeHumidity)))}%`, '', providerOf('weather'));
-    const rain = Math.max(...D.wx.map(w => w.rainfall || 0)); tile(t('rain'), r1(rain), 'mm', esc(t('maxOf', { n: D.wx.length })), rain > 20 ? 'bad' : rain > 5 ? 'warn' : 'ok', providerOf('weather'));
+    ic = 'temp'; tile(t('temp'), r1(avg(D.wx.map(w => w.airTemperature))), '°C', `${esc(t('humidity'))} ${r1(avg(D.wx.map(w => w.relativeHumidity)))}%`, '', providerOf('weather'));
+    ic = 'rain'; const rain = Math.max(...D.wx.map(w => w.rainfall || 0)); tile(t('rain'), r1(rain), 'mm', esc(t('maxOf', { n: D.wx.length })), rain > 20 ? 'bad' : rain > 5 ? 'warn' : 'ok', providerOf('weather'));
   }
   if (D.water.length) {
     const day = last([...new Set(D.water.map(w => w.date))].sort()); const today = D.water.filter(w => w.date === day);
     const low = today.reduce((a, b) => (b.supplyHours < a.supplyHours ? b : a), today[0]);
-    tile(t('water'), r1(avg(today.map(w => w.supplyHours))), t('hDay'), `${esc(t('cityAvg'))} · ${esc(t('lowest'))}: ${esc(low.zone)} (${r1(low.supplyHours)} ${esc(t('hrs'))}) · ${esc(day)}`, low.supplyHours < 4 ? 'warn' : 'ok', providerOf('water'));
+    ic = 'water'; tile(t('water'), r1(avg(today.map(w => w.supplyHours))), t('hDay'), `${esc(t('cityAvg'))} · ${esc(t('lowest'))}: ${esc(low.zone)} (${r1(low.supplyHours)} ${esc(t('hrs'))}) · ${esc(day)}`, low.supplyHours < 4 ? 'warn' : 'ok', providerOf('water'));
   }
-  if (D.beds.length) { const f = D.beds.reduce((s, b) => s + b.bedsFree, 0), n = D.beds.reduce((s, b) => s + b.bedsTotal, 0), icu = D.beds.reduce((s, b) => s + (b.icuFree || 0), 0); tile(t('beds'), f, `${t('of')} ${n}`, `${esc(t('icuFree'))}: <b>${icu}</b>`, pct(f, n) < 10 ? 'bad' : pct(f, n) < 20 ? 'warn' : 'ok', providerOf('beds')); }
-  if (D.junc.length) { const v = avg(D.junc.map(j => j.avgSpeed)); const s = D.junc.reduce((a, b) => (b.avgSpeed < a.avgSpeed ? b : a)); tile(t('traffic'), r1(v), t('kmh'), `${esc(t('slowest'))}: ${esc(s.name)} (${r1(s.avgSpeed)})`, speedCls(v), providerOf('junctions')); }
-  if (D.fleet?.fleetOnTimePercent != null) tile(t('buses'), D.fleet.fleetOnTimePercent, '%', `${D.fleet.rows.length} ${esc(t('bus'))}`, D.fleet.fleetOnTimePercent < 60 ? 'bad' : D.fleet.fleetOnTimePercent < 80 ? 'warn' : 'ok', providerOf('itms'));
-  if (D.roads.length) { const act = D.roads.filter(r => /progress/i.test(r.status)); tile(t('roadworks'), act.length, t('inProgress'), `${act.reduce((s, r) => s + (r.lanesClosed || 0), 0)} ${esc(t('lanesClosed'))}`, act.length ? 'warn' : 'ok', providerOf('roadworks')); }
-  const fl = activeFlood(); tile(t('flood'), fl.length, fl.length ? t('active') : '', fl.length ? esc(fl[0].ward + ': ' + nice(fl[0].text)) : esc(t('none')), fl.length ? 'bad' : 'ok', providerOf('floodalert'));
-  const pubN = D.items.filter(i => i.label === 'public').length; tile(t('datasets'), pubN, '', `${esc(t('publicOf', { n: D.items.length }))} · ${D.providers.size} ${esc(t('depts'))}`, '', '');
+  ic = 'bed'; if (D.beds.length) { const f = D.beds.reduce((s, b) => s + b.bedsFree, 0), n = D.beds.reduce((s, b) => s + b.bedsTotal, 0), icu = D.beds.reduce((s, b) => s + (b.icuFree || 0), 0); tile(t('beds'), f, `${t('of')} ${n}`, `${esc(t('icuFree'))}: <b>${icu}</b>`, pct(f, n) < 10 ? 'bad' : pct(f, n) < 20 ? 'warn' : 'ok', providerOf('beds')); }
+  ic = 'car'; if (D.junc.length) { const v = avg(D.junc.map(j => j.avgSpeed)); const s = D.junc.reduce((a, b) => (b.avgSpeed < a.avgSpeed ? b : a)); tile(t('traffic'), r1(v), t('kmh'), `${esc(t('slowest'))}: ${esc(s.name)} (${r1(s.avgSpeed)})`, speedCls(v), providerOf('junctions')); }
+  ic = 'bus'; if (D.fleet?.fleetOnTimePercent != null) tile(t('buses'), D.fleet.fleetOnTimePercent, '%', `${D.fleet.rows.length} ${esc(t('bus'))}`, D.fleet.fleetOnTimePercent < 60 ? 'bad' : D.fleet.fleetOnTimePercent < 80 ? 'warn' : 'ok', providerOf('itms'));
+  ic = 'cone'; if (D.roads.length) { const act = D.roads.filter(r => /progress/i.test(r.status)); tile(t('roadworks'), act.length, t('inProgress'), `${act.reduce((s, r) => s + (r.lanesClosed || 0), 0)} ${esc(t('lanesClosed'))}`, act.length ? 'warn' : 'ok', providerOf('roadworks')); }
+  ic = 'flood'; const fl = activeFlood(); tile(t('flood'), fl.length, fl.length ? t('active') : '', fl.length ? esc(fl[0].ward + ': ' + nice(fl[0].text)) : esc(t('none')), fl.length ? 'bad' : 'ok', providerOf('floodalert'));
+  ic = 'data'; const pubN = D.items.filter(i => i.label === 'public').length; tile(t('datasets'), pubN, '', `${esc(t('publicOf', { n: D.items.length }))} · ${D.providers.size} ${esc(t('depts'))}`, '', '');
   $('#tiles').innerHTML = out.join('');
 }
 // City-wide alerts from the intelligence layer (newest first, one per message) plus open items in the flood alert dataset.
 function cityAlerts() {
   const seen = new Set(), out = [];
-  for (const x of D.alerts) { if (seen.has(x.msg)) continue; seen.add(x.msg); out.push({ domain: x.domain || '', ward: x.ward || '', text: x.msg || '', at: x.ts, red: /^red\b|severe|critical/i.test(x.msg || '') }); }
+  for (const x of D.alerts) { const key = `${x.domain}|${x.ward}|${x.source}`; if (seen.has(key)) continue; seen.add(key); out.push({ domain: x.domain || '', ward: x.ward || '', text: x.msg || '', at: x.ts, red: /^red\b|severe|critical/i.test(x.msg || '') }); }
   for (const x of D.flood) if (!/clear|resolved|closed/i.test(x.status || '')) out.push({ domain: 'Flood', ward: x.zone || x.ward || '', text: x.message || x.description || x.alertLevel || '', at: x.issuedAt || x.observationDateTime, red: /red|severe/i.test(x.alertLevel || x.severity || '') });
-  return out.slice(0, 6);
+  return out.slice(0, 4);
 }
 const activeFlood = () => cityAlerts().filter(a => a.domain === 'Flood');
 const nice = x => String(x).replace(/urn:[\w.-]+:[\w./-]+/g, id => D.items.find(i => i.id === id)?.name.replace(/\s*\(demo\)$/, '') || id);
@@ -294,7 +323,7 @@ function renderAll() {
   $('#city-name').textContent = city;
   document.title = `${city} ${t('portalName')} (demo)`;
   $('#updated').textContent = fmtTime(D.at);
-  renderTiles(); renderAlerts(); renderMap(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
+  renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
   paint(document);
 }
 

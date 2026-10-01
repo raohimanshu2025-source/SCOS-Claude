@@ -143,7 +143,7 @@ const VIEWS = {
         <details id="dprov"><summary>1. Provider entry for your department</summary><form id="dpf" class="col"><input name="name" placeholder="department name, e.g. Kanpur Jal Sansthan" required><input name="description" placeholder="what data you provide" required><input name="url" placeholder="website (optional)"><button class="btn">Create provider entry</button></form></details>
         <details><summary>2. Add a dataset group (one data model, one resource server)</summary><form id="dgf" class="col"><input name="name" placeholder="group name, e.g. Pumping stations" required><input name="description" placeholder="description" required><input name="tags" placeholder="tags, comma separated"><div class="row"><label class="f">Data model<select name="model" id="dgm"></select></label><label class="f">Resource server<select name="resourceServer" id="dgr"></select></label><label class="f">Access object<select name="accessObjectType"><option>openAPI</option><option>asyncAPI</option><option>custom</option></select></label></div><button class="btn">Add group</button></form></details>
         <details><summary>3. Add a dataset to a group</summary><form id="ddf" class="col"><div class="row"><label class="f">Group<select name="group" id="ddg"></select></label><label class="f">Access label<select name="label"><option>public</option><option>protected</option><option>private</option><option>confidential</option></select></label><label class="f">Type<select name="resourceType"><option>messageStream</option><option>table</option><option>file</option></select></label></div><input name="name" placeholder="dataset name, e.g. Pump station 4" required><input name="description" placeholder="description" required><input name="tags" placeholder="tags, comma separated"><div class="row"><input name="lon" placeholder="longitude (optional)"><input name="lat" placeholder="latitude (optional)"></div><button class="btn">Add dataset</button></form></details>
-        <details><summary>4. Add data to a dataset</summary><form id="dif" class="col"><div class="row"><label class="f">Dataset<select name="id" id="dii"></select></label><label class="f">Tables<select name="mode"><option value="replace">replace rows</option><option value="append">add rows</option></select></label></div><textarea name="rows" rows="6" placeholder="CSV with a header line, or a JSON list. Column names must match the data model, e.g.&#10;level,flow,capacity,observationDateTime&#10;1.2,3.4,2.5,2026-10-01T10:00:00Z"></textarea><button class="btn">Add data</button></form></details>
+        <details><summary>4. Add data to a dataset</summary><form id="dif" class="col"><div class="row"><label class="f">Dataset<select name="id" id="dii"></select></label><label class="f">Tables<select name="mode"><option value="append">add rows</option><option value="replace">replace all rows</option></select></label></div><div id="dcols" class="hint"></div><div id="onerow"></div><p class="hint">Or many rows at once: choose a CSV file (first line = column names; use <b>lon</b> and <b>lat</b> columns for a location), or paste CSV or a JSON list below.</p><div class="row"><input type="file" id="dfile" accept=".csv,.json,text/csv,application/json"><a href="#" id="dtpl" class="btn sm">Download a CSV template</a></div><textarea name="rows" rows="6" placeholder="CSV with a header line, or a JSON list. Column names must match the data model."></textarea><button class="btn">Add rows</button></form></details>
         <div id="dout"></div>`)}</div>`;
     const load = async () => {
       const [c, f] = await Promise.all([api('GET', '/auth/v1/consent'), api('GET', '/auth/v1/flows')]);
@@ -168,10 +168,46 @@ const VIEWS = {
       $('#dgm').innerHTML = opts(dms.body, x => [x, x]); $('#dgr').innerHTML = opts(rss.body, x => [x.id, x.id]);
       $('#ddg').innerHTML = opts(mi.body.filter(i => i.type === 'resourceServerGroup'), x => [x.id, x.name]);
       $('#dii').innerHTML = opts(mi.body.filter(i => i.type === 'resourceItem'), x => [x.id, x.name + ' (' + x.id + ')']);
+      showFields();
     };
     const add = type => async e => { e.preventDefault(); const r = await api('POST', '/catalogue/v1/items/simple', { type, ...Object.fromEntries(new FormData(e.target)) }); out($('#dout'), r); if (r.ok) { toast('Added to the catalogue'); e.target.reset(); mine(); } };
     $('#dpf').onsubmit = add('provider'); $('#dgf').onsubmit = add('group'); $('#ddf').onsubmit = add('dataset');
-    $('#dif').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); let data; try { data = parseRows(f.get('rows')); } catch (x) { return toast('Could not read the rows: ' + x.message); } out($('#dout'), await api('POST', '/resource/v1/ingest', { id: f.get('id'), mode: f.get('mode'), data })); };
+    // Data entry helpers: show the dataset's columns, a one-row form built from its data model, a CSV template and file upload.
+    let FIELDS = [];
+    const modelFields = async id => {
+      const it = await api('GET', '/catalogue/v1/items?id=' + encodeURIComponent(id)); if (!it.ok) return [];
+      const name = String(it.body.refDataModel?.value || '').split('/').filter(Boolean).slice(-2, -1)[0];
+      const dm = await api('GET', '/catalogue/v1/datamodels?name=' + encodeURIComponent(name || '')); if (!dm.ok) return [];
+      return Object.entries(dm.body.properties || {}).map(([k, v]) => ({ k, type: String(v.$ref || '').split('/').pop(), unit: v.unitText || '', min: v.minValue, max: v.maxValue }));
+    };
+    const toPacket = row => { // lon/lat columns become the GeoJSON point the data model asks for; numbers stay numbers
+      const geo = FIELDS.find(f => f.type === 'GeoProperty'); const pk = {};
+      for (const [k, v] of Object.entries(row)) { if (v === '' || v == null || ['lon', 'lat', 'longitude', 'latitude'].includes(k)) continue; const f = FIELDS.find(x => x.k === k); pk[k] = f?.type === 'QuantitativeProperty' ? Number(v) : f?.type === 'TimeProperty' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v) ? new Date(v).toISOString() : v; }
+      const lon = row.lon ?? row.longitude, lat = row.lat ?? row.latitude;
+      if (geo && lon !== undefined && lat !== undefined && lon !== '' && lat !== '') pk[geo.k] = { type: 'Point', coordinates: [Number(lon), Number(lat)] };
+      return pk;
+    };
+    const showFields = async () => {
+      const id = $('#dii').value; FIELDS = id ? await modelFields(id) : [];
+      if (!FIELDS.length) { $('#dcols').innerHTML = ''; $('#onerow').innerHTML = ''; return; }
+      $('#dcols').innerHTML = 'Columns for this dataset: ' + FIELDS.map(f => `<b>${esc(f.k)}</b>${f.unit ? ' (' + esc(f.unit) + (f.min != null ? ', ' + f.min + ' to ' + f.max : '') + ')' : f.type === 'TimeProperty' ? ' (date or date-time)' : f.type === 'GeoProperty' ? ' (lon, lat)' : ''}`).join(', ');
+      const now = new Date(Date.now() - new Date().getTimezoneOffset() * 60e3).toISOString().slice(0, 16);
+      $('#onerow').innerHTML = `<fieldset class="col"><legend>Add one row</legend><div class="grid2">${FIELDS.map(f => f.type === 'GeoProperty'
+        ? `<label class="f">${esc(f.k)} longitude<input data-k="lon" inputmode="decimal"></label><label class="f">${esc(f.k)} latitude<input data-k="lat" inputmode="decimal"></label>`
+        : `<label class="f">${esc(f.k)}${f.unit ? ' (' + esc(f.unit) + ')' : ''}<input data-k="${esc(f.k)}" ${f.type === 'QuantitativeProperty' ? `type="number" step="any"${f.min != null ? ` min="${f.min}" max="${f.max}"` : ''}` : f.type === 'TimeProperty' ? (/date$/i.test(f.k) ? `type="date" value="${now.slice(0, 10)}"` : `type="datetime-local" value="${now}"`) : ''}></label>`).join('')}</div><button type="button" class="btn primary" id="onebtn">Save this row</button></fieldset>`;
+      $('#onerow').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#onebtn').click(); } };
+      $('#onebtn').onclick = async () => {
+        const row = {}; $('#onerow').querySelectorAll('[data-k]').forEach(i => { row[i.dataset.k] = i.value.trim(); });
+        const r = await api('POST', '/resource/v1/ingest', { id: $('#dii').value, mode: 'append', data: [toPacket(row)] }); out($('#dout'), r);
+        if (r.ok) toast('Row saved. Public datasets show it on the home page within a minute.');
+      };
+    };
+    $('#dii').onchange = showFields;
+    $('#dtpl').onclick = e => { e.preventDefault(); if (!FIELDS.length) return toast('Choose a dataset first');
+      const head = FIELDS.flatMap(f => (f.type === 'GeoProperty' ? ['lon', 'lat'] : [f.k]));
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([head.join(',') + '\n'], { type: 'text/csv' })); a.download = ($('#dii').value.split('/').pop() || 'dataset') + '-template.csv'; a.click(); };
+    $('#dfile').onchange = async e => { const f = e.target.files[0]; if (f) { $('#dif').elements.rows.value = await f.text(); toast(`Read ${f.name}. Check the rows, then click Add rows.`); } };
+    $('#dif').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); let data; try { data = parseRows(f.get('rows')).map(toPacket); } catch (x) { return toast('Could not read the rows: ' + x.message); } const r = await api('POST', '/resource/v1/ingest', { id: f.get('id'), mode: f.get('mode'), data }); out($('#dout'), r); if (r.ok) toast(`${data.length} row(s) saved.`); };
     load(); mine();
   },
 

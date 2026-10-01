@@ -36,7 +36,7 @@ const T = {
     station: 'Station', rainMm: 'Rain mm', humid: 'Humidity', wind: 'Wind', zone: 'Zone', hrs: 'h', bar: 'bar', free: 'free', of: 'of', occupied: 'occupied', vehicles: 'vehicles/15 min', kmh: 'km/h',
     bus: 'Bus', route: 'Route', onTime: 'On time', delay: 'Delay', status: 'Status', road: 'Road', from: 'From', to: 'to', lanes: 'Lanes closed', byZone: 'Applications by zone',
     dataset: 'Dataset', model: 'Data type', get: 'Get data', all: 'All', loginToAsk: 'Officers ask for access after login', download: 'JSON', items: 'datasets', publicN: 'public',
-    viewData: 'See its datasets', up: 'Up', down: 'Down', uptime: 'uptime, last 24 h', by: 'Data from', noData: 'No data yet.', minutes: 'min',
+    viewData: 'See its datasets', up: 'Up', down: 'Down', uptime: 'uptime, last 24 h', by: 'Data from', noData: 'No data yet.', latestN: 'latest {n}', rowsTotal: 'rows in total', minutes: 'min',
     accessName: { public: 'Public', protected: 'Protected', private: 'Private', confidential: 'Confidential' },
     accessHelp: { public: 'Anyone can open it', protected: 'Departments named in the policy, or after the owner approves a request', private: 'Only departments the owner names', confidential: 'Owner and control room only' },
   },
@@ -65,7 +65,7 @@ const T = {
     station: 'स्टेशन', rainMm: 'वर्षा मिमी', humid: 'आर्द्रता', wind: 'हवा', zone: 'ज़ोन', hrs: 'घं', bar: 'बार', free: 'खाली', of: 'में से', occupied: 'भरे', vehicles: 'वाहन/15 मिनट', kmh: 'किमी/घं',
     bus: 'बस', route: 'रूट', onTime: 'समय पर', delay: 'देरी', status: 'स्थिति', road: 'सड़क', from: 'से', to: 'तक', lanes: 'बंद लेन', byZone: 'ज़ोन अनुसार आवेदन',
     dataset: 'डेटासेट', model: 'डेटा प्रकार', get: 'डेटा लें', all: 'सभी', loginToAsk: 'अधिकारी लॉगिन के बाद पहुँच माँगते हैं', download: 'JSON', items: 'डेटासेट', publicN: 'सार्वजनिक',
-    viewData: 'इसके डेटासेट देखें', up: 'चालू', down: 'बंद', uptime: 'उपलब्धता, पिछले 24 घंटे', by: 'डेटा स्रोत', noData: 'अभी कोई डेटा नहीं।', minutes: 'मिनट',
+    viewData: 'इसके डेटासेट देखें', up: 'चालू', down: 'बंद', uptime: 'उपलब्धता, पिछले 24 घंटे', by: 'डेटा स्रोत', noData: 'अभी कोई डेटा नहीं।', latestN: 'नवीनतम {n}', rowsTotal: 'कुल पंक्तियाँ', minutes: 'मिनट',
     accessName: { public: 'सार्वजनिक', protected: 'संरक्षित', private: 'निजी', confidential: 'गोपनीय' },
     accessHelp: { public: 'कोई भी खोल सकता है', protected: 'नीति में नामित विभाग, या मालिक की स्वीकृति के बाद', private: 'केवल मालिक द्वारा नामित विभाग', confidential: 'केवल मालिक और कंट्रोल रूम' },
   },
@@ -102,10 +102,12 @@ const V = d => d?.value;
 const gkey = g => String(g || '').split('/').pop();
 
 let D = null; // last loaded data
+const KNOWN = new Set(['aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
 async function load() {
   const [info, cat, status, alerts, fleet] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance'))]);
   const docs = cat.results;
   const providers = new Map(docs.filter(d => V(d.itemType) === 'provider').map(d => [d.id, V(d.name)]));
+  const pdesc = new Map(docs.filter(d => V(d.itemType) === 'provider').map(d => [d.id, V(d.itemDescription) || '']));
   const groups = new Map(docs.filter(d => V(d.itemType) === 'resourceServerGroup').map(d => [d.id, { name: V(d.name), provider: V(d.provider) }]));
   const items = docs.filter(d => V(d.itemType) === 'resourceItem').map(d => {
     const g = groups.get(V(d.resourceServerGroup)) || {};
@@ -116,9 +118,12 @@ async function load() {
   const latest = async g => (await Promise.all(byGroup(g).map(i => soft(get('/resource/v1/latest?id=' + encodeURIComponent(i.id)))))).filter(Boolean).map(x => (Array.isArray(x.results) ? x.results[0] : x)).filter(Boolean);
   const rows = async g => { const i = byGroup(g)[0]; if (!i) return []; const r = await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))); return r?.results || []; };
   const series = async g => Promise.all(byGroup(g).map(async i => (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || []));
-  const [aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones] = await Promise.all([
+  const [aq, aqSeries, wx, beds, junc, bus, waterRaw, roads, permits, flood, zones] = await Promise.all([
     latest('aqm'), series('aqm'), latest('weather'), latest('beds'), latest('junctions'), latest('itms'), rows('water'), rows('roadworks'), rows('permits'), rows('floodalert'), rows('gis')]);
-  D = { info, status, alerts: alerts || [], fleet, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, at: new Date() };
+  const water = waterRaw.map(w => ({ ...w, date: String(w.date || '').slice(0, 10) })); // one day per row, whether given as a date or a date-time
+  // Public datasets that have no built-in dashboard (for example ones a department adds later) get a simple table panel.
+  const others = await Promise.all(pub.filter(i => !KNOWN.has(i.group)).slice(0, 12).map(async i => ({ item: i, rows: (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || [] })));
+  D = { others, pdesc, info, status, alerts: alerts || [], fleet, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, at: new Date() };
 }
 
 // ---------- helpers ----------
@@ -248,6 +253,10 @@ function renderDash() {
     const mx = Math.max(...Object.values(zn));
     P.push(panel(t('pPermit'), providerOf('permits'), `<div class="kv">${Object.entries(st).map(([k, v]) => `<div><b>${v}</b><span>${esc(k)}</span></div>`).join('')}</div><p class="foot-note">${esc(t('byZone'))}</p>` + bars(Object.entries(zn).sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true })).map(([k, v]) => ({ label: k, value: v, max: mx, text: String(v) })))));
   }
+  for (const { item, rows } of D.others) {
+    const recent = rows.slice(-5).reverse(); const cols = [...new Set(recent.flatMap(r => Object.keys(r)))].filter(k => !['@context', 'id', 'location'].includes(k) && recent.every(r => typeof r[k] !== 'object')).slice(0, 5);
+    P.push(panel(item.name.replace(/\s*\(demo\)$/, ''), item.providerName, recent.length ? `<div class="tbl-wrap"><table class="tbl"><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr>${recent.map(r => `<tr>${cols.map(c => `<td${typeof r[c] === 'number' ? ' class="n"' : ''}>${esc(r[c])}</td>`).join('')}</tr>`).join('')}</table></div>` : `<p class="muted">${esc(t('noData'))}</p>`, rows.length > 5 ? `${t('latestN', { n: 5 })} · ${rows.length} ${t('rowsTotal')}` : ''));
+  }
   const fl = activeFlood();
   if (D.items.some(i => i.group === 'floodalert')) P.push(panel(t('pFlood'), providerOf('floodalert'), fl.length ? `<div class="alerts">${fl.map(a => `<div class="alert ${a.red ? 'bad' : 'warn'}"><div>${alertLine(a)}</div></div>`).join('')}</div>` : `<p>${esc(t('noAlerts'))}</p>`));
   $('#dashgrid').innerHTML = P.join('') || `<p class="muted">${esc(t('noData'))}</p>`;
@@ -258,7 +267,7 @@ function renderDash() {
 function renderDepts() {
   $('#deptgrid').innerHTML = [...D.providers].map(([id, name]) => {
     const mine = D.items.filter(i => i.provider === id), pub = mine.filter(i => i.label === 'public').length, key = id.split('/').pop();
-    return `<article class="dept"><h3>${esc(name)}</h3><p>${esc(ROLE[LANG][key] || ROLE.en[key] || '')}</p><div class="counts"><span class="badge info">${mine.length} ${esc(t('items'))}</span><span class="badge ok">${pub} ${esc(t('publicN'))}</span></div><button type="button" data-p="${esc(id)}">${esc(t('viewData'))}</button></article>`;
+    return `<article class="dept"><h3>${esc(name)}</h3><p>${esc(ROLE[LANG][key] || ROLE.en[key] || D.pdesc.get(id) || '')}</p><div class="counts"><span class="badge info">${mine.length} ${esc(t('items'))}</span><span class="badge ok">${pub} ${esc(t('publicN'))}</span></div><button type="button" data-p="${esc(id)}">${esc(t('viewData'))}</button></article>`;
   }).join('');
   $('#deptgrid').querySelectorAll('button[data-p]').forEach(b => { b.onclick = () => { $('#fdept').value = b.dataset.p; renderData(); $('#data').scrollIntoView({ behavior: 'smooth' }); }; });
 }

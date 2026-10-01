@@ -68,6 +68,7 @@ else
   echo "  b) Or press Ctrl+C, run:  GITHUB_TOKEN= gh auth login -s codespace   (GitHub.com, HTTPS, log in with a web browser), then run this script again."
   echo "  (details: $STATE/gh-error.txt)"
 fi
+echo "The link opens the public portal; officials click Officer login at the top right."
 echo "Keep this window open. Press Ctrl+C to stop the website."
 echo "============================================================================="
 wait $SERVER

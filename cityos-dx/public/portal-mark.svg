@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="City data portal mark">
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="#123a63"/>
+  <path d="M12 46h40" stroke="#f2a33a" stroke-width="3" stroke-linecap="round"/>
+  <path d="M16 46V30h7v16M26 46V20h8v26M37 46V26h7v20" fill="none" stroke="#ffffff" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="47" cy="17" r="4" fill="#f2a33a"/>
+  <path d="M30 20 47 17" stroke="#f2a33a" stroke-width="2" stroke-dasharray="2 3"/>
+</svg>

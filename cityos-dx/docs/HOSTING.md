@@ -51,6 +51,8 @@ Use this when no cloud machine is available. Codespaces is free in the GitHub St
 3. The script makes port 8080 public by itself when GitHub allows it, and says so. If it says the link is still private: press Ctrl+J if no panel shows, open the **PORTS** tab, right-click port **8080**, choose **Port Visibility > Public**. (Port 8080 is a small plain-HTTP front door to the server on 8443, so GitHub's forwarding needs no protocol setting.)
 4. Keep the browser tab open during the demo. Press Ctrl+C to stop. Next time, open the same codespace from **Code > Codespaces** and run step 2 again; the data and passwords are kept.
 
+The link opens the public portal (dashboards anyone can see). Officials click **Officer login** at the top right to use their logins.
+
 Through the Codespaces link, people use the website with their logins as usual. Machine-to-machine API calls with client certificates (BIS 5.1 mutual TLS) do not pass through the Codespaces link; use a cloud machine for those.
 
 ## Logins

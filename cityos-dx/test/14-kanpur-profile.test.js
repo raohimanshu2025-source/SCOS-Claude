@@ -42,3 +42,11 @@ test('cross-department access follows the policies: allowed on the policy, conse
   assert.equal(no.status, 403);
   assert.match(no.body.error, /consent request/);
 });
+
+test('the public portal can read what it shows without a login, and nothing protected', async () => {
+  const pub = ['urn:demo-cat:aqm/aqm-1', 'urn:demo-cat:beds/beds-1', 'urn:demo-cat:water/water-supply-daily', 'urn:demo-cat:roadworks/road-works'];
+  for (const id of pub) assert.equal((await c.req('GET', '/resource/v1/search?id=' + encodeURIComponent(id))).status, 200, id);
+  assert.equal((await c.req('GET', '/resource/v1/latest?id=urn:demo-cat:feeders/feeder-1')).status, 401);
+  assert.equal((await c.req('POST', '/cil/v1/publictransit/fleetPerformance', { body: {} })).status, 200);
+  assert.equal((await c.req('POST', '/cil/v1/flood/drainStatus', { body: {} })).status, 401);
+});

@@ -83,10 +83,16 @@ test('[BIS-01][BIS-02][BIS-03][BIS-06][BIS-19][BIS-26][BIS-15][BIS-48] catalogue
 });
 
 test('[BIS-13][BIS-24] the officer web console is served and needs no install', async () => {
-  const r = await c.req('GET', '/', { raw: true });
+  const r = await c.req('GET', '/console.html', { raw: true });
   assert.equal(r.status, 200);
   assert.match(r.body, /City OS Data Exchange Console/);
   assert.match(r.body, /synthetic demo data\. Not an official, certified or live city system/);
+  assert.equal((await c.req('GET', '/console', { raw: true })).status, 200);
+  // the public portal at / links to the console and carries the demo notice
+  const home = await c.req('GET', '/', { raw: true });
+  assert.match(home.body, /href="\/console\.html"/);
+  assert.match(home.body, /synthetic demo data\. Not an official government website and not a live city system/);
+  for (const f of ['/portal.js', '/portal.css', '/portal-mark.svg']) assert.equal((await c.req('GET', f, { raw: true })).status, 200, f);
   const js = await c.req('GET', '/app.js', { raw: true });
   assert.match(js.headers['content-type'], /javascript/);
 });

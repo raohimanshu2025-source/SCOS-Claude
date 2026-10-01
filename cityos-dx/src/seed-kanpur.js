@@ -126,6 +126,7 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   group('beds', 'Hospital beds', 'cmo', 'rs1', 'hospitalBeds', 'openAPI');
   group('permits', 'Building permissions', 'kda', 'rs1', 'buildingPermit', 'openAPI');
   group('roadworks', 'Road works', 'pwd', 'rs1', 'roadWork', 'openAPI');
+  group('outages', 'Power cut notices', 'kesco', 'rs1', 'powerNotice', 'openAPI');
   group('itms', 'Bus positions', 'kctsl', 'rs1', 'busPosition', 'asyncAPI');
   group('stops', 'Bus stops', 'kctsl', 'rs1', 'busStops', 'openAPI');
   group('fare', 'Fare revenue', 'kctsl', 'rs1', 'fareRevenue', 'openAPI');
@@ -204,6 +205,15 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   ingest(permitId, Array.from({ length: 30 }, (_, i) => ({ permitId: 'KDA-BP-' + (8100 + i), zone: ZONES[Math.floor(rnd() * 6)].id, use: ['Residential', 'Commercial', 'Mixed use', 'Institutional'][Math.floor(rnd() * 4)], floors: 1 + Math.floor(rnd() * 6), status: ['Received', 'Under scrutiny', 'Approved', 'Returned'][Math.floor(rnd() * 4)], date: DAYS[Math.floor(rnd() * 14)] })));
   const roadId = res({ key: 'road-works', grp: 'roadworks', name: 'Road works and lane closures', desc: 'Current and planned works (synthetic).', tags: ['roads', 'works', 'traffic'], rtype: 'table', label: 'public' });
   ingest(roadId, [['GT Road near Rawatpur', 'Zone 2', 'In progress', 1], ['VIP Road', 'Zone 3', 'Planned', 1], ['Kalpi Road', 'Zone 4', 'In progress', 2], ['Jajmau bridge approach', 'Zone 6', 'Completed', 0], ['Mall Road', 'Zone 5', 'Planned', 1]].map(([road, zone, status, lanes], i) => ({ workId: 'PWD-' + (310 + i), road: road + ' (demo)', zone, status, lanesClosed: lanes, startDate: DAYS[2 + i * 2], endDate: DAYS[Math.min(13, 6 + i * 2)] })));
+  // KESCO power cut notices (public): planned shutdowns and the Jajmau feeder trip shown in the feeder data
+  const hr = h => iso(Math.floor(now / 3600e3) * 3600e3 + h * 3600e3);
+  const outId = res({ key: 'power-cut-notices', grp: 'outages', name: 'Power cut notices', desc: 'Planned shutdowns and current unplanned cuts by area (synthetic).', tags: ['power', 'electricity', 'outage', 'notice'], rtype: 'table', label: 'public' });
+  ingest(outId, [
+    ['KESCO-N-501', 'Jajmau and Chakeri (feeder 2)', 'Zone 6', 'Unplanned', -2, 3, 'Feeder tripped; repair team on site', 'Restoration in progress'],
+    ['KESCO-N-502', 'Swaroop Nagar', 'Zone 2', 'Planned', 14, 18, 'Line maintenance', 'Scheduled'],
+    ['KESCO-N-503', 'Govind Nagar', 'Zone 5', 'Planned', 38, 41, 'Transformer replacement', 'Scheduled'],
+    ['KESCO-N-500', 'Kalyanpur', 'Zone 1', 'Unplanned', -20, -17, 'Cable fault', 'Restored'],
+  ].map(([noticeId, area, zone, type, a, b, reason, status]) => ({ noticeId, area: area + ' (demo)', zone, type, from: hr(a), to: hr(b), reason, status })));
   // KCTSL buses
   const ROUTES = { 'R-1': ['Kalyanpur', 'Rawatpur', 'SwaroopNagar', 'Parade', 'Central', 'Jajmau'], 'R-7': ['Panki', 'Kakadeo', 'GovindNagar', 'KidwaiNagar', 'Naubasta'] };
   const stopsId = res({ key: 'bus-stops', grp: 'stops', name: 'City bus stops (demo routes 1 and 7)', desc: 'Stop locations for two demo routes.', tags: ['transport', 'bus', 'stops'], rtype: 'table', label: 'public' });

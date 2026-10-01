@@ -48,7 +48,7 @@ Use this when no cloud machine is available. Codespaces is free in the GitHub St
 
 1. On the repository page on GitHub, click **Code > Codespaces > Create codespace on main**. Wait until the editor opens.
 2. In the terminal at the bottom, run `bash cityos-dx/deploy/start-codespace.sh`. It prints the link and the logins (also kept in `~/cityos-dx-state/logins.txt`).
-3. Open the **PORTS** tab, right-click port **8443**, choose **Port Visibility > Public**. Now officials can open the link.
+3. The script makes port 8443 public by itself when GitHub allows it, and says so. If it says the link is still private: press Ctrl+J if no panel shows, open the **PORTS** tab, right-click port **8443**, choose **Port Visibility > Public**.
 4. Keep the browser tab open during the demo. Press Ctrl+C to stop. Next time, open the same codespace from **Code > Codespaces** and run step 2 again; the data and passwords are kept.
 
 Through the Codespaces link, people use the website with their logins as usual. Machine-to-machine API calls with client certificates (BIS 5.1 mutual TLS) do not pass through the Codespaces link; use a cloud machine for those.

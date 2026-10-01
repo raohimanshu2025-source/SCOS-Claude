@@ -25,14 +25,32 @@ node scripts/init-pki.js >/dev/null
 printf 'Demo site: %s\nDemo accounts (give these to officials): officer.transport, officer.wd, officer.pcc, officer.cs, officer.mc, control, planner, analyst, developer, auditor\nDemo password: %s\nAdministrator (keep private): admin / %s\n' \
   "$LINK" "$DX_SEED_PASSWORD" "$DX_SEED_ADMIN_PASSWORD" > "$STATE/logins.txt"; chmod 600 "$STATE/logins.txt"
 
-# Try to make the link public; if this is not allowed, do it by hand in the Ports tab.
+# Start the server, wait until it answers, then make port 8443 public so officials can open the link.
+node --no-warnings src/server.js &
+SERVER=$!
+trap 'kill $SERVER 2>/dev/null' INT TERM
+for _ in $(seq 1 60); do curl -sk -o /dev/null https://127.0.0.1:8443/ && break; sleep 1; done
 PUBLIC_OK=0
-command -v gh >/dev/null && gh codespace ports visibility 8443:public -c "$CODESPACE_NAME" >/dev/null 2>&1 && PUBLIC_OK=1
+if command -v gh >/dev/null; then
+  for _ in 1 2 3 4 5; do
+    if gh codespace ports visibility 8443:public -c "$CODESPACE_NAME" >/dev/null 2>"$STATE/gh-error.txt"; then PUBLIC_OK=1; break; fi
+    # the codespace's built-in token may not be allowed to change ports; try again without it (uses gh auth login, if done)
+    if GITHUB_TOKEN= gh codespace ports visibility 8443:public -c "$CODESPACE_NAME" >/dev/null 2>>"$STATE/gh-error.txt"; then PUBLIC_OK=1; break; fi
+    sleep 3
+  done
+fi
 
 echo
 echo "================ City OS demo (demo data, not a live system) ================"
 cat "$STATE/logins.txt"
-[ "$PUBLIC_OK" = 1 ] || echo "STEP NEEDED: open the PORTS tab, right-click port 8443 > Port Visibility > Public."
+if [ "$PUBLIC_OK" = 1 ]; then
+  echo "The link is PUBLIC: officials can open it."
+else
+  echo "The link is still PRIVATE. Make it public in one of these ways:"
+  echo "  a) Press Ctrl+J if no panel shows at the bottom, click the PORTS tab, right-click 8443 > Port Visibility > Public."
+  echo "  b) Or press Ctrl+C, run:  GITHUB_TOKEN= gh auth login -s codespace   (GitHub.com, HTTPS, log in with a web browser), then run this script again."
+  echo "  (details: $STATE/gh-error.txt)"
+fi
 echo "Keep this window open. Press Ctrl+C to stop the website."
 echo "============================================================================="
-exec node --no-warnings src/server.js
+wait $SERVER

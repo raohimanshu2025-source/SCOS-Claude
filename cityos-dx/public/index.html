@@ -3,21 +3,147 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>City OS Data Exchange Console</title>
-<link rel="icon" href="data:,">
-<link rel="stylesheet" href="/app.css">
-<script src="/app.js" defer></script>
+<title>City Data Portal (demo)</title>
+<meta name="description" content="Public city data portal with live dashboards. Independent research prototype with synthetic demo data; not an official government website.">
+<link rel="icon" href="/portal-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/portal.css">
+<script src="/portal.js" defer></script>
 </head>
 <body>
-<header class="top"><div class="top-in">
-  <div class="brand"><h1>City OS Data Exchange Console</h1><small>Reference implementation of BIS draft IS 18XXXX-X (Part 1):2019 and the City OS &amp; CIL paper v1.1 (2023)</small></div>
-  <p class="notice">Research reference implementation with synthetic demo data. Not an official, certified or live city system.</p>
-  <div class="who" id="who"></div>
-</div></header>
-<div class="shell">
-  <nav class="side" id="nav" aria-label="Screens"></nav>
-  <main id="main"><p class="muted">Loading…</p></main>
+<a class="skip" href="#content" data-i18n="skip">Skip to main content</a>
+
+<div class="strip" role="note">
+  <div class="wrap strip-in">
+    <p class="strip-msg"><b data-i18n="demoTag">DEMO</b> <span data-i18n="stripMsg">Independent research prototype with synthetic demo data. Not an official government website and not a live city system.</span></p>
+    <div class="a11y" aria-label="Display settings">
+      <button type="button" class="a11y-btn" id="fs-dn" aria-label="Smaller text">A−</button>
+      <button type="button" class="a11y-btn" id="fs-0" aria-label="Normal text">A</button>
+      <button type="button" class="a11y-btn" id="fs-up" aria-label="Larger text">A+</button>
+      <button type="button" class="a11y-btn" id="contrast" aria-pressed="false" data-i18n="contrast">High contrast</button>
+      <button type="button" class="a11y-btn lang" id="lang" lang="hi">हिंदी</button>
+    </div>
+  </div>
 </div>
-<div class="toast" id="toast" hidden></div>
+
+<header class="mast">
+  <div class="wrap mast-in">
+    <a class="brand" href="/" aria-label="Home">
+      <img src="/portal-mark.svg" alt="" width="52" height="52">
+      <span class="brand-t">
+        <span class="brand-1"><span id="city-name">City</span> <span data-i18n="portalName">City Data Portal</span></span>
+        <span class="brand-2" data-i18n="portalSub">Shared city data and live dashboards for departments and citizens</span>
+      </span>
+    </a>
+    <a class="login-btn" href="/console.html"><span data-i18n="officerLogin">Officer login</span></a>
+  </div>
+</header>
+
+<nav class="menu" aria-label="Sections">
+  <div class="wrap menu-in" id="menu">
+    <a href="#glance" data-i18n="navHome">City today</a>
+    <a href="#map" data-i18n="navMap">Map</a>
+    <a href="#dash" data-i18n="navDash">Dashboards</a>
+    <a href="#depts" data-i18n="navDepts">Departments</a>
+    <a href="#data" data-i18n="navData">Open data</a>
+    <a href="#status" data-i18n="navStatus">Service status</a>
+    <a href="#about" data-i18n="navAbout">About</a>
+  </div>
+</nav>
+
+<main id="content">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div>
+        <h1 data-i18n="heroTitle">One place for the city's data</h1>
+        <p class="lead" data-i18n="heroLead">Departments publish their data once on a shared data exchange. Citizens see the public parts here. Officers log in to share protected data with other departments, with consent and a full audit trail.</p>
+      </div>
+      <div class="hero-meta">
+        <p><span class="live-dot" aria-hidden="true"></span> <span data-i18n="updated">Updated</span> <b id="updated">…</b></p>
+        <p class="muted small" data-i18n="refreshNote">Refreshes every minute.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="glance" class="sec">
+    <div class="wrap">
+      <h2 data-i18n="glanceTitle">The city today</h2>
+      <div class="tiles" id="tiles"><p class="muted">…</p></div>
+      <div id="alerts" class="alerts"></div>
+    </div>
+  </section>
+
+  <section id="map" class="sec alt">
+    <div class="wrap">
+      <h2 data-i18n="mapTitle">City map</h2>
+      <p class="muted" data-i18n="mapNote">Zones are a synthetic grid and all points are approximate demo locations.</p>
+      <div class="map-box">
+        <div class="layers" id="layers" role="group" aria-label="Map layers"></div>
+        <div id="mapsvg" class="mapsvg"></div>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dash" class="sec">
+    <div class="wrap">
+      <h2 data-i18n="dashTitle">Live dashboards</h2>
+      <div class="dash" id="dashgrid"></div>
+    </div>
+  </section>
+
+  <section id="depts" class="sec alt">
+    <div class="wrap">
+      <h2 data-i18n="deptTitle">Departments on the data exchange</h2>
+      <p class="muted" data-i18n="deptNote">Each department publishes its own data and decides who may see it. Names are used for demonstration only; no department has supplied or approved this data.</p>
+      <div class="depts" id="deptgrid"></div>
+    </div>
+  </section>
+
+  <section id="data" class="sec">
+    <div class="wrap">
+      <h2 data-i18n="dataTitle">Open data catalogue</h2>
+      <div class="filters">
+        <label><span data-i18n="search">Search</span> <input id="q" type="search" autocomplete="off"></label>
+        <label><span data-i18n="department">Department</span> <select id="fdept"></select></label>
+        <label><span data-i18n="access">Access</span> <select id="facc"></select></label>
+      </div>
+      <div id="datatable"></div>
+    </div>
+  </section>
+
+  <section id="status" class="sec alt">
+    <div class="wrap">
+      <h2 data-i18n="statusTitle">Service status</h2>
+      <div id="services" class="services"></div>
+    </div>
+  </section>
+
+  <section id="about" class="sec">
+    <div class="wrap about">
+      <div>
+        <h2 data-i18n="aboutTitle">About this portal</h2>
+        <p data-i18n="about1">This portal shows how a City Operating System could work: a data exchange where departments publish data with access rules, and a city intelligence layer that turns the data into dashboards and alerts.</p>
+        <p data-i18n="about2">It follows two public documents: the BIS draft "Unified Digital Infrastructure – ICT Reference Architecture, Part 1: Data Exchange" (2019) and the paper "City Operating System and City Intelligence Layer" (v1.1, 2023). Parts that the documents do not ask for are listed in the project's conformance notes.</p>
+        <p class="warn-box" data-i18n="about3">All data here is synthetic. Department names are used only to show how the system would be organised. This is not an official website of any government body, and nothing here should be used for real decisions.</p>
+      </div>
+      <div>
+        <h3 data-i18n="howTitle">How officials use it</h3>
+        <ol class="how">
+          <li data-i18n="how1">Open this page: anyone sees the public dashboards and open data.</li>
+          <li data-i18n="how2">Click Officer login. A department's data officer publishes datasets and sets who may see them.</li>
+          <li data-i18n="how3">Staff of another department search the catalogue and ask for access. The owner approves or refuses, and every step is written to the audit log.</li>
+          <li data-i18n="how4">The control room login sees all analytics and alerts across departments.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p data-i18n="foot1">Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.</p>
+    <p class="small"><a href="/console.html" data-i18n="officerLogin">Officer login</a> · <a href="/status/v1" data-i18n="apiStatus">Status API</a> · <a href="/api" data-i18n="apiList">API list</a></p>
+  </div>
+</footer>
 </body>
 </html>

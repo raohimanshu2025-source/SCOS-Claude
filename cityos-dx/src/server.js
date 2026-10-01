@@ -235,7 +235,7 @@ export function createApp(overrides = {}) {
   }
   function send(res, status, obj) { res.writeHead(status, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }); res.end(JSON.stringify(obj)); }
   function serveStatic(p, res) {
-    const rel = p === '/' ? 'index.html' : decodeURIComponent(p).replace(/^\/+/, '');
+    const rel = p === '/' ? 'index.html' : p === '/console' ? 'console.html' : decodeURIComponent(p).replace(/^\/+/, '');
     const file = path.resolve(cfg.staticDir, rel);
     if (!file.startsWith(cfg.staticDir + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) return send(res, 404, { error: 'not found' });
     res.writeHead(200, { 'content-type': MIME[path.extname(file)] || 'application/octet-stream', 'cache-control': 'no-cache' });

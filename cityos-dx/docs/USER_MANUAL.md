@@ -4,7 +4,7 @@ This manual is for the people who use the console: the DX administrator, data of
 
 ## 1. Signing in
 
-1. Open the console address (for the demo, https://localhost:8443).
+1. Open the site (for the demo, https://localhost:8443). The home page is the public portal that anyone can see. Click **Officer login** (or open `/console.html`) to reach the console.
 2. Enter your username and password. The administrator gives you these.
 3. On first login you must choose a new password: at least 12 characters, with letters and digits.
 4. After 5 wrong passwords the account locks for 15 minutes. The administrator can unlock it sooner.

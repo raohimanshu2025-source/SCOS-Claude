@@ -63,6 +63,7 @@ export const MODELS = {
   fireCall: { describes: 'Fire and rescue call record', props: { callId: ['Property'], zone: ['Property'], type: ['Property'], location: ['GeoProperty'], reportedAt: ['TimeProperty'], status: ['Property'], responseMinutes: ['QuantitativeProperty', 'MIN', 'minute', 0, 600] } },
   hospitalBeds: { describes: 'Hospital bed availability', props: { hospitalId: ['Property'], name: ['Property'], location: ['GeoProperty'], bedsTotal: ['QuantitativeProperty', 'C62', 'one', 0, 5000], bedsFree: ['QuantitativeProperty', 'C62', 'one', 0, 5000], icuFree: ['QuantitativeProperty', 'C62', 'one', 0, 500], observationDateTime: ['TimeProperty'] } },
   buildingPermit: { describes: 'Building permission application', props: { permitId: ['Property'], zone: ['Property'], use: ['Property'], floors: ['QuantitativeProperty', 'C62', 'one', 0, 100], status: ['Property'], date: ['TimeProperty'] } },
+  powerNotice: { describes: 'Power cut notice for an area', props: { noticeId: ['Property'], area: ['Property'], zone: ['Property'], type: ['Property'], from: ['TimeProperty'], to: ['TimeProperty'], reason: ['Property'], status: ['Property'] } },
   roadWork: { describes: 'Road work and lane closure', props: { workId: ['Property'], road: ['Property'], zone: ['Property'], status: ['Property'], lanesClosed: ['QuantitativeProperty', 'C62', 'one', 0, 10], startDate: ['TimeProperty'], endDate: ['Property'] } },
 };
 

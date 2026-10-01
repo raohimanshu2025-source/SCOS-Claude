@@ -44,9 +44,17 @@ test('cross-department access follows the policies: allowed on the policy, conse
 });
 
 test('the public portal can read what it shows without a login, and nothing protected', async () => {
-  const pub = ['urn:demo-cat:aqm/aqm-1', 'urn:demo-cat:beds/beds-1', 'urn:demo-cat:water/water-supply-daily', 'urn:demo-cat:roadworks/road-works'];
+  const pub = ['urn:demo-cat:aqm/aqm-1', 'urn:demo-cat:beds/beds-1', 'urn:demo-cat:water/water-supply-daily', 'urn:demo-cat:roadworks/road-works', 'urn:demo-cat:outages/power-cut-notices'];
   for (const id of pub) assert.equal((await c.req('GET', '/resource/v1/search?id=' + encodeURIComponent(id))).status, 200, id);
   assert.equal((await c.req('GET', '/resource/v1/latest?id=urn:demo-cat:feeders/feeder-1')).status, 401);
   assert.equal((await c.req('POST', '/cil/v1/publictransit/fleetPerformance', { body: {} })).status, 200);
   assert.equal((await c.req('POST', '/cil/v1/flood/drainStatus', { body: {} })).status, 401);
+});
+
+test('power cut notices for the citizen button are public and follow the powerNotice model', async () => {
+  const r = await c.req('GET', '/resource/v1/search?id=' + encodeURIComponent('urn:demo-cat:outages/power-cut-notices'));
+  assert.equal(r.status, 200);
+  const rows = r.body.results ?? r.body;
+  assert.ok(Array.isArray(rows) && rows.length >= 4, JSON.stringify(r.body).slice(0, 200));
+  for (const n of rows) for (const k of ['noticeId', 'area', 'zone', 'from', 'to', 'status']) assert.ok(n[k] != null, k);
 });

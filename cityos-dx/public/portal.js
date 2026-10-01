@@ -15,6 +15,14 @@ const T = {
     contrast: 'High contrast', portalName: 'City Data Portal', portalSub: 'Shared city data and live dashboards for departments and citizens', officerLogin: 'Officer login',
     navHome: 'City today', navMap: 'Map', navDash: 'Dashboards', navDepts: 'Departments', navData: 'Open data', navStatus: 'Service status', navAbout: 'About',
     heroTitle: "One place for the city's data", heroLead: 'Departments publish their data once on a shared data exchange. Citizens see the public parts here. Officers log in to share protected data with other departments, with consent and a full audit trail.',
+    gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', rainNow: 'rain {mm} mm', noRain: 'no rain',
+    lmIIT: 'IIT Kanpur', lmGreenPark: 'Green Park', lmGhantaghar: 'Ghantaghar', lmJK: 'JK Temple', lmBarrage: 'Ganga Barrage',
+    quickTitle: 'For citizens', qWater: 'Water supply today', qPower: 'Power cut info', qBeds: 'Hospital beds near me', qReport: 'Report a problem',
+    qWaterSub: 'City average {h} h · lowest {z}', qPowerSub: '{n} cut now · {p} planned', qBedsSub: '{n} beds free in {h} hospitals', qReportSub: 'Water, garbage, streetlight, roads',
+    qWaterIntro: 'Hours of supply and pressure in each zone on {d}.', st_now: 'Now', st_next: 'Planned', st_done: 'Over', demoData: 'demo data',
+    useLoc: 'Use my location', sortedFree: 'Sorted by free beds. Use your location to sort by distance.', sortedNear: 'Nearest first.', farAway: 'You seem to be outside the city, so the list is sorted by free beds.', noGeo: 'Location is not available, so the list is sorted by free beds.',
+    reportWarn: 'This form is only a demonstration. Your report is not sent to anyone and is not saved.', rCat: 'Problem', rCats: ['Water leakage', 'No water supply', 'Garbage not collected', 'Streetlight not working', 'Waterlogging', 'Pothole', 'Other'],
+    rWhere: 'Where (landmark)', rWhereEg: 'e.g. near Ghantaghar crossing', rWhat: 'What is the problem?', rSend: 'Send report (demo)', rDoneTitle: 'Demo only: nothing was sent.', rDone: 'In a real system your report ({c}, {z}) would go to the right department and you would get a reference number to track it.',
     updated: 'Updated', liveNow: 'Live city data', ctaDash: 'See live dashboards', ctaData: 'Browse open data', refreshNote: 'Refreshes every minute.', glanceTitle: 'The city today', mapTitle: 'City map', mapNote: 'Zones are a synthetic grid and all points are approximate demo locations.',
     dashTitle: 'Live dashboards', deptTitle: 'Departments on the data exchange', deptNote: 'Each department publishes its own data and decides who may see it. Names are used for demonstration only; no department has supplied or approved this data.',
     dataTitle: 'Open data catalogue', search: 'Search', department: 'Department', access: 'Access', statusTitle: 'Service status', aboutTitle: 'About this portal',
@@ -45,6 +53,14 @@ const T = {
     contrast: 'उच्च कंट्रास्ट', portalName: 'सिटी डेटा पोर्टल', portalSub: 'विभागों और नागरिकों के लिए साझा शहर डेटा और लाइव डैशबोर्ड', officerLogin: 'अधिकारी लॉगिन',
     navHome: 'आज का शहर', navMap: 'नक्शा', navDash: 'डैशबोर्ड', navDepts: 'विभाग', navData: 'खुला डेटा', navStatus: 'सेवा स्थिति', navAbout: 'परिचय',
     heroTitle: 'शहर के डेटा के लिए एक जगह', heroLead: 'विभाग अपना डेटा एक साझा डेटा एक्सचेंज पर एक बार प्रकाशित करते हैं। नागरिक यहाँ सार्वजनिक भाग देखते हैं। अधिकारी लॉगिन करके सहमति और पूरे ऑडिट रिकॉर्ड के साथ संरक्षित डेटा दूसरे विभागों से साझा करते हैं।',
+    gMorning: 'सुप्रभात', gAfternoon: 'नमस्कार', gEvening: 'शुभ संध्या', gNight: 'शुभ रात्रि', rainNow: 'वर्षा {mm} मिमी', noRain: 'वर्षा नहीं',
+    lmIIT: 'आईआईटी कानपुर', lmGreenPark: 'ग्रीन पार्क', lmGhantaghar: 'घंटाघर', lmJK: 'जे.के. मंदिर', lmBarrage: 'गंगा बैराज',
+    quickTitle: 'नागरिकों के लिए', qWater: 'आज की जल आपूर्ति', qPower: 'बिजली कटौती की जानकारी', qBeds: 'पास के अस्पताल में बिस्तर', qReport: 'समस्या बताएँ',
+    qWaterSub: 'शहर औसत {h} घं · सबसे कम {z}', qPowerSub: 'अभी {n} कटौती · {p} निर्धारित', qBedsSub: '{h} अस्पतालों में {n} बिस्तर खाली', qReportSub: 'पानी, कचरा, स्ट्रीटलाइट, सड़क',
+    qWaterIntro: '{d} को हर ज़ोन में आपूर्ति के घंटे और दबाव।', st_now: 'अभी', st_next: 'निर्धारित', st_done: 'समाप्त', demoData: 'डेमो डेटा',
+    useLoc: 'मेरी लोकेशन इस्तेमाल करें', sortedFree: 'खाली बिस्तरों के क्रम में। दूरी के क्रम के लिए अपनी लोकेशन दें।', sortedNear: 'सबसे पास वाले पहले।', farAway: 'आप शहर से बाहर लगते हैं, इसलिए सूची खाली बिस्तरों के क्रम में है।', noGeo: 'लोकेशन उपलब्ध नहीं है, इसलिए सूची खाली बिस्तरों के क्रम में है।',
+    reportWarn: 'यह फ़ॉर्म केवल प्रदर्शन के लिए है। आपकी शिकायत किसी को नहीं भेजी जाती और सहेजी नहीं जाती।', rCat: 'समस्या', rCats: ['पानी का रिसाव', 'पानी नहीं आ रहा', 'कचरा नहीं उठा', 'स्ट्रीटलाइट खराब', 'जलभराव', 'सड़क में गड्ढा', 'अन्य'],
+    rWhere: 'कहाँ (पहचान का स्थान)', rWhereEg: 'जैसे घंटाघर चौराहे के पास', rWhat: 'समस्या क्या है?', rSend: 'शिकायत भेजें (डेमो)', rDoneTitle: 'केवल डेमो: कुछ भी नहीं भेजा गया।', rDone: 'वास्तविक प्रणाली में आपकी शिकायत ({c}, {z}) सही विभाग को जाती और आपको ट्रैक करने के लिए एक संदर्भ संख्या मिलती।',
     updated: 'अद्यतन', liveNow: 'लाइव शहर डेटा', ctaDash: 'लाइव डैशबोर्ड देखें', ctaData: 'खुला डेटा देखें', refreshNote: 'हर मिनट अपने आप अद्यतन होता है।', glanceTitle: 'आज का शहर', mapTitle: 'शहर का नक्शा', mapNote: 'ज़ोन एक कृत्रिम ग्रिड हैं और सभी स्थान अनुमानित डेमो स्थान हैं।',
     dashTitle: 'लाइव डैशबोर्ड', deptTitle: 'डेटा एक्सचेंज पर विभाग', deptNote: 'हर विभाग अपना डेटा खुद प्रकाशित करता है और तय करता है कि कौन देख सकता है। नाम केवल प्रदर्शन के लिए हैं; किसी विभाग ने यह डेटा नहीं दिया है और न ही स्वीकृत किया है।',
     dataTitle: 'खुला डेटा सूची', search: 'खोजें', department: 'विभाग', access: 'पहुँच', statusTitle: 'सेवा स्थिति', aboutTitle: 'इस पोर्टल के बारे में',
@@ -102,7 +118,7 @@ const V = d => d?.value;
 const gkey = g => String(g || '').split('/').pop();
 
 let D = null; // last loaded data
-const KNOWN = new Set(['aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
+const KNOWN = new Set(['outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
 async function load() {
   const [info, cat, status, alerts, fleet] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance'))]);
   const docs = cat.results;
@@ -118,12 +134,12 @@ async function load() {
   const latest = async g => (await Promise.all(byGroup(g).map(i => soft(get('/resource/v1/latest?id=' + encodeURIComponent(i.id)))))).filter(Boolean).map(x => (Array.isArray(x.results) ? x.results[0] : x)).filter(Boolean);
   const rows = async g => { const i = byGroup(g)[0]; if (!i) return []; const r = await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))); return r?.results || []; };
   const series = async g => Promise.all(byGroup(g).map(async i => (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || []));
-  const [aq, aqSeries, wx, beds, junc, bus, waterRaw, roads, permits, flood, zones] = await Promise.all([
-    latest('aqm'), series('aqm'), latest('weather'), latest('beds'), latest('junctions'), latest('itms'), rows('water'), rows('roadworks'), rows('permits'), rows('floodalert'), rows('gis')]);
+  const [aq, aqSeries, wx, beds, junc, bus, waterRaw, roads, permits, flood, zones, outages] = await Promise.all([
+    latest('aqm'), series('aqm'), latest('weather'), latest('beds'), latest('junctions'), latest('itms'), rows('water'), rows('roadworks'), rows('permits'), rows('floodalert'), rows('gis'), rows('outages')]);
   const water = waterRaw.map(w => ({ ...w, date: String(w.date || '').slice(0, 10) })); // one day per row, whether given as a date or a date-time
   // Public datasets that have no built-in dashboard (for example ones a department adds later) get a simple table panel.
   const others = await Promise.all(pub.filter(i => !KNOWN.has(i.group)).slice(0, 12).map(async i => ({ item: i, rows: (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || [] })));
-  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, at: new Date() };
+  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, outages, at: new Date() };
 }
 
 // ---------- helpers ----------
@@ -158,9 +174,117 @@ const IC = {
   bus: '<rect x="5" y="3" width="14" height="14" rx="2"/><path d="M5 11h14M8 20v-3M16 20v-3"/><circle cx="8.5" cy="14" r=".8"/><circle cx="15.5" cy="14" r=".8"/>',
   cone: '<path d="M9 4h6l4 16H5L9 4ZM7.5 10h9M6.5 15h11M3 20h18"/>',
   flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19M12 3l5 6H7l5-6Z"/>',
+  bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>',
+  megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1ZM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>',
+  pin: '<path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/>',
   data: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/>',
 };
 const icon = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[k] || ''}</svg>`;
+
+// ---------- greeting, sky and skyline ----------
+const CITY_HI = { Kanpur: 'कानपुर' };
+const istHour = () => Number(new Intl.DateTimeFormat('en-GB', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Asia/Kolkata' }).format(new Date()));
+const skyOf = h => (h >= 5 && h < 8 ? 'dawn' : h >= 8 && h < 16 ? 'day' : h >= 16 && h < 19 ? 'dusk' : 'night');
+function renderGreeting(city) {
+  const h = istHour(), forced = new URLSearchParams(location.search).get('sky'); // ?sky=day|dawn|dusk|night previews another time of day
+  const sky = ['day', 'dawn', 'dusk', 'night'].includes(forced) ? forced : skyOf(h);
+  $('#hero').dataset.sky = sky;
+  $('#greet-title').textContent = LANG === 'hi' ? `नमस्ते ${CITY_HI[city] || city}` : `Namaste ${city}`;
+  const part = h >= 5 && h < 12 ? 'gMorning' : h >= 12 && h < 17 ? 'gAfternoon' : h >= 17 && h < 21 ? 'gEvening' : 'gNight';
+  const date = new Intl.DateTimeFormat(LANG === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Asia/Kolkata' }).format(new Date());
+  $('#greet-line').textContent = `${t(part)} · ${date}`;
+  if (D.wx.length) {
+    const temp = r1(avg(D.wx.map(w => w.airTemperature))), hum = Math.round(avg(D.wx.map(w => w.relativeHumidity))), rain = Math.max(...D.wx.map(w => w.rainfall || 0));
+    const chip = $('#wx-chip'); chip.hidden = false;
+    chip.innerHTML = `${icon('temp')} <b>${temp} °C</b> · ${esc(t('humidity'))} ${hum}% · ${icon('rain')} ${esc(rain > 0 ? t('rainNow', { mm: r1(rain) }) : t('noRain'))} <span class="demo-tag">${esc(t('demoTag'))}</span>`;
+  }
+  $('#skyline').innerHTML = skyline(sky);
+}
+// Simple drawings of well-known Kanpur places (drawn here, not copied from photos or logos).
+function skyline(sky) {
+  const night = sky === 'night', C = { night: '#0c1d30', dawn: '#2c2440', day: '#1d3f63', dusk: '#26193a' }[sky];
+  const lit = night ? '#f6cf6b' : 'rgba(255,255,255,.35)', marble = night ? '#f3e6c4' : '#f4f1ea';
+  const L = (x, y, k) => `<text x="${x}" y="${y}" text-anchor="middle" class="sk-l">${esc(t(k))}</text>`;
+  let g = '';
+  // background blocks
+  [[0, 70], [40, 95], [300, 60], [575, 85], [690, 55], [930, 75], [1380, 60]].forEach(([x, h], i) => { g += `<rect x="${x}" y="${200 - h}" width="${[38, 45, 30, 40, 26, 28, 20][i]}" height="${h}" fill="${C}" opacity=".55"/>`; });
+  // IIT Kanpur: academic block with a central tower
+  g += `<rect x="90" y="132" width="200" height="68" fill="${C}"/><rect x="172" y="72" width="36" height="128" fill="${C}"/><rect x="164" y="66" width="52" height="8" fill="${C}"/>`;
+  for (let r = 0; r < 3; r++) for (let c = 0; c < 9; c++) if (c !== 4 || r > 2) g += `<rect x="${100 + c * 21}" y="${142 + r * 18}" width="9" height="8" fill="${lit}" opacity="${(r * 9 + c) % 3 ? .9 : .3}"/>`;
+  for (let r = 0; r < 5; r++) g += `<rect x="183" y="${84 + r * 20}" width="14" height="9" fill="${lit}" opacity=".8"/>`;
+  g += L(190, 58, 'lmIIT');
+  // Green Park stadium: bowl with floodlight masts
+  g += `<path d="M335 200 L356 142 Q450 118 544 142 L565 200 Z" fill="${C}"/><path d="M362 156 Q450 136 538 156 M368 172 Q450 152 532 172" stroke="${lit}" stroke-width="2" fill="none" opacity=".6"/>`;
+  for (const x of [344, 556]) g += `<rect x="${x - 2}" y="62" width="4" height="138" fill="${C}"/><rect x="${x - 14}" y="52" width="28" height="12" rx="2" fill="${night ? '#fff6d8' : C}"/>`;
+  g += L(450, 112, 'lmGreenPark');
+  // Ghantaghar clock tower
+  g += `<rect x="612" y="160" width="66" height="40" fill="${C}"/><rect x="625" y="44" width="40" height="120" fill="${C}"/><path d="M619 46 L645 12 L671 46 Z" fill="${C}"/><circle cx="645" cy="68" r="12" fill="${marble}"/><path d="M645 68 V60 M645 68 L651 71" stroke="${C}" stroke-width="2" stroke-linecap="round"/>`;
+  for (let r = 0; r < 3; r++) g += `<rect x="639" y="${96 + r * 20}" width="12" height="10" rx="5" fill="${lit}" opacity=".7"/>`;
+  g += L(645, 6, 'lmGhantaghar');
+  // JK Temple: central shikhara with two smaller ones, on a plinth
+  const sh = (x1, x2, tip) => { const m = (x1 + x2) / 2; return `<path d="M${x1} 176 C${x1} ${tip + 70} ${m - 12} ${tip + 22} ${m} ${tip} C${m + 12} ${tip + 22} ${x2} ${tip + 70} ${x2} 176 Z" fill="${marble}" opacity=".92"/><circle cx="${m}" cy="${tip - 4}" r="4" fill="#f2a33a"/>`; };
+  g += `<rect x="702" y="176" width="216" height="24" fill="${marble}" opacity=".85"/><rect x="694" y="194" width="232" height="6" fill="${marble}" opacity=".7"/>` + sh(722, 768, 104) + sh(852, 898, 104) + sh(770, 850, 30);
+  g += `<path d="M810 26 V8 L826 13 L810 18" stroke="#f2a33a" stroke-width="2" fill="#f2a33a"/>`;
+  for (const x of [786, 810, 834]) g += `<path d="M${x - 7} 176 V160 Q${x} 150 ${x + 7} 160 V176 Z" fill="${C}" opacity=".35"/>`;
+  g += L(810, 0, 'lmJK').replace('y="0"', 'y="-2"');
+  // Ganga Barrage: deck, piers and gates over the river
+  g += `<rect x="960" y="184" width="440" height="16" fill="#3d8fd1" opacity="${night ? .35 : .55}"/><rect x="960" y="148" width="440" height="9" fill="${C}"/>`;
+  for (let x = 966; x < 1400; x += 34) g += `<rect x="${x}" y="157" width="9" height="34" fill="${C}"/><rect x="${x + 11}" y="160" width="21" height="14" fill="${C}" opacity=".55"/>`;
+  for (let x = 980; x < 1400; x += 68) g += `<circle cx="${x}" cy="143" r="${night ? 3 : 0}" fill="#fff6d8"/>`;
+  g += L(1180, 136, 'lmBarrage');
+  return `<svg viewBox="0 -14 1400 214" preserveAspectRatio="xMidYMax slice" role="presentation">${g}</svg>`;
+}
+
+// ---------- citizen buttons ----------
+const QUICK = [['water', 'water', 'qWater'], ['power', 'bolt', 'qPower'], ['beds', 'bed', 'qBeds'], ['report', 'megaphone', 'qReport']];
+const nowMs = () => Date.now();
+// A notice counts as over when it says restored or its end time has passed, so old demo data never shows a stale "Now".
+const outageState = o => (/restored|closed/i.test(o.status) || Date.parse(o.to) < nowMs() ? 'done' : Date.parse(o.from) <= nowMs() ? 'now' : 'next');
+function quickSub(k) {
+  if (k === 'water' && D.water.length) { const day = last([...new Set(D.water.map(w => w.date))].sort()); const today = D.water.filter(w => w.date === day); const low = today.reduce((a, b) => (b.supplyHours < a.supplyHours ? b : a)); return t('qWaterSub', { h: r1(avg(today.map(w => w.supplyHours))), z: low.zone }); }
+  if (k === 'power') { const n = D.outages.filter(o => outageState(o) === 'now').length, p = D.outages.filter(o => outageState(o) === 'next').length; return t('qPowerSub', { n, p }); }
+  if (k === 'beds' && D.beds.length) return t('qBedsSub', { n: D.beds.reduce((s, b) => s + b.bedsFree, 0), h: D.beds.length });
+  if (k === 'report') return t('qReportSub');
+  return '';
+}
+function renderQuick() {
+  $('#quick').innerHTML = QUICK.map(([k, ic, lab]) => `<button type="button" class="qb qb-${k}" data-q="${k}"><span class="qi">${icon(ic)}</span><span class="qt"><b>${esc(t(lab))}</b><small>${esc(quickSub(k))}</small></span><span class="qa" aria-hidden="true">›</span></button>`).join('');
+  $('#quick').querySelectorAll('[data-q]').forEach(b => { b.onclick = () => openQuick(b.dataset.q); });
+}
+const fmtDT = s => new Intl.DateTimeFormat(LANG === 'hi' ? 'hi-IN' : 'en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' }).format(new Date(s));
+const km = (a, b) => { const R = 6371, r = x => (x * Math.PI) / 180, dLa = r(b[1] - a[1]), dLo = r(b[0] - a[0]); return 2 * R * Math.asin(Math.sqrt(Math.sin(dLa / 2) ** 2 + Math.cos(r(a[1])) * Math.cos(r(b[1])) * Math.sin(dLo / 2) ** 2)); };
+function openQuick(k) {
+  const lab = Object.fromEntries(QUICK.map(q => [q[0], q[2]]))[k];
+  $('#qd-title').textContent = t(lab);
+  const body = $('#qd-body'); const src = g => `<p class="qd-src">${esc(t('by'))}: ${esc(providerOf(g))} · ${esc(t('demoData'))}</p>`;
+  if (k === 'water') {
+    const day = last([...new Set(D.water.map(w => w.date))].sort()); const today = D.water.filter(w => w.date === day).sort((a, b) => String(a.zone).localeCompare(String(b.zone), undefined, { numeric: true }));
+    body.innerHTML = `<p>${esc(t('qWaterIntro', { d: day }))}</p>` + bars(today.map(w => ({ label: w.zone, value: w.supplyHours, max: 24, cls: w.supplyHours < 4 ? 'bad' : w.supplyHours < 6 ? 'warn' : 'ok', text: `${r1(w.supplyHours)} ${t('hrs')} · ${r1(w.pressure)} ${t('bar')}` }))) + src('water');
+  }
+  if (k === 'power') {
+    const order = { now: 0, next: 1, done: 2 }; const list = [...D.outages].sort((a, b) => order[outageState(a)] - order[outageState(b)] || a.from.localeCompare(b.from));
+    body.innerHTML = list.length ? `<div class="notices">${list.map(o => { const st = outageState(o); return `<div class="notice ${st}"><span class="badge ${st === 'now' ? 'bad' : st === 'next' ? 'warn' : 'ok'}">${esc(t('st_' + st))}</span><b>${esc(String(o.area).replace(/\s*\(demo\)$/, ''))}</b> <span class="muted small">${esc(o.zone)} · ${esc(o.type)}</span><div class="small">${esc(fmtDT(o.from))} – ${esc(fmtDT(o.to))} · ${esc(o.reason)}</div></div>`; }).join('')}</div>` + src('outages') : `<p>${esc(t('noData'))}</p>`;
+  }
+  if (k === 'beds') {
+    const draw = (me, note) => {
+      const list = D.beds.map(b => ({ ...b, d: me && loc(b) ? km(me, loc(b)) : null })).sort((a, b) => (me && a.d != null ? a.d - b.d : b.bedsFree - a.bedsFree));
+      $('#beds-list').innerHTML = (note ? `<p class="small muted">${esc(note)}</p>` : '') + list.map(b => `<div class="notice"><b>${esc(String(b.name).replace(/\s*\(demo\)$/, ''))}</b>${b.d != null ? ` <span class="muted small">${r1(b.d)} km</span>` : ''}<div class="small"><span class="badge ${b.bedsFree < 20 ? 'warn' : 'ok'}">${b.bedsFree} ${esc(t('free'))}</span> ${esc(t('of'))} ${b.bedsTotal} · ICU ${b.icuFree}</div></div>`).join('');
+    };
+    body.innerHTML = `<p><button type="button" class="cta-sm" id="geo">${icon('pin')} ${esc(t('useLoc'))}</button></p><div id="beds-list"></div>` + src('beds');
+    draw(null, t('sortedFree'));
+    $('#geo').onclick = () => {
+      if (!navigator.geolocation) return draw(null, t('noGeo'));
+      navigator.geolocation.getCurrentPosition(p => { const me = [p.coords.longitude, p.coords.latitude]; const near = Math.min(...D.beds.map(b => (loc(b) ? km(me, loc(b)) : 1e9))); near > 40 ? draw(null, t('farAway')) : draw(me, t('sortedNear')); }, () => draw(null, t('noGeo')), { timeout: 8000 });
+    };
+  }
+  if (k === 'report') {
+    const zones = D.zones.map(z => z.wardId).filter(Boolean);
+    body.innerHTML = `<p class="warn-box"><b>${esc(t('demoTag'))}:</b> ${esc(t('reportWarn'))}</p><form id="rf" class="rf"><label>${esc(t('rCat'))}<select name="cat" required>${t('rCats').map(c => `<option>${esc(c)}</option>`).join('')}</select></label><label>${esc(t('zone'))}<select name="zone">${zones.map(z => `<option>${esc(z)}</option>`).join('')}</select></label><label>${esc(t('rWhere'))}<input name="where" placeholder="${esc(t('rWhereEg'))}"></label><label>${esc(t('rWhat'))}<textarea name="what" rows="3" required></textarea></label><button class="cta-sm primary">${esc(t('rSend'))}</button></form><div id="rdone"></div>`;
+    $('#rf').onsubmit = e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); e.target.hidden = true; $('#rdone').innerHTML = `<div class="alert ok"><div><b>${esc(t('rDoneTitle'))}</b>${esc(t('rDone', { c: f.cat, z: f.zone }))}</div></div>`; };
+  }
+  paint(body);
+  const d = $('#qd'); if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+}
 
 // ---------- city pulse (hero) ----------
 function renderPulse() {
@@ -323,7 +447,7 @@ function renderAll() {
   $('#city-name').textContent = city;
   document.title = `${city} ${t('portalName')} (demo)`;
   $('#updated').textContent = fmtTime(D.at);
-  renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
+  renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
   paint(document);
 }
 
@@ -337,5 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#contrast').onclick = () => setContrast(!document.documentElement.dataset.contrast);
   $('#lang').onclick = () => { LANG = LANG === 'en' ? 'hi' : 'en'; store.set('portal-lang', LANG); applyLang(); renderAll(); };
   $('#q').oninput = () => D && renderData(); $('#fdept').onchange = () => D && renderData(); $('#facc').onchange = () => D && renderData();
+  $('#qd-x').onclick = () => $('#qd').close?.() ?? $('#qd').removeAttribute('open');
+  $('#qd').onclick = e => { if (e.target === $('#qd')) $('#qd').close(); };
   refresh(); setInterval(refresh, 60e3);
 });

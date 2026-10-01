@@ -90,7 +90,8 @@ These are deliberate. Each is stated in the verification PDF.
 - Advice on the DPDP Act and CERT-In.
 - The synthetic "Demo City" data and its simulator.
 - The Kanpur profile (`DX_CITY_PROFILE=kanpur`, file `src/seed-kanpur.js`). It uses the names of 11 Kanpur departments (Nagar Nigam, Jal Sansthan, KESCO, Traffic Police, Fire Service, CMO health, KDA, PWD, UPPCB, City Transport, ICCC control room), each marked "(demo)". Its zones, place points and all readings are synthetic. No department has given or approved any data.
-- Eight data models for that profile: power feeder, pump station, water supply, traffic junction, fire call, hospital beds, building permit and road work. The documents do not define these. They follow the same data model rules (BIS Section 6) as the other models.
+- Nine data models for that profile: power feeder, pump station, water supply, traffic junction, fire call, hospital beds, building permit, road work and power cut notice. The documents do not define these. They follow the same data model rules (BIS Section 6) as the other models.
+- The Kanpur welcome on the portal: a "Namaste Kanpur" greeting, a sky that follows the time of day in Kanpur, a skyline of simple drawings of known places (IIT Kanpur, Green Park, Ghantaghar, JK Temple, Ganga Barrage) and four citizen buttons (water supply, power cuts, hospital beds, report a problem). The buttons only read public items. The weather line is the demo sensor data. "Report a problem" is a demo form: it sends and saves nothing, and says so. The documents do not ask for any of this.
 
 None of these changes what the documents require. They are there for security, operation and demonstration.
 

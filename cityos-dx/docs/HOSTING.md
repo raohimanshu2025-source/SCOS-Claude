@@ -10,13 +10,13 @@ This puts the server on the internet so officials can open a link in their brows
 
 ## Set it up (one command)
 
-Open the machine's console as root and run:
+Open the machine's console and run:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/raohimanshu2025-source/SCOS-Claude/main/cityos-dx/deploy/setup-public-demo.sh | bash
+curl -fsSL https://raw.githubusercontent.com/raohimanshu2025-source/SCOS-Claude/main/cityos-dx/deploy/setup-public-demo.sh | sudo bash
 ```
 
-To use your own domain: `DX_DOMAIN=demo.example.in bash setup-public-demo.sh`.
+To use your own domain: `curl -fsSL <same link> | sudo DX_DOMAIN=demo.example.in bash`.
 
 The script does the following:
 
@@ -24,6 +24,23 @@ The script does the following:
 2. Gets a free web certificate from Let's Encrypt, so browsers show no warning. It renews by itself.
 3. Starts the server on port 443 with the demo city.
 4. Prints the link and the logins. They are kept in `/opt/cityos-dx/logins.txt`.
+
+## On Azure for Students (free credit, no card)
+
+1. Sign up at https://azure.microsoft.com/free/students with your college e-mail.
+2. In the Azure portal: **Create a resource > Virtual machine**.
+   - Subscription: Azure for Students. Resource group: create new, e.g. `cityos`.
+   - Virtual machine name: `cityos-demo`. Region: **(Asia Pacific) Central India**.
+   - Image: **Ubuntu Server 24.04 LTS - x64 Gen2**.
+   - Size: **Standard_B1s** (1 GB). The script adds swap on small machines. B1ms or B2s also work.
+   - Authentication type: **Password**. Username: `azureuser`. Choose a strong password.
+   - Public inbound ports: **Allow selected ports**, and tick **SSH (22), HTTP (80), HTTPS (443)**.
+   - Click **Review + create**, then **Create**. Wait for "Your deployment is complete".
+3. Click **Go to resource** and copy the **Public IP address**.
+4. Open **Cloud Shell** (the `>_` icon at the top of the portal), choose **Bash**, and run `ssh azureuser@<public IP>`. Type `yes`, then your password.
+5. Run the one command above (it already has `sudo`).
+
+If the certificate step fails, open the VM's **Networking** page and check that inbound rules allow ports 80 and 443 from Any. Stop the VM from the portal when you do not need it, to save credit (the IP may change after a stop unless you make it static).
 
 ## Logins
 

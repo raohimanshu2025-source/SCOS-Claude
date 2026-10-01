@@ -1,0 +1,10 @@
+{
+  "name": "City OS demo (BIS DX + City OS paper)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "features": { "ghcr.io/devcontainers/features/github-cli:1": {} },
+  "forwardPorts": [8443],
+  "portsAttributes": {
+    "8443": { "label": "City OS demo", "protocol": "https", "onAutoForward": "silent" }
+  },
+  "postAttachCommand": "echo 'To start the demo website, run:  bash cityos-dx/deploy/start-codespace.sh'"
+}

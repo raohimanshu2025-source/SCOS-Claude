@@ -42,6 +42,17 @@ The script does the following:
 
 If the certificate step fails, open the VM's **Networking** page and check that inbound rules allow ports 80 and 443 from Any. Stop the VM from the portal when you do not need it, to save credit (the IP may change after a stop unless you make it static).
 
+## Without a cloud machine: GitHub Codespaces (for a meeting or demo)
+
+Use this when no cloud machine is available. Codespaces is free in the GitHub Student Developer Pack and needs no card. The site runs only while the codespace is open, and the link can change between codespaces.
+
+1. On the repository page on GitHub, click **Code > Codespaces > Create codespace on main**. Wait until the editor opens.
+2. In the terminal at the bottom, run `bash cityos-dx/deploy/start-codespace.sh`. It prints the link and the logins (also kept in `~/cityos-dx-state/logins.txt`).
+3. Open the **PORTS** tab, right-click port **8443**, choose **Port Visibility > Public**. Now officials can open the link.
+4. Keep the browser tab open during the demo. Press Ctrl+C to stop. Next time, open the same codespace from **Code > Codespaces** and run step 2 again; the data and passwords are kept.
+
+Through the Codespaces link, people use the website with their logins as usual. Machine-to-machine API calls with client certificates (BIS 5.1 mutual TLS) do not pass through the Codespaces link; use a cloud machine for those.
+
 ## Logins
 
 | Give to officials | Role |

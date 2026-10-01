@@ -195,10 +195,11 @@ function renderGreeting(city) {
   $('#greet-line').textContent = `${t(part)} · ${date}`;
   if (D.wx.length) {
     const temp = r1(avg(D.wx.map(w => w.airTemperature))), hum = Math.round(avg(D.wx.map(w => w.relativeHumidity))), rain = Math.max(...D.wx.map(w => w.rainfall || 0));
+    window.citySky?.setRain(rain);
     const chip = $('#wx-chip'); chip.hidden = false;
     chip.innerHTML = `${icon('temp')} <b>${temp} °C</b> · ${esc(t('humidity'))} ${hum}% · ${icon('rain')} ${esc(rain > 0 ? t('rainNow', { mm: r1(rain) }) : t('noRain'))} <span class="demo-tag">${esc(t('demoTag'))}</span>`;
   }
-  $('#skyline').innerHTML = skyline(sky);
+  $('#skyline').innerHTML = skyline(sky); fitSkyline();
 }
 // Simple drawings of well-known Kanpur places (drawn here, not copied from photos or logos).
 function skyline(sky) {
@@ -221,19 +222,37 @@ function skyline(sky) {
   g += `<rect x="612" y="160" width="66" height="40" fill="${C}"/><rect x="625" y="44" width="40" height="120" fill="${C}"/><path d="M619 46 L645 12 L671 46 Z" fill="${C}"/><circle cx="645" cy="68" r="12" fill="${marble}"/><path d="M645 68 V60 M645 68 L651 71" stroke="${C}" stroke-width="2" stroke-linecap="round"/>`;
   for (let r = 0; r < 3; r++) g += `<rect x="639" y="${96 + r * 20}" width="12" height="10" rx="5" fill="${lit}" opacity=".7"/>`;
   g += L(645, 6, 'lmGhantaghar');
-  // JK Temple: central shikhara with two smaller ones, on a plinth
-  const sh = (x1, x2, tip) => { const m = (x1 + x2) / 2; return `<path d="M${x1} 176 C${x1} ${tip + 70} ${m - 12} ${tip + 22} ${m} ${tip} C${m + 12} ${tip + 22} ${x2} ${tip + 70} ${x2} 176 Z" fill="${marble}" opacity=".92"/><circle cx="${m}" cy="${tip - 4}" r="4" fill="#f2a33a"/>`; };
-  g += `<rect x="702" y="176" width="216" height="24" fill="${marble}" opacity=".85"/><rect x="694" y="194" width="232" height="6" fill="${marble}" opacity=".7"/>` + sh(722, 768, 104) + sh(852, 898, 104) + sh(770, 850, 30);
-  g += `<path d="M810 26 V8 L826 13 L810 18" stroke="#f2a33a" stroke-width="2" fill="#f2a33a"/>`;
-  for (const x of [786, 810, 834]) g += `<path d="M${x - 7} 176 V160 Q${x} 150 ${x + 7} 160 V176 Z" fill="${C}" opacity=".35"/>`;
-  g += L(810, 0, 'lmJK').replace('y="0"', 'y="-2"');
+  // JK Temple: white marble temple on a stepped plinth, a pillared hall with arched doors,
+  // a tall central shikhara with two smaller ones, each topped by an amalaka and kalash
+  const sh = (x1, x2, base, tip) => {
+    const m = (x1 + x2) / 2, w = x2 - x1, hgt = base - tip;
+    let p = `<path d="M${x1} ${base} C${x1} ${tip + hgt * .55} ${m - w * .22} ${tip + hgt * .18} ${m} ${tip} C${m + w * .22} ${tip + hgt * .18} ${x2} ${tip + hgt * .55} ${x2} ${base} Z" fill="${marble}"/>`;
+    for (let f = .25; f < 1; f += .25) { const y = base - hgt * f * .8, half = (w / 2) * (1 - f * f * .55); p += `<path d="M${m - half} ${y} Q${m} ${y + 4} ${m + half} ${y}" stroke="${C}" stroke-width="1.4" fill="none" opacity=".28"/>`; }
+    return p + `<ellipse cx="${m}" cy="${tip}" rx="${Math.max(5, w * .09)}" ry="3" fill="${marble}" stroke="${C}" stroke-width="1" stroke-opacity=".3"/><circle cx="${m}" cy="${tip - 6}" r="3.6" fill="#f2a33a"/><rect x="${m - .8}" y="${tip - 15}" width="1.6" height="7" fill="#f2a33a"/>`;
+  };
+  g += `<rect x="688" y="192" width="244" height="8" fill="${marble}" opacity=".75"/><rect x="696" y="185" width="228" height="8" fill="${marble}" opacity=".85"/><rect x="704" y="178" width="212" height="8" fill="${marble}"/>`;
+  g += sh(716, 766, 150, 92) + sh(854, 904, 150, 92) + sh(764, 856, 140, 22);
+  g += `<rect x="708" y="140" width="204" height="40" fill="${marble}"/><rect x="704" y="136" width="212" height="6" rx="1" fill="${marble}" stroke="${C}" stroke-width="1" stroke-opacity=".25"/>`;
+  for (let x = 716; x <= 900; x += 23) g += `<path d="M${x} 180 V158 Q${x + 7} 148 ${x + 14} 158 V180 Z" fill="${C}" opacity="${x === 808 ? .55 : .3}"/>`;
+  g += `<path d="M810 8 V-6 L828 -1 L810 4" stroke="#f2a33a" stroke-width="2" fill="#f2a33a"/>`;
+  g += L(886, 10, 'lmJK');
   // Ganga Barrage: deck, piers and gates over the river
   g += `<rect x="960" y="184" width="440" height="16" fill="#3d8fd1" opacity="${night ? .35 : .55}"/><rect x="960" y="148" width="440" height="9" fill="${C}"/>`;
   for (let x = 966; x < 1400; x += 34) g += `<rect x="${x}" y="157" width="9" height="34" fill="${C}"/><rect x="${x + 11}" y="160" width="21" height="14" fill="${C}" opacity=".55"/>`;
   for (let x = 980; x < 1400; x += 68) g += `<circle cx="${x}" cy="143" r="${night ? 3 : 0}" fill="#fff6d8"/>`;
   g += L(1180, 136, 'lmBarrage');
-  return `<svg viewBox="0 -14 1400 214" preserveAspectRatio="xMidYMax slice" role="presentation">${g}</svg>`;
+  // ground strip under the landmarks: the citizen buttons overlap this part, so every landmark stays in full view
+  g += `<rect x="-1400" y="200" width="4200" height="44" fill="${C}"/>`;
+  // low blocks beyond both ends fill the sides on wide screens
+  for (let x = -1380; x < 2800; x += 70) if (x < -10 || x > 1400) g += `<rect x="${x}" y="${200 - 30 - ((x / 70) % 4 + 4) % 4 * 14}" width="${34 + (((x / 70) % 3) + 3) % 3 * 8}" height="${30 + ((x / 70) % 4 + 4) % 4 * 14}" fill="${C}" opacity=".55"/>`;
+  return `<svg viewBox="0 -18 1400 262" preserveAspectRatio="xMidYMax slice" role="presentation">${g}</svg>`;
 }
+// Never crop the top of the landmarks: on screens wider than the drawing, fit it by height and let the side blocks fill in.
+function fitSkyline() {
+  const box = $('#skyline'), svg = box && box.querySelector('svg'); if (!svg) return;
+  svg.setAttribute('preserveAspectRatio', box.clientWidth / box.clientHeight > 1400 / 262 ? 'xMidYMax meet' : 'xMidYMax slice');
+}
+addEventListener('resize', fitSkyline);
 
 // ---------- citizen buttons ----------
 const QUICK = [['water', 'water', 'qWater'], ['power', 'bolt', 'qPower'], ['beds', 'bed', 'qBeds'], ['report', 'megaphone', 'qReport']];

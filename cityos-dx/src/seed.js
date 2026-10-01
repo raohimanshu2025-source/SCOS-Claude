@@ -52,7 +52,7 @@ const ACCOUNTS = [
   ['developer', 'consumer', 'dev@apps.example', 'Transit app developer'],
 ];
 
-export function seed(app, { password, now = Date.now() } = {}) {
+export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
   const { db, identity, accounts, catalogue, authz, resource, cfg } = app;
   if (q.get(db, 'SELECT 1 FROM orgs LIMIT 1')) throw new Error('database already seeded');
   seedVal = 20230727;
@@ -68,8 +68,9 @@ export function seed(app, { password, now = Date.now() } = {}) {
   }
   const pw = {};
   for (const [u, role, email, dn] of ACCOUNTS) {
-    pw[u] = password || crypto.randomBytes(9).toString('base64url') + '9';
-    accounts.create({ username: u, password: pw[u], role, certSerial: email ? certs[email].serial : null, displayName: dn, mustChange: !password }, 'seed');
+    const given = role === 'admin' && adminPassword ? adminPassword : password;
+    pw[u] = given || crypto.randomBytes(9).toString('base64url') + '9';
+    accounts.create({ username: u, password: pw[u], role, certSerial: email ? certs[email].serial : null, displayName: dn, mustChange: !given }, 'seed');
   }
   const as = email => { const c = certs[email]; return { via: 'seed', email: c.email, cn: c.cn, cls: c.cls, serial: c.serial, dn: c.dn, kind: c.kind, orgId: c.org_id, role: 'provider' }; };
 
@@ -188,7 +189,7 @@ export function seed(app, { password, now = Date.now() } = {}) {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { createApp } = await import('./server.js');
   const app = createApp();
-  const r = seed(app, { password: process.env.DX_SEED_PASSWORD || undefined });
+  const r = seed(app, { password: process.env.DX_SEED_PASSWORD || undefined, adminPassword: process.env.DX_SEED_ADMIN_PASSWORD || undefined });
   const out = path.join(app.cfg.dataDir, 'initial-passwords.txt');
   fs.writeFileSync(out, 'Initial passwords (change on first login). Keep this file private and delete it after use.\n' + Object.entries(r.passwords).map(([u, p]) => `${u}\t${p}`).join('\n') + '\n', { mode: 0o600 });
   console.log(`Seeded ${app.cfg.cityName} with synthetic demo data. Passwords written to ${out}. Client certificates in ${pkiPaths(app.cfg.pkiDir).clients}.`);

@@ -35,6 +35,10 @@ export function loadConfig(overrides = {}) {
     // and optionally their CRLs, so that TLS connections with those certificates are accepted and revocation is checked.
     trustedCaFile: env('DX_TRUSTED_CA_FILE', ''),
     trustedCrlFile: env('DX_TRUSTED_CRL_FILE', ''),
+    // Optional web certificate from a public CA (for example Let's Encrypt) so browsers open the console without a warning.
+    // Client certificates are still checked against the DX CA and the licensed CAs above.
+    publicTlsCert: env('DX_PUBLIC_TLS_CERT', ''),
+    publicTlsKey: env('DX_PUBLIC_TLS_KEY', ''),
     staticDir: path.resolve(env('DX_STATIC_DIR', new URL('../public', import.meta.url).pathname)),
     simulator: bool('DX_SIMULATOR', 'true'),
     simulatorMs: num('DX_SIMULATOR_MS', 60000),

@@ -18,6 +18,7 @@ import { CLASS_TEXT } from './identity/ca.js';
 import { makeCil } from './cil/cil.js';
 import { makeOps, serviceOfPath, backupDb, listBackups, securityHeaders, makeRateLimiter } from './ops/ops.js';
 import { simulateTick } from './simulate.js';
+import { makeConsoleHelpers } from './console-helpers.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf' };
@@ -37,6 +38,7 @@ export function createApp(overrides = {}) {
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
   const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, resource, cil, ops };
+  const helpers = makeConsoleHelpers(parts);
 
   const routes = [];
   const R = (method, pattern, fn) => routes.push({ method, pattern, fn });
@@ -73,6 +75,9 @@ export function createApp(overrides = {}) {
   R('GET', '/identity/v1/trusted-cas', () => ({ note: 'Certificate authorities this DX accepts for client TLS (BIS 5.1).', cas: identity.trustedCas(), classes: CLASS_TEXT }));
   R('GET', '/identity/v1/accounts', c => { role(c.p, 'admin', 'auditor'); return accounts.list(); });
   R('POST', '/identity/v1/accounts', c => { role(c.p, 'admin'); return accounts.create({ ...c.body, mustChange: true }, actorOf(c.p)); });
+  // Console helpers (our addition): a department or a person in one step, under the same BIS 5.4.2 rules.
+  R('POST', '/identity/v1/departments', c => { role(c.p, 'admin'); c.status = 201; return helpers.addDepartment(c.body, actorOf(c.p)); });
+  R('POST', '/identity/v1/people', c => { role(c.p, 'admin'); c.status = 201; return helpers.addPerson(c.body, actorOf(c.p)); });
   R('POST', '/identity/v1/accounts/unlock', c => { role(c.p, 'admin'); accounts.unlock(c.body.username, actorOf(c.p)); return { ok: true }; });
 
   // ---- catalogue (Discover, Manage) ----
@@ -83,6 +88,8 @@ export function createApp(overrides = {}) {
   R('GET', '/catalogue/v1/list', c => { const r = catalogue.all(c.query.type).map(i => i.id); discovered(c, 'List', `${c.query.type || 'all'} -> ${r.length}`); return r; });
   R('GET', '/catalogue/v1/items', c => { const d = catalogue.doc(String(c.query.id || '')); need(d, 404, 'no such item'); discovered(c, 'View', d.id); return d; });
   R('POST', '/catalogue/v1/items', c => { const d = catalogue.create(c.body.item, c.p, c.body.data).doc; c.status = 201; return d; }); // Figure 7: 201 Created
+  R('GET', '/catalogue/v1/mine', c => helpers.mine(c.p));
+  R('POST', '/catalogue/v1/items/simple', c => { c.status = 201; return helpers.addItem(c.body, c.p); }); // console helper: builds the item from a form
   R('PUT', '/catalogue/v1/items', c => catalogue.update(String(c.query.id || ''), c.body.item, c.p).doc);
   R('DELETE', '/catalogue/v1/items', c => { catalogue.remove(String(c.query.id || ''), c.p); return { deleted: c.query.id }; });
   R('GET', '/catalogue/v1/datamodels', c => { if (!c.query.name) return Object.keys(MODELS); const d = dataModelDoc(c.query.name); need(d, 404, 'no such data model'); return d; });
@@ -235,12 +242,24 @@ export function createApp(overrides = {}) {
     fs.createReadStream(file).pipe(res);
   }
 
-  const server = https.createServer({
-    key: fs.readFileSync(pki.serverKey), cert: fs.readFileSync(pki.serverCrt) + fs.readFileSync(pki.caCrt),
+  const publicTls = !!(cfg.publicTlsCert && cfg.publicTlsKey);
+  const serverKeyPair = () => publicTls
+    ? { key: fs.readFileSync(cfg.publicTlsKey), cert: fs.readFileSync(cfg.publicTlsCert) }
+    : { key: fs.readFileSync(pki.serverKey), cert: fs.readFileSync(pki.serverCrt) + fs.readFileSync(pki.caCrt) };
+  const tlsOptions = () => ({
+    ...serverKeyPair(),
     ca: [fs.readFileSync(pki.rootCrt), fs.readFileSync(pki.caCrt), ...externalCas(cfg).map(x => x.toString())],
     requestCert: cfg.requestClientCert, rejectUnauthorized: false, // unauthorised peers are refused per request with a clear message
     minVersion: 'TLSv1.2',
-  }, (req, res) => { handle(req, res); });
+  });
+  const server = https.createServer(tlsOptions(), (req, res) => { handle(req, res); });
+  // A public web certificate is renewed every few months: pick up the new files without a restart.
+  let tlsStamp = publicTls ? fs.statSync(cfg.publicTlsCert).mtimeMs : 0;
+  const tlsTimer = publicTls ? setInterval(() => {
+    try { const m = fs.statSync(cfg.publicTlsCert).mtimeMs; if (m !== tlsStamp) { server.setSecureContext(tlsOptions()); tlsStamp = m; } } catch { /* keep the current certificate */ }
+  }, 3600e3) : null;
+  tlsTimer?.unref();
+  server.on('close', () => tlsTimer && clearInterval(tlsTimer));
 
   let simTimer = null;
   return {

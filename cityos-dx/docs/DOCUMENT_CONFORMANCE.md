@@ -84,6 +84,7 @@ These are deliberate. Each is stated in the verification PDF.
 - Plugged analytics limited to four declarative operations, with no uploaded code.
 - The 60-second de-duplication of alerts.
 - The web console.
+- Console shortcuts for adding a department, a person, a dataset group, a dataset and its data. They use the same rules and audit log as the API. For a person, the DX-hosted CA creates the key pair instead of receiving a request, so this is a demo convenience, not the BIS 7.1 request process.
 - The ISO/IEC 27001 self-assessment.
 - Advice on the DPDP Act and CERT-In.
 - The synthetic "Demo City" data and its simulator.

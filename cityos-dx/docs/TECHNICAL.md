@@ -32,6 +32,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 
 | Path | Contents |
 |---|---|
+| `src/console-helpers.js` | Console shortcuts: add a department, a person or a dataset under the normal rules |
 | `src/server.js` | HTTPS server, routing, principal resolution, rate limit, security headers |
 | `src/config.js` | Settings from environment variables (section 7) |
 | `src/db.js` | Database schema |
@@ -50,7 +51,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 82 end-to-end tests |
+| `test/` | 85 end-to-end tests |
 
 ## 2. Identity and authentication
 

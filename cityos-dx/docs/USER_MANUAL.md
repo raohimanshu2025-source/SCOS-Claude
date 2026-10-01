@@ -48,6 +48,7 @@ Public items (for example air quality and bus positions) need no token.
 - **Licence agreement.** Record an agreement with an app developer (app name, developer e-mail, terms). The developer then gets tokens without separate consent. Ending it ends those tokens.
 - **Revoke a consumer.** Ends all of that consumer's tokens for the item and removes them from the policy (BIS 7.6).
 - **All consent and data flows.** Every token issued for your items, its status and use count (BIS 5.6).
+- **Your department's datasets.** Add your department's provider entry, a dataset group (one data model and one resource server), datasets in a group (name, description, tags, access label, optional location), and data rows. Paste rows as CSV with a header line or as a JSON list; column names must match the data model, and the server refuses rows that do not.
 
 Creating and changing catalogue entries and pushing data is done through the API with your class 3 certificate (see TECHNICAL.md section 4).
 
@@ -70,6 +71,9 @@ Latest alerts raised by analytics, and the monthly report: API use, alerts by do
 - **Issued certificates.** Revoke a certificate by serial and reason. It goes on the revocation list at once and every request made with it is refused. Tokens issued to it stop working.
 - **Revocation list** and **trusted certificate authorities** are shown and can be downloaded.
 - **Organisations.** Registered organisations and whether they are white-listed. Registration is done through the API.
+- **Add a department.** Registers and white-lists it and issues its organisation certificate in one step, so its staff can have certificates.
+- **Add a person.** Issues a certificate (data officer class 3, employee class 2-5, or individual class 2) and a login with a temporary password, which must be changed at first login. The e-mail domain must belong to a white-listed department.
+- **Logins.** All accounts, with an Unlock button for locked ones.
 
 ## 9. Operations and audit (administrator, auditor)
 

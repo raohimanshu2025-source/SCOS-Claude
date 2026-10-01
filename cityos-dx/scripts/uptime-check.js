@@ -3,10 +3,13 @@
 // Usage: DX_URL=https://dx.example:8443 DX_CA_FILE=pki/root/root.crt node scripts/uptime-check.js
 import https from 'node:https';
 import fs from 'node:fs';
+import tls from 'node:tls';
 const url = new URL('/status/v1/heartbeat', process.env.DX_URL || 'https://localhost:8443');
-const ca = process.env.DX_CA_FILE ? fs.readFileSync(process.env.DX_CA_FILE) : undefined;
+// The DX root is added to the usual public roots, so the probe also works when the server shows a public web certificate.
+const ca = process.env.DX_CA_FILE ? [...tls.rootCertificates, fs.readFileSync(process.env.DX_CA_FILE, 'utf8')] : undefined;
 const t0 = Date.now();
-const req = https.get(url, { ca, timeout: 10000 }, res => {
+// DX_TLS_SERVERNAME: the name on a public web certificate when the probe calls localhost (as the Docker health check does).
+const req = https.get(url, { ca, timeout: 10000, servername: process.env.DX_TLS_SERVERNAME || undefined }, res => {
   let d = ''; res.on('data', c => (d += c));
   res.on('end', () => {
     const ms = Date.now() - t0;

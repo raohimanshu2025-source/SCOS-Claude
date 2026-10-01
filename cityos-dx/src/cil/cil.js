@@ -20,7 +20,9 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
   function plugged() { return q.all(db, 'SELECT * FROM analytics WHERE builtin=0').map(r => ({ ...JSON.parse(r.spec), id: r.id, plugged: true, runs: r.runs, lastRun: r.last_run })); }
   function list() {
     const stats = Object.fromEntries(q.all(db, 'SELECT id, runs, last_run FROM analytics').map(r => [r.id, r]));
-    return [...BUILTINS.map(a => ({ ...a, runs: stats[a.id]?.runs ?? 0, lastRun: stats[a.id]?.last_run ?? null })), ...plugged()];
+    // the provider shown is the department that publishes the analytic's main input group in this city's catalogue
+    const providerOf = a => { try { const g = catalogue.get(groupId(a.inputs[0].group)); return catalogue.get(g.doc.provider.value).doc.name.value; } catch { return a.provider; } };
+    return [...BUILTINS.map(a => ({ ...a, provider: providerOf(a), runs: stats[a.id]?.runs ?? 0, lastRun: stats[a.id]?.last_run ?? null })), ...plugged()];
   }
   const byPath = path => list().find(a => a.path === path);
 

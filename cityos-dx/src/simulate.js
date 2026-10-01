@@ -17,6 +17,11 @@ export function simulateTick(app, now = Date.now()) {
     if (g === 'weather') n = { ...d, airTemperature: j(d.airTemperature, 0.4, -20, 55), relativeHumidity: j(d.relativeHumidity, 2, 0, 100), windSpeed: j(d.windSpeed, 0.5, 0, 60), rainfall: 0, observationDateTime: t };
     if (g === 'drains') n = { ...d, level: j(d.level, 0.04, 0, 5), flow: j(d.flow, 0.08, 0, 20), observationDateTime: t };
     if (g === 'itms') n = { ...d, speed: j(d.speed, 2, 0, 120), observationDateTime: t };
+    // Kanpur profile streams (synthetic)
+    if (g === 'feeders') n = { ...d, loadMW: d.status === 'on' ? j(d.loadMW, 0.6, 0, 50) : 0, observationDateTime: t };
+    if (g === 'pumps') n = { ...d, sumpLevel: j(d.sumpLevel, 0.08, 0, 10), observationDateTime: t };
+    if (g === 'junctions') n = { ...d, vehicleCount: Math.round(j(d.vehicleCount, 80, 0, 5000)), avgSpeed: j(d.avgSpeed, 1.5, 2, 120), observationDateTime: t };
+    if (g === 'beds') n = { ...d, bedsFree: Math.round(j(d.bedsFree, 3, 0, d.bedsTotal)), observationDateTime: t };
     if (n) ins.run(it.id, t, JSON.stringify(n));
   }
   q.run(db, 'DELETE FROM readings WHERE ts < ?', iso(now - 8 * 86400e3));

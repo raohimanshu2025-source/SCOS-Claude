@@ -7,6 +7,7 @@ const bool = (k, d) => ['1', 'true', 'yes'].includes(String(env(k, d)).toLowerCa
 
 export function loadConfig(overrides = {}) {
   const dataDir = path.resolve(overrides.dataDir ?? env('DX_DATA_DIR', './data'));
+  const kanpur = (overrides.cityProfile ?? env('DX_CITY_PROFILE', 'demo')) === 'kanpur';
   const cfg = {
     dataDir,
     dbFile: path.join(dataDir, 'dx.sqlite'),
@@ -15,9 +16,11 @@ export function loadConfig(overrides = {}) {
     host: env('DX_HOST', '0.0.0.0'),
     port: num('DX_PORT', 8443),
     publicName: env('DX_PUBLIC_NAME', 'dx.demo-city.example'),
-    authHost: env('DX_AUTH_HOST', 'auth.demo-city.example'),
+    authHost: env('DX_AUTH_HOST', kanpur ? 'auth.kanpur-demo.example' : 'auth.demo-city.example'),
     uacUrl: env('DX_UAC_URL', 'https://uac.demo-city.example'),
-    cityName: env('DX_CITY_NAME', 'Demo City'),
+    // 'demo' (made-up Demo City, the default) or 'kanpur' (Kanpur departments with synthetic demo data; see src/seed-kanpur.js).
+    cityProfile: env('DX_CITY_PROFILE', 'demo'),
+    cityName: env('DX_CITY_NAME', kanpur ? 'Kanpur (demo data)' : 'Demo City'),
     tokenTtlSec: num('DX_TOKEN_TTL', 3600),
     sessionTtlSec: num('DX_SESSION_TTL', 8 * 3600),
     // BIS 5.1: client TLS certificates are requested; API calls without a session need one.
@@ -28,7 +31,7 @@ export function loadConfig(overrides = {}) {
     schedulerEnabled: bool('DX_SCHEDULER', 'true'),
     heartbeatMs: num('DX_HEARTBEAT_MS', 60000),
     federationPeers: env('DX_FEDERATION_PEERS', '').split(',').map(s => s.trim()).filter(Boolean),
-    cilServiceEmail: env('DX_CIL_SERVICE_EMAIL', 'cil@mc.demo-city.example'),
+    cilServiceEmail: env('DX_CIL_SERVICE_EMAIL', kanpur ? 'cil@iccc.kanpur-demo.example' : 'cil@mc.demo-city.example'),
     federationCaFile: env('DX_FEDERATION_CA_FILE', ''),
     oidcIssuersFile: env('DX_OIDC_ISSUERS_FILE', ''),
     // BIS 5.4.2: certificates from licensed CAs in India (certified by the CCA). PEM bundle of their CA certificates,

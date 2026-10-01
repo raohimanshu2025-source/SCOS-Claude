@@ -7,6 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { q } from './db.js';
 import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
+import { seedKanpur } from './seed-kanpur.js';
 
 let seedVal = 20230727;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -189,7 +190,7 @@ export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { createApp } = await import('./server.js');
   const app = createApp();
-  const r = seed(app, { password: process.env.DX_SEED_PASSWORD || undefined, adminPassword: process.env.DX_SEED_ADMIN_PASSWORD || undefined });
+  const r = (app.cfg.cityProfile === 'kanpur' ? seedKanpur : seed)(app, { password: process.env.DX_SEED_PASSWORD || undefined, adminPassword: process.env.DX_SEED_ADMIN_PASSWORD || undefined });
   const out = path.join(app.cfg.dataDir, 'initial-passwords.txt');
   fs.writeFileSync(out, 'Initial passwords (change on first login). Keep this file private and delete it after use.\n' + Object.entries(r.passwords).map(([u, p]) => `${u}\t${p}`).join('\n') + '\n', { mode: 0o600 });
   console.log(`Seeded ${app.cfg.cityName} with synthetic demo data. Passwords written to ${out}. Client certificates in ${pkiPaths(app.cfg.pkiDir).clients}.`);

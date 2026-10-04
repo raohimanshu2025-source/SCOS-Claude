@@ -8,6 +8,7 @@ import { q } from './db.js';
 import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
 import { seedKanpur } from './seed-kanpur.js';
+import { seedTransit } from './seed-transit.js';
 
 let seedVal = 20230727;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -178,11 +179,15 @@ export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
   ingest(fareId, DAYS.slice(-7).flatMap(d => [{ mode: 'bus', date: d, revenue: Math.round(410000 + rnd() * 30000), cost: Math.round(620000 + rnd() * 20000) }, { mode: 'metro', date: d, revenue: Math.round(900000 + rnd() * 60000), cost: Math.round(1000000 + rnd() * 40000) }]));
   res({ key: 'flood-alerts', grp: 'floodalert', name: 'Flood alert messages', desc: 'Alerts published when a drain crosses its warning level.', tags: ['flood', 'alert'], rtype: 'message', label: 'public' });
 
+  seedTransit({ group, res, ingest, times, rnd, round, provider: 'tr', busRoutes: Object.keys(ROUTES), lineNames: { metro: 'Metro Line 1', suburban: 'Suburban Line S1' },
+    metro: [[.1, .62], [.25, .6], [.4, .57], [.55, .55], [.7, .53], [.85, .5]].map((f, i) => [`Metro station ${i + 1}`, pt(...f)]),
+    suburban: [[.02, .2], [.3, .25], [.6, .3], [.95, .35]].map((f, i) => [`Rail station ${i + 1}`, pt(...f)]) });
   // starting policies: who is already on C
   const addC = (id, emails) => { const it = catalogue.get(id); authz.setPolicy(id, { C: [...it.policy.C, ...emails] }, items[id].officer); };
   addC(wasteId, ['planner@mc.demo-city.example', 'control@mc.demo-city.example', 'cil@mc.demo-city.example']);
   addC('urn:demo-cat:grievview/grievance-counts', ['control@mc.demo-city.example', 'cil@mc.demo-city.example']);
   for (let i = 1; i <= 5; i++) addC(`urn:demo-cat:drains/drain-${i}`, ['control@mc.demo-city.example', 'cil@mc.demo-city.example']);
+  addC(fareId, ['control@mc.demo-city.example', 'cil@mc.demo-city.example']); // the control room reads fares for the Figure 7 financial comparison
   app.audit.log('Operations', 'seed', 'Demo city seeded', `${catalogue.all().length} catalogue items, synthetic data`);
   return { passwords: pw, certs: Object.fromEntries(Object.entries(certs).map(([e, c]) => [e, c.serial])) };
 }

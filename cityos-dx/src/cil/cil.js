@@ -46,6 +46,10 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
       for (const r of Object.values(s.routes)) r.stops.sort((a, b) => a.stopId.localeCompare(b.stopId, 'en', { numeric: true }));
       for (const it of itemsOfGroup('itms')) { const h = rows(it); const l = h.at(-1); if (l) s.buses.push({ busId: l.busId, routeId: l.routeId, loc: l.location.coordinates, speed: l.speed, delay: l.delayMinutes, history: h }); }
     }
+    if (g.has('railtt')) s.timetable = itemsOfGroup('railtt').flatMap(it => rows(it));
+    if (g.has('occupancy')) s.occupancy = itemsOfGroup('occupancy').map(it => ({ id: it.id, rows: rows(it) }));
+    if (g.has('fare')) s.fares = itemsOfGroup('fare').flatMap(it => rows(it));
+    if (g.has('floodalert')) s.floodAlerts = itemsOfGroup('floodalert').flatMap(it => rows(it));
     if (g.has('swm')) for (const it of itemsOfGroup('swm')) s.waste.push(...rows(it));
     if (g.has('grievview')) for (const it of itemsOfGroup('grievview')) s.grievCounts.push(...rows(it));
     return s;
@@ -229,6 +233,9 @@ function aggregate(path, results) {
   if (path === '/publictransit/fleetPerformance') {
     const v = results.map(r => r.output.fleetOnTimePercent);
     return { measure: 'bus regularity (on-time percent)', perCity: results.map(r => ({ city: r.city, value: r.output.fleetOnTimePercent })), mean: round(v.reduce((a, b) => a + b, 0) / (v.length || 1)) };
+  }
+  if (path === '/publictransit/financialPerformance') {
+    return { measure: 'farebox ratio (revenue / cost) by mode', perCity: results.map(r => ({ city: r.city, modes: Object.fromEntries(r.output.rows.map(x => [x.mode, x.fareboxRatio])) })) };
   }
   const n = results.map(r => ({ city: r.city, rows: Array.isArray(r.output.rows) ? r.output.rows.length : null }));
   return { measure: 'row count per city', perCity: n };

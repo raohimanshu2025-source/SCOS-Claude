@@ -2425,7 +2425,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2444,7 +2444,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2608,10 +2608,11 @@
   "anchor": "fed-dev",
   "how": "The Developer builder combines the ETA API with stop data to make a small journey app, and shows how many parts the developer did not have to build.",
   "server": {
-   "status": "partial",
-   "how": "Developers can combine the CIL APIs through OpenAPI (tested). Of the transit example only the bus ETA API exists: see COS-37.",
+   "status": "working",
+   "how": "Developers can combine the CIL APIs through OpenAPI (tested), including all the Figure 7 transit APIs a multimodal app would call: travel time by mode, bus ETA, metro and rail arrivals and occupancy.",
    "tests": [
-    "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat"
+    "[COS-24][COS-12][COS-13] transit ETA takes routeid and current location and returns a Single Stat",
+    "[COS-37][COS-12] Figure 7 transit APIs: travel time by mode, metro and suburban rail arrivals, occupancy, with weather and events"
    ]
   }
  },
@@ -2665,10 +2666,11 @@
   "anchor": "fed-kpi",
   "how": "The federation screen compares bus on-time rate between demo cities and cost recovery of bus and metro, using the same KPI definition.",
   "server": {
-   "status": "partial",
-   "how": "Bus regularity (on-time percent) is aggregated across two cities (tested). No bus versus metro financial comparison exists.",
+   "status": "working",
+   "how": "Bus regularity (on-time percent) is aggregated across two cities (tested). /publictransit/financialPerformance compares bus and metro revenue, cost and farebox ratio (tested), and its federated query lists the farebox ratio by mode for each city.",
    "tests": [
-    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated",
+    "[COS-15] bus versus metro financial performance"
    ]
   }
  },
@@ -2687,7 +2689,7 @@
    "status": "working",
    "how": "Interpolation to a grid, alerts above 90 µg/m³ and hotspots (grid cells above 90 µg/m³ with their ward) are returned (tested). The forecast is a simple trend method, not a calibrated air quality model.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator",
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator",
     "[COS-16][COS-23] the air quality API forecasts future windows and reports hotspots"
    ]
   }
@@ -2707,7 +2709,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2726,7 +2728,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2745,7 +2747,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator",
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator",
     "[COS-28][COS-19] rule-based alerts are raised by analytics"
    ]
   }
@@ -2765,7 +2767,7 @@
    "status": "working",
    "how": "Interpolation, wind and heat-island APIs run on station data (tested). The forecast is a simple trend, not a weather model.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2784,7 +2786,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -2880,7 +2882,7 @@
    "status": "working",
    "how": "Checked by the automated tests listed.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator"
    ]
   }
  },
@@ -3084,9 +3086,11 @@
   "anchor": "fed-dev",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "Only the bus ETA API exists, and it does not use weather or event conditions. Walking, autorickshaw, bicycle, car, metro and suburban rail predictions and occupancy predictions are not implemented.",
-   "tests": []
+   "status": "working",
+   "how": "All Figure 7 APIs exist: /publictransit/travelTime (walking, bicycle or scooter, autorickshaw, car or cab), /publictransit/eta (bus), /publictransit/railEta (metro and suburban rail) and /publictransit/occupancy (bus, metro, suburban rail), all tested. Rain from the weather stations and flood alerts (as events) change the times. The methods are simple documented formulas with demo factors, not calibrated models, and the metro and rail timetables are synthetic.",
+   "tests": [
+    "[COS-37][COS-12] Figure 7 transit APIs: travel time by mode, metro and suburban rail arrivals, occupancy, with weather and events"
+   ]
   }
  }
 ]

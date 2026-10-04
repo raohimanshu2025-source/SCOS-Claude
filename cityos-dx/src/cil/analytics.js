@@ -49,6 +49,20 @@ function forecastPm(rows, a, b) {
 const windowRows = (rows, tf, a, b) => rows.filter(r => { const t = Date.parse(r[tf]); return t >= a && t <= b; });
 const wasteByWard = snap => { const m = {}; for (const r of snap.waste) (m[r.ward] ||= []).push(r); for (const k in m) m[k].sort((a, b) => a.date.localeCompare(b.date)); return m; };
 
+// Current conditions for the transit APIs (City OS Figure 7: "considering current weather and event conditions").
+// Rain: the highest latest rainfall across weather stations. Events: wards with a flood alert in the last 6 hours.
+function conditions(s) {
+  const rainMm = Math.max(0, ...s.wx.map(w => w.rows.at(-1)?.rainfall).filter(Number.isFinite));
+  const floodWards = new Set((s.floodAlerts || []).filter(a => Date.parse(a.observationDateTime) > s.now - 6 * 3600e3 && !/clear/i.test(a.severity || '')).map(a => a.ward));
+  return { rainMm: round(rainMm, 1), rainy: rainMm >= 2.5, floodWards: [...floodWards] };
+}
+const IST = 5.5 * 3600e3;
+const istMinutes = t => { const d = new Date(t + IST); return d.getUTCHours() * 60 + d.getUTCMinutes(); };
+const hm = m => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(Math.round(m % 60)).padStart(2, '0')}`;
+const toMin = x => { const [h, m] = String(x).split(':').map(Number); return h * 60 + m; };
+const isLonLat = v => Array.isArray(v) && v.length === 2 && v.every(Number.isFinite);
+const MODES = { walk: { kmh: 4.5, rain: 1.25, wait: 0 }, bicycle: { kmh: 12, rain: 1.3, wait: 0 }, autorickshaw: { kmh: 18, rain: 1.2, wait: 3, traffic: true }, car: { kmh: 22, rain: 1.15, wait: 0, traffic: true } };
+
 export const BUILTINS = [
   { id: 'aq-forecast', domain: 'Air Quality', name: 'Air quality spatio-temporal interpolation', path: '/environment/spatialForecast', provider: 'Pollution Control Cell (demo)',
     inputs: [inp('aqm', 'Time Series', 'RequiresDataSource', 'PM2_5'), inp('aqm', 'Hash Map', 'RequiresAdditionalDataSource', 'location')],
@@ -77,9 +91,9 @@ export const BUILTINS = [
         alerts: alerts.map(x => ({ ward: x.ward, msg: `PM2.5 ${x.meanPM2_5} ug/m3 at ${x.sensor}` })) };
     } },
   { id: 'eta', domain: 'Intelligent Transit', name: 'Estimated time of arrival', path: '/publictransit/eta', provider: 'City Transport Undertaking (demo)',
-    inputs: [inp('itms', 'Time Series', 'RequiresDataSource', 'location'), inp('stops', 'Hash Map', 'RequiresAdditionalDataSource', 'location')],
+    inputs: [inp('itms', 'Time Series', 'RequiresDataSource', 'location'), inp('stops', 'Hash Map', 'RequiresAdditionalDataSource', 'location'), inp('weather', 'Time Series', 'RequiresAdditionalDataSource', 'rainfall'), inp('floodalert', 'Categorical', 'RequiresAdditionalDataSource', 'ward')],
     out: 'Single Stat', viz: 'Table', period: 1, dataPeriodicity: '30 s', provenance: 'City OS paper Figure 10',
-    procedure: 'Distance along the route from the nearest earlier bus to the stop nearest the given location, divided by that bus speed, plus 30 s dwell per stop',
+    procedure: 'Distance along the route from the nearest earlier bus to the stop nearest the given location, divided by that bus speed, plus 30 s dwell per stop; x1.15 when it is raining (2.5 mm or more) and x1.3 when the stop is in a ward with a flood alert (demo factors)',
     params: { routeid: 'string', currentlocation: 'array [lon,lat]' },
     defaults: s => { const r = Object.keys(s.routes)[0]; return { routeid: r, currentlocation: s.routes[r]?.stops.at(-2)?.loc }; },
     run(s, b) {
@@ -92,7 +106,8 @@ export const BUILTINS = [
         let d = distKm(bus.loc, r.stops[seg + 1].loc); for (let k = seg + 1; k < si; k++) d += distKm(r.stops[k].loc, r.stops[k + 1].loc);
         const m = d / Math.max(bus.speed, 5) * 60 + (si - seg - 1) * 0.5; if (!best || m < best.m) best = { m, bus: bus.busId };
       }
-      return { output: { type: 'SingleStat', stop: r.stops[si].stopId, value: best ? round(best.m, 0) : null, unit: 'minutes', bus: best?.bus ?? 'none approaching' } };
+      const c = conditions(s), ward = wardOf(s, r.stops[si].loc), f = (c.rainy ? 1.15 : 1) * (c.floodWards.includes(ward) ? 1.3 : 1);
+      return { output: { type: 'SingleStat', stop: r.stops[si].stopId, value: best ? round(best.m * f, 0) : null, unit: 'minutes', bus: best?.bus ?? 'none approaching', conditions: { rainMm: c.rainMm, floodAlertInWard: c.floodWards.includes(ward), factor: round(f, 2) } } };
     } },
   { id: 'traffic', domain: 'Intelligent Transit', name: 'Traffic hotspots', path: '/publictransit/trafficHotspots', provider: 'City Transport Undertaking (demo)',
     inputs: [inp('itms', 'Time Series', 'RequiresDataSource', 'speed')], out: 'Table', viz: 'Map Vectors', period: 5, dataPeriodicity: '30 s', provenance: 'City OS paper Section 3 (2)',
@@ -113,6 +128,70 @@ export const BUILTINS = [
       const th = Number(b.thresholdMetres ?? 300);
       const rows = s.buses.filter(x => s.routes[x.routeId]).map(x => ({ bus: x.busId, route: x.routeId, ward: wardOf(s, x.loc), metresFromRoute: Math.round(distToRoute(x.loc, s.routes[x.routeId].stops) * 1000) })).filter(r => r.metresFromRoute > th);
       return { output: { type: 'Table', rows }, alerts: rows.map(r => ({ ward: r.ward, msg: `${r.bus} is ${r.metresFromRoute} m off ${r.route}` })) };
+    } },
+  { id: 'travel-time', domain: 'Intelligent Transit', name: 'Travel time by walking, bicycle, autorickshaw or car', path: '/publictransit/travelTime', provider: 'City Transport Undertaking (demo)',
+    inputs: [inp('itms', 'Time Series', 'RequiresDataSource', 'speed'), inp('weather', 'Time Series', 'RequiresAdditionalDataSource', 'rainfall'), inp('floodalert', 'Categorical', 'RequiresAdditionalDataSource', 'ward')],
+    out: 'Table', viz: 'Table', period: 5, dataPeriodicity: '15 min', provenance: 'City OS paper Figure 7',
+    procedure: 'Road distance = 1.3 x straight-line distance. Time = distance / typical speed (walk 4.5, bicycle 12, autorickshaw 18, car 22 km/h) plus waiting time; autorickshaw and car scaled by 20 km/h / median latest bus speed (0.8 to 1.8); rain of 2.5 mm or more adds 15 to 30 percent; a flood alert in the start or end ward adds 30 percent. Demo factors, not a calibrated model',
+    params: { origin: 'array [lon,lat]', destination: 'array [lon,lat]', mode: 'walk | bicycle | autorickshaw | car (all when left out)' },
+    defaults: s => ({ origin: [s.bbox[0] + (s.bbox[2] - s.bbox[0]) * 0.2, s.bbox[1] + (s.bbox[3] - s.bbox[1]) * 0.5], destination: [s.bbox[0] + (s.bbox[2] - s.bbox[0]) * 0.7, s.bbox[1] + (s.bbox[3] - s.bbox[1]) * 0.5] }),
+    run(s, b) {
+      if (!isLonLat(b.origin) || !isLonLat(b.destination)) throw new Error('origin and destination must be [lon,lat]');
+      if (b.mode && !MODES[b.mode]) throw new Error('mode must be one of ' + Object.keys(MODES).join(', '));
+      const c = conditions(s), km = distKm(b.origin, b.destination) * 1.3;
+      const sp = s.buses.map(x => x.speed).filter(Number.isFinite).sort((x, y) => x - y), med = sp.length ? sp[Math.floor(sp.length / 2)] : 20;
+      const traffic = Math.min(1.8, Math.max(0.8, 20 / Math.max(med, 1)));
+      const flood = [wardOf(s, b.origin), wardOf(s, b.destination)].some(w => c.floodWards.includes(w));
+      const rows = Object.entries(MODES).filter(([m]) => !b.mode || m === b.mode).map(([mode, m]) => {
+        const f = (m.traffic ? traffic : 1) * (c.rainy ? m.rain : 1) * (flood ? 1.3 : 1);
+        return { mode, minutes: Math.round(km / m.kmh * 60 * f + m.wait), distanceKm: round(km, 1), factor: round(f, 2) };
+      });
+      return { output: { type: 'Table', rows, conditions: { rainMm: c.rainMm, raining: c.rainy, floodAlertOnTrip: flood, medianBusSpeedKmh: round(med, 1) } } };
+    } },
+  { id: 'rail-eta', domain: 'Intelligent Transit', name: 'Metro and suburban rail arrival time', path: '/publictransit/railEta', provider: 'City Transport Undertaking (demo)',
+    inputs: [inp('railtt', 'Hash Map', 'RequiresDataSource', 'runMinutes'), inp('weather', 'Time Series', 'RequiresAdditionalDataSource', 'rainfall'), inp('floodalert', 'Categorical', 'RequiresAdditionalDataSource', 'ward')],
+    out: 'Table', viz: 'Table', period: 1, dataPeriodicity: 'timetable', provenance: 'City OS paper Figure 7',
+    procedure: 'Trains leave each end of the line from firstTrain to lastTrain every headwayMinutes (Indian Standard Time) and reach a station after its running time; the next two arrivals in each direction are given. Heavy rain (20 mm or more) or a flood alert in the station ward adds 5 minutes (demo factor)',
+    params: { mode: 'metro | suburban', station: 'station name or id' },
+    defaults: s => { const t = (s.timetable || []).find(r => r.mode === 'metro' && r.seq === 3) || (s.timetable || [])[0]; return { mode: t?.mode, station: t?.name }; },
+    run(s, b) {
+      const all = (s.timetable || []).filter(r => r.mode === b.mode);
+      if (!all.length) throw new Error('mode must be metro or suburban');
+      const st = all.find(r => r.stationId === b.station || String(r.name).toLowerCase() === String(b.station || '').toLowerCase());
+      if (!st) throw new Error('unknown station; use one of ' + all.map(r => r.name).join(', '));
+      const line = all.filter(r => r.line === st.line).sort((x, y) => x.seq - y.seq), total = line.at(-1).runMinutes;
+      const c = conditions(s), late = c.rainMm >= 20 || c.floodWards.includes(wardOf(s, st.location.coordinates)) ? 5 : 0;
+      const now = istMinutes(s.now), first = toMin(st.firstTrain), last = toMin(st.lastTrain), hw = st.headwayMinutes;
+      const next = run => { const out = []; for (let d = first; d <= last && out.length < 2; d += hw) { const a = d + run + late; if (a >= now) out.push(a); } return out; };
+      const rows = [[`towards ${line.at(-1).name}`, st.runMinutes], [`towards ${line[0].name}`, total - st.runMinutes]]
+        .filter(([, run], i) => !(i === 0 && st.seq === line.length) && !(i === 1 && st.seq === 1))
+        .map(([direction, run]) => { const n = next(run); return { direction, nextInMinutes: n[0] != null ? n[0] - now : null, nextAt: n[0] != null ? hm(n[0]) : 'no more trains today', followingAt: n[1] != null ? hm(n[1]) : null }; });
+      return { output: { type: 'Table', line: st.line, station: st.name, rows, conditions: { rainMm: c.rainMm, delayAddedMinutes: late }, note: 'Times are Indian Standard Time, from a demo timetable' } };
+    } },
+  { id: 'occupancy', domain: 'Intelligent Transit', name: 'Bus, metro and suburban rail occupancy', path: '/publictransit/occupancy', provider: 'City Transport Undertaking (demo)',
+    inputs: [inp('occupancy', 'Time Series', 'RequiresDataSource', 'occupancyPercent')],
+    out: 'Table', viz: 'Bar', period: 15, dataPeriodicity: '15 min', provenance: 'City OS paper Figures 6 and 7',
+    procedure: 'Latest occupancy per line; the next-hour value is the reading closest to the same time one day earlier, shifted by the difference between today and yesterday at this hour (seasonal naive). Level: low under 40, medium under 75, high from 75 percent',
+    params: { mode: 'bus | metro | suburban (all when left out)', line: 'line or route name (all when left out)' }, defaults: () => ({}),
+    run(s, b) {
+      const at = (rows, t) => rows.reduce((best, r) => (Math.abs(Date.parse(r.observationDateTime) - t) < Math.abs(Date.parse(best.observationDateTime) - t) ? r : best), rows[0]);
+      const rows = (s.occupancy || []).map(o => o.rows).filter(r => r.length && (!b.mode || r[0].mode === b.mode) && (!b.line || r[0].line === b.line)).map(r => {
+        const l = r.at(-1), t = Date.parse(l.observationDateTime), y = at(r, t - 86400e3), yn = at(r, t - 86400e3 + 3600e3);
+        const next = Math.max(0, Math.round(yn.occupancyPercent + (l.occupancyPercent - y.occupancyPercent)));
+        const level = v => (v < 40 ? 'low' : v < 75 ? 'medium' : 'high');
+        return { mode: l.mode, line: l.line, nowPercent: l.occupancyPercent, level: level(l.occupancyPercent), nextHourPercent: next, nextHourLevel: level(next), observed: l.observationDateTime };
+      });
+      if (!rows.length) throw new Error('no occupancy data for that mode or line');
+      return { output: { type: 'Table', rows } };
+    } },
+  { id: 'fare-performance', domain: 'Intelligent Transit', name: 'Financial performance by mode', path: '/publictransit/financialPerformance', provider: 'City Transport Undertaking (demo)',
+    inputs: [inp('fare', 'Time Series', 'RequiresDataSource', 'revenue'), inp('fare', 'Time Series', 'RequiresAdditionalDataSource', 'cost')],
+    out: 'Table', viz: 'Bar', period: 1440, dataPeriodicity: 'daily', provenance: 'City OS paper Section 2 (bus versus metro financial performance)',
+    procedure: 'Per mode: mean daily revenue and operating cost over the days in the data, and the farebox ratio (revenue / cost)', params: {}, defaults: () => ({}),
+    run(s) {
+      const by = {}; for (const r of s.fares || []) (by[r.mode] ||= []).push(r);
+      const rows = Object.entries(by).map(([mode, r]) => { const rev = mean(r.map(x => x.revenue)), cost = mean(r.map(x => x.cost)); return { mode, days: r.length, revenuePerDay: Math.round(rev), costPerDay: Math.round(cost), fareboxRatio: round(rev / cost, 2) }; });
+      return { output: { type: 'Table', city: s.city, rows } };
     } },
   { id: 'swm-est', domain: 'Solid Waste', name: 'Daily dumping estimation', path: '/swm/dailyEstimate', provider: 'Municipal Corporation (demo)',
     inputs: [inp('swm', 'Time Series', 'RequiresDataSource', 'tonnes')], out: 'Series Forecast', viz: 'Bar', period: 1440, dataPeriodicity: 'daily', provenance: 'City OS paper Section 3 (3)',

@@ -11,9 +11,9 @@ before(async () => { c = await startCity(); });
 after(async () => { await c.stop(); });
 const OP = 'control@mc.demo-city.example';
 
-test('[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator', async () => {
+test('[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 23 domain APIs answer for an authorised operator', async () => {
   const apis = (await c.req('GET', '/cil/v1/apis')).body;
-  assert.equal(apis.length, 19);
+  assert.equal(apis.length, 23);
   assert.deepEqual([...new Set(apis.map(a => a.domain))].sort(), ['Air Quality', 'Citizen Grievance', 'Flood', 'Intelligent Transit', 'Solid Waste', 'Weather']);
   for (const a of apis) {
     const r = await c.req('POST', '/cil/v1' + a.path, { as: OP, body: {} });

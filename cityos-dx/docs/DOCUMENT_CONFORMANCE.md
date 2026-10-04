@@ -12,19 +12,19 @@ It was done on 29-30 September 2026. The check led to fixes in the server, 24 ne
 | | BIS | COS | Total |
 |---|---|---|---|
 | Points | 125 | 37 | 162 |
-| Working and tested | 107 | 27 | 134 |
-| Partly met | 9 | 7 | 16 |
+| Working and tested | 107 | 30 | 137 |
+| Partly met | 9 | 4 | 13 |
 | Not met | 1 | 0 | 1 |
 | Statement, no function | 5 | 3 | 8 |
 | Out of scope in the document | 3 | 0 | 3 |
 
 **Not met:** trusted execution environments for policy enforcement (BIS-111).
 
-**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model).
+**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model). Then the Figure 7 multimodal transit APIs (COS-37, COS-12): travel time by walking, bicycle, autorickshaw and car, metro and suburban rail arrivals, and bus, metro and rail occupancy, using rain and flood alerts; and bus versus metro financial performance (COS-15). The metro and suburban rail timetables and occupancy readings are synthetic data added for this.
 
-**Partly met:** BIS-37, 55, 60, 78, 92, 102, 114, 118, 125 and COS-08, 12, 15, 31, 33, 34, 37. Each row in the PDF says what is missing.
+**Partly met:** BIS-37, 55, 60, 78, 92, 102, 114, 118, 125 and COS-08, 31, 33, 34. Each row in the PDF says what is missing.
 
-So the software does **not** follow the two documents 100%. It follows the 134 tested points, and it says plainly where it falls short.
+So the software does **not** follow the two documents 100%. It follows the 137 tested points, and it says plainly where it falls short.
 
 ## What the check found and fixed
 
@@ -96,6 +96,7 @@ These are deliberate. Each is stated in the verification PDF.
 - Ten data models for that profile: power feeder, pump station, water supply, traffic junction, fire call, hospital beds, building permit, road work, power cut notice and past incident. The documents do not define these. They follow the same data model rules (BIS Section 6) as the other models.
 - The Kanpur welcome on the portal: a "Namaste Kanpur" greeting, a sky that follows the time of day in Kanpur, a skyline of simple drawings of known places (IIT Kanpur, Green Park, Ghantaghar, JK Temple, Ganga Barrage) and four citizen buttons (water supply, power cuts, hospital beds, report a problem). The buttons only read public items. The weather line is the demo sensor data. "Report a problem" is a demo form: it sends and saves nothing, and says so. The documents do not ask for any of this.
 - The site-wide sky theme (`public/sky-theme.js`, `public/sky.css`): night in Kanpur gives the portal and the officer console a night look, a sunny day adds a soft glow, and rain reported by the public demo weather stations shows gentle falling rain. High contrast turns the effects off and "reduce motion" stops the rain. This is a look only; the documents do not ask for it.
+- Synthetic metro and suburban rail timetables (data model `railTimetable`) and bus, metro and rail occupancy readings (`transitOccupancy`), in both city profiles, so the Figure 7 transit APIs have data to work on. Kanpur metro and rail station names are real places with approximate positions; the timetables and readings are made up. The documents name these APIs but do not define these data models.
 - Citizen alerts with officer approval (`src/citizen-alerts.js`, routes `/cil/v1/citizen-alerts*`, console screen "Citizen alerts", portal block "Alerts from the city"). A department officer or the control room writes an alert; a different control room officer or the administrator approves or refuses it (two-person rule); only approved, unexpired alerts are public, without officer names or e-mails. Every step is written to the signed audit log under the CIL interface. Nothing is sent by SMS, e-mail or app. The documents do not ask for this; the City OS paper only has alerts raised by analytics, which stay as they were.
 - The transparency section and `/ops/v1/transparency`: public counts of departments, datasets by access label, access requests, standing sharing between departments (from the allow lists), tokens, audit events and whether the audit chain verifies (checked at most every 5 minutes), and citizen alerts. Counts only: no names, e-mail addresses or data values. The documents do not ask for this.
 - The help and website policies page (`public/info.html`, `public/info.js`) in English and Hindi: help and FAQ, emergency numbers (112, 101, 108, 1912, 1076, with a note that the site is not connected to them), accessibility statement (aims for WCAG 2.1 AA, not independently audited), privacy policy, terms of use, copyright and hyperlinking policy, contact and feedback (no official contact; nothing is sent), and sitemap, all linked from the portal footer. These follow the usual pages of Indian government websites but make no claim of GIGW compliance. The documents do not ask for this.

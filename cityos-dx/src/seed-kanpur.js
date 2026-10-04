@@ -9,6 +9,7 @@ import crypto from 'node:crypto';
 import { q } from './db.js';
 import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
+import { seedTransit } from './seed-transit.js';
 
 let seedVal = 20261001;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -235,8 +236,8 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
     const id = res({ key: bid.toLowerCase(), grp: 'itms', name: `Bus ${bid} position (demo)`, desc: `Position of a city bus on route ${r.slice(2)} (synthetic).`, tags: ['transport', 'bus', 'position', r], rtype: 'messageStream', label: 'public', loc });
     ingest(id, times.map((t, k) => ({ busId: bid, routeId: r, location: geo(loc), speed: round(Math.max(0, speed + (rnd() - 0.5) * 3)), delayMinutes: Math.max(0, Math.round(delay + (rnd() - 0.5) * 4 + (k < 48 ? -3 : 0))), observationDateTime: iso(t) })));
   });
-  const fareId = res({ key: 'fare-revenue', grp: 'fare', name: 'City bus fare revenue and cost', desc: 'Daily revenue and operating cost (synthetic).', tags: ['transport', 'finance', 'revenue'], rtype: 'table', label: 'protected' });
-  ingest(fareId, DAYS.slice(-7).map(d => ({ mode: 'bus', date: d, revenue: Math.round(380000 + rnd() * 30000), cost: Math.round(590000 + rnd() * 20000) })));
+  const fareId = res({ key: 'fare-revenue', grp: 'fare', name: 'City bus and metro fare revenue and cost', desc: 'Daily revenue and operating cost by mode (synthetic).', tags: ['transport', 'finance', 'revenue'], rtype: 'table', label: 'protected' });
+  ingest(fareId, DAYS.slice(-7).flatMap(d => [{ mode: 'bus', date: d, revenue: Math.round(380000 + rnd() * 30000), cost: Math.round(590000 + rnd() * 20000) }, { mode: 'metro', date: d, revenue: 260000 + Number(d.slice(8)) * 1370 % 30000, cost: 880000 + Number(d.slice(8)) * 2711 % 40000 }]));
   // Nagar Nigam: waste (private), grievances (confidential) + count view (protected), zone boundaries (public)
   const wasteId = res({ key: 'waste-daily', grp: 'swm', name: 'Daily waste tonnage by zone', desc: 'Tonnes collected per zone per day, last 14 days (synthetic).', tags: ['waste', 'swm', 'tonnage'], rtype: 'table', label: 'private' });
   ingest(wasteId, ZONES.flatMap((z, i) => DAYS.map((d, k) => ({ ward: z.id, date: d, tonnes: round([210, 260, 190, 240, 280, 170][i] + (rnd() - 0.5) * 20 + (i === 4 && k === 13 ? 80 : 0)) }))));
@@ -248,6 +249,10 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   ingest(gisId, ZONES.map(z => ({ wardId: z.id, boundary: { type: 'Polygon', coordinates: [[[z.bbox[0], z.bbox[1]], [z.bbox[2], z.bbox[1]], [z.bbox[2], z.bbox[3]], [z.bbox[0], z.bbox[3]], [z.bbox[0], z.bbox[1]]]] } })));
   res({ key: 'flood-alerts', grp: 'floodalert', name: 'Flood alert messages', desc: 'Alerts published by the control room when a drain crosses its warning level.', tags: ['flood', 'alert'], rtype: 'message', label: 'public' });
 
+  // Figure 7 multimodal transit: metro and suburban rail timetables and occupancy (synthetic; approximate station positions).
+  seedTransit({ group, res, ingest, times, rnd, round, provider: 'iccc', busRoutes: Object.keys(ROUTES), lineNames: { metro: 'Kanpur Metro Line 1 (demo)', suburban: 'Kanpur suburban line (demo)' },
+    metro: [['IIT Kanpur', [80.233, 26.511]], ['Kalyanpur', [80.268, 26.508]], ['SPM Hospital', [80.28, 26.5]], ['Gurudev Chauraha', [80.295, 26.492]], ['Rawatpur', [80.305, 26.487]], ['Moti Jheel', [80.325, 26.483]], ['Bada Chauraha', [80.343, 26.468]], ['Nayaganj', [80.35, 26.462]], ['Kanpur Central', [80.352, 26.455]]],
+    suburban: [['Bhaupur', [80.22, 26.47]], ['Panki Dham', [80.252, 26.47]], ['Govindpuri', [80.29, 26.445]], ['Kanpur Central', [80.352, 26.455]], ['Chakeri', [80.39, 26.415]]] });
   // ---- starting policies: who already has access (C), and one open request to show the consent flow ----
   const addC = (id, emails) => { const it = catalogue.get(id); authz.setPolicy(id, { C: [...it.policy.C, ...emails] }, items[id].officer); };
   const ctl = [`control@${dom('iccc')}`, cfg.cilServiceEmail];

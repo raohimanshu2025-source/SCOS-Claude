@@ -20,10 +20,10 @@ test('Kanpur profile seeds 11 departments, each with an officer and a staff logi
   assert.ok(JSON.stringify(mine).includes('feeders'), 'KESCO officer sees its feeders');
 });
 
-test('all 19 CIL analytics answer on the Kanpur data, with Kanpur departments as providers', async () => {
+test('all 23 CIL analytics answer on the Kanpur data, with Kanpur departments as providers', async () => {
   const ctl = await c.login('control');
   const apis = (await c.req('GET', '/cil/v1/apis')).body;
-  assert.equal(apis.length, 19);
+  assert.equal(apis.length, 23);
   assert.ok(apis.every(a => !/demo city/i.test(a.provider)), JSON.stringify(apis.map(a => a.provider)));
   for (const a of apis) {
     const r = await ctl.as('POST', '/cil/v1' + a.path, { body: {} });

@@ -16,7 +16,7 @@ Working software that implements two documents, and nothing else:
 | Catalogue (BIS 4.5.1, 6) | JSON-LD items checked against Tables 5-8; text, attribute, geo and time search; data models with units; change notices |
 | Authorization (BIS 4.5.2, 5.2-5.4, 7) | Policies P = (C, A) with Table 3 and 4 values; class checks; consent requests; licence agreements; tokens `auth-server/consumer/hex`, bound to the consumer's certificate; introspection by class 1 resource servers only; revocation |
 | Resource access (BIS Table 2) | Latest, search, status, count, subscribe/update/unsubscribe (server-sent events), GeoJSON download, provider ingestion checked against the data model, views without personal data, a DX Adapter in front of a legacy (non-compliant) server |
-| City Intelligence Layer (City OS 3-4) | 19 domain APIs across the six domains, OpenAPI descriptions with the Figure 12 ontology, pluggable analytics with schema matching, scheduler, alerts, OLAP, keyword questions, monthly ICCC report, NGSI-LD output, federation between cities |
+| City Intelligence Layer (City OS 3-4) | 23 domain APIs across the six domains (including the Figure 7 multimodal transit APIs), OpenAPI descriptions with the Figure 12 ontology, pluggable analytics with schema matching, scheduler, alerts, OLAP, keyword questions, monthly ICCC report, NGSI-LD output, federation between cities |
 | Operations (BIS 5.5-5.6) | Public status page and heartbeat, per-interface statistics, hash-chained Ed25519-signed audit log, online backups with integrity check, restore, uptime probe, service drills |
 | Console | A web console for officers (admin, data officer, consumer, ICCC operator, auditor, analytics provider) that calls the same API |
 
@@ -55,7 +55,7 @@ npm run test:report  # also writes docs/TEST_REPORT.md with coverage and require
 npm run trace        # then updates the "server" status of every point in docs/requirements.json
 ```
 
-Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result for 162 points: 134 working and tested, 16 partly met, 1 not met (BIS-111 trusted execution environments), 8 statements with no function, 3 out of scope in the documents. See [docs/DOCUMENT_CONFORMANCE.md](docs/DOCUMENT_CONFORMANCE.md) for what matches, what differs and what we added.
+Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result for 162 points: 137 working and tested, 13 partly met, 1 not met (BIS-111 trusted execution environments), 8 statements with no function, 3 out of scope in the documents. See [docs/DOCUMENT_CONFORMANCE.md](docs/DOCUMENT_CONFORMANCE.md) for what matches, what differs and what we added.
 
 To put a demo online for officials, see [docs/HOSTING.md](docs/HOSTING.md): one command on a small cloud machine, with a free web certificate and demo logins.
 

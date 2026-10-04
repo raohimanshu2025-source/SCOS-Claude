@@ -71,3 +71,37 @@ test('[COS-16][COS-23] the air quality API forecasts future windows and reports 
   assert.ok(Array.isArray(fut.body.output.hotspots));
   for (const h of fut.body.output.hotspots) { assert.ok(h.PM2_5 > 90); assert.equal(h.centre.length, 2); }
 });
+
+test('[COS-37][COS-12] Figure 7 transit APIs: travel time by mode, metro and suburban rail arrivals, occupancy, with weather and events', async () => {
+  const ctl = await c.login('control');
+  const call = (path, body = {}) => ctl.as('POST', '/cil/v1/publictransit/' + path, { body });
+  const tt = await call('travelTime', { origin: [77.2, 28.6], destination: [77.25, 28.62] });
+  assert.equal(tt.status, 200, JSON.stringify(tt.body));
+  assert.deepEqual(tt.body.output.rows.map(r => r.mode), ['walk', 'bicycle', 'autorickshaw', 'car']);
+  const [walk, , , car] = tt.body.output.rows; assert.ok(walk.minutes > car.minutes, 'walking takes longer than a car');
+  assert.ok('raining' in tt.body.output.conditions && 'floodAlertOnTrip' in tt.body.output.conditions);
+  assert.equal((await call('travelTime', { origin: [1, 2], destination: [1, 2], mode: 'boat' })).status, 400);
+  for (const mode of ['metro', 'suburban']) {
+    const r = await call('railEta', { mode, station: mode === 'metro' ? 'Metro station 3' : 'Rail station 2' });
+    assert.equal(r.status, 200, JSON.stringify(r.body));
+    assert.equal(r.body.output.rows.length, 2, 'both directions');
+    assert.ok(r.body.output.rows.every(x => /^\d\d:\d\d$|no more trains/.test(x.nextAt)));
+  }
+  const end = await call('railEta', { mode: 'metro', station: 'Metro station 1' });
+  assert.equal(end.body.output.rows.length, 1, 'first station has one direction');
+  assert.equal((await call('railEta', { mode: 'metro', station: 'Nowhere' })).status, 400);
+  const occ = await call('occupancy');
+  assert.deepEqual([...new Set(occ.body.output.rows.map(r => r.mode))].sort(), ['bus', 'metro', 'suburban']);
+  assert.ok(occ.body.output.rows.every(r => ['low', 'medium', 'high'].includes(r.level) && Number.isFinite(r.nextHourPercent)));
+  const eta = await call('eta', {});
+  assert.equal(eta.status, 200); assert.ok('rainMm' in eta.body.output.conditions, 'bus ETA now reports the conditions it used');
+});
+
+test('[COS-15] bus versus metro financial performance', async () => {
+  const ctl = await c.login('control');
+  const r = await ctl.as('POST', '/cil/v1/publictransit/financialPerformance', { body: {} });
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  const m = Object.fromEntries(r.body.output.rows.map(x => [x.mode, x]));
+  assert.ok(m.bus && m.metro);
+  for (const x of [m.bus, m.metro]) assert.equal(x.fareboxRatio, Math.round(x.revenuePerDay / x.costPerDay * 100) / 100);
+});

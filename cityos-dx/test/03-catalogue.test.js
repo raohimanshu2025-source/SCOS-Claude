@@ -30,13 +30,13 @@ test('[BIS-34][BIS-42][BIS-98][BIS-27] text, attribute, geo (bbox and near), tim
   const time = await c.req('GET', `/catalogue/v1/search?time=${new Date(Date.now() - 3600e3).toISOString()}&timerel=after`);
   assert.ok(time.body.total > 40);
   const cnt = await c.req('GET', '/catalogue/v1/count?type=resourceItem');
-  assert.equal(cnt.body.count, 28);
+  assert.equal(cnt.body.count, 34);
   assert.equal((await c.req('GET', '/catalogue/v1/search?bbox=1,2')).status, 400);
 });
 
 test('[BIS-84][BIS-86][BIS-85][BIS-88][BIS-44][BIS-46][BIS-93] every stored item is JSON-LD with core types and resolving references', async () => {
   const all = await c.req('GET', '/catalogue/v1/search?limit=500');
-  assert.equal(all.body.total, 48);
+  assert.equal(all.body.total, 56);
   const { validateItem } = await import('../src/dx/model.js');
   const ids = new Set(all.body.results.map(i => i.id));
   for (const it of all.body.results) assert.deepEqual(validateItem(it, id => ids.has(id)), [], it.id);

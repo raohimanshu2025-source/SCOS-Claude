@@ -260,6 +260,17 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   addC(fareId, [...ctl, staff('kctsl')]);
   addC(camId, [`control@${dom('iccc')}`, staff('traffic')]);
   try { authz.requestToken({ ...principal(staff('fire')), role: 'consumer' }, [{ id: 'urn:demo-cat:pumps/sps-2' }], 'Fire service: check pumping station status during water logging'); } catch { /* expected: creates a pending consent request for Jal Sansthan to decide */ }
+  // ---- citizen alerts (our addition): one approved by the control room, one waiting for approval ----
+  if (app.citizenAlerts) {
+    const ca = app.citizenAlerts, ctlP = { ...principal(`control@${dom('iccc')}`), role: 'operator' };
+    const a1 = ca.draft({ ...principal(officer('knn')), role: 'provider' }, { kind: 'flood', level: 'advisory', area: 'Zone 6', hours: 720,
+      title: 'Demo: waterlogging advisory', message: 'Demo alert. Water may collect on low roads in this zone after heavy rain. Avoid underpasses and drive slowly.',
+      titleHi: 'डेमो: जलभराव की सलाह', messageHi: 'डेमो अलर्ट। तेज़ बारिश के बाद इस ज़ोन की निचली सड़कों पर पानी भर सकता है। अंडरपास से बचें और धीरे चलाएँ।' });
+    ca.decide(ctlP, a1.id, true, 'Checked against drain levels');
+    ca.draft({ ...principal(officer('kesco')), role: 'provider' }, { kind: 'power', level: 'info', area: 'Zone 2', hours: 24,
+      title: 'Demo: planned power shutdown', message: 'Demo alert. Power may be off tomorrow from 10 am to 1 pm for repair work.',
+      titleHi: 'डेमो: बिजली की नियोजित कटौती', messageHi: 'डेमो अलर्ट। मरम्मत के लिए कल सुबह 10 से दोपहर 1 बजे तक बिजली बंद रह सकती है।' });
+  }
   app.audit.log('Operations', 'seed', 'Kanpur profile seeded', `${DEPARTMENTS.length} departments, ${catalogue.all().length} catalogue items, synthetic data`);
   return { passwords: pw, certs: Object.fromEntries(Object.entries(certs).map(([e, c]) => [e, c.serial])) };
 }

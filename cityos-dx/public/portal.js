@@ -11,6 +11,13 @@ const last = a => a[a.length - 1];
 // ---------- language ----------
 const T = {
   en: {
+    navOpen: 'Transparency', navHelp: 'Help',
+    caTitle: 'Alerts from the city', caNote: 'A control room officer approves each alert before it appears here. Alerts are shown on this site only: no SMS or app message is sent.', caFrom: 'From', caApproved: 'Approved', caUntil: 'until', caNone: 'No alerts from the city right now.', caArea: 'Area',
+    lvl_info: 'Information', lvl_advisory: 'Advisory', lvl_warning: 'Warning', autoTitle: 'Automatic alerts from sensors',
+    trTitle: 'Transparency', trLead: 'How this portal is used, in numbers. Counts only: no names, e-mail addresses or data values.', trDepts: 'Organisations on the data exchange', trData: 'Datasets by access level', trReq: 'Requests for data access', trShare: 'Standing data sharing between departments', trFrom: 'Data of', trTo: 'Shared with', trSets: 'Datasets', trAudit: 'Signed audit log', trEvents: 'actions recorded', trRefused: 'refused', trChainOk: 'Checked: no entry has been changed or removed.', trChainBad: 'Check failed: the log may have been changed.', trLast: 'Last entry', trKey: 'Anyone can check the signatures with the public key', trAlerts: 'City alerts', trNone: 'None yet', trAt: 'Figures as of',
+    s_approved: 'approved', s_pending: 'waiting', s_rejected: 'refused', s_refused: 'refused', s_withdrawn: 'withdrawn',
+    fHelp: 'Help and FAQ', fA11y: 'Accessibility', fPrivacy: 'Privacy', fTerms: 'Terms of use', fCopy: 'Copyright and linking', fContact: 'Contact and feedback', fMap: 'Sitemap',
+    emTitle: 'Emergency numbers', emNote: 'National and Uttar Pradesh numbers. This demo site is not connected to them.', em112: 'All emergencies', em101: 'Fire', em108: 'Ambulance', em1912: 'Electricity complaints', em1076: 'CM Helpline (UP)',
     skip: 'Skip to main content', demoTag: 'DEMO', stripMsg: 'Independent research prototype with synthetic demo data. Not an official government website and not a live city system.',
     contrast: 'High contrast', portalName: 'City Data Portal', portalSub: 'Shared city data and live dashboards for departments and citizens', officerLogin: 'Officer login',
     navHome: 'City today', navMap: 'Map', navDash: 'Dashboards', navDepts: 'Departments', navData: 'Open data', navStatus: 'Service status', navAbout: 'About', navHist: 'Past incidents',
@@ -53,6 +60,13 @@ const T = {
     accessHelp: { public: 'Anyone can open it', protected: 'Departments named in the policy, or after the owner approves a request', private: 'Only departments the owner names', confidential: 'Owner and control room only' },
   },
   hi: {
+    navOpen: 'पारदर्शिता', navHelp: 'सहायता',
+    caTitle: 'शहर की ओर से अलर्ट', caNote: 'हर अलर्ट यहाँ दिखने से पहले कंट्रोल रूम के एक अधिकारी द्वारा मंज़ूर किया जाता है। अलर्ट सिर्फ़ इसी साइट पर दिखते हैं: कोई SMS या ऐप संदेश नहीं भेजा जाता।', caFrom: 'विभाग', caApproved: 'मंज़ूर', caUntil: 'तक', caNone: 'अभी शहर की ओर से कोई अलर्ट नहीं है।', caArea: 'क्षेत्र',
+    lvl_info: 'सूचना', lvl_advisory: 'सलाह', lvl_warning: 'चेतावनी', autoTitle: 'सेंसर से अपने-आप बने अलर्ट',
+    trTitle: 'पारदर्शिता', trLead: 'यह पोर्टल कैसे इस्तेमाल हो रहा है, संख्याओं में। सिर्फ़ गिनती: कोई नाम, ई-मेल या डेटा मान नहीं।', trDepts: 'डेटा एक्सचेंज पर संगठन', trData: 'पहुँच स्तर के अनुसार डेटासेट', trReq: 'डेटा पहुँच के अनुरोध', trShare: 'विभागों के बीच स्थायी डेटा साझेदारी', trFrom: 'किसका डेटा', trTo: 'किसके साथ साझा', trSets: 'डेटासेट', trAudit: 'हस्ताक्षरित ऑडिट लॉग', trEvents: 'कार्रवाइयाँ दर्ज', trRefused: 'अस्वीकृत', trChainOk: 'जाँचा गया: कोई प्रविष्टि बदली या हटाई नहीं गई है।', trChainBad: 'जाँच विफल: लॉग में बदलाव हो सकता है।', trLast: 'अंतिम प्रविष्टि', trKey: 'कोई भी सार्वजनिक कुंजी से हस्ताक्षर जाँच सकता है', trAlerts: 'शहर के अलर्ट', trNone: 'अभी कोई नहीं', trAt: 'आँकड़े इस समय तक',
+    s_approved: 'मंज़ूर', s_pending: 'प्रतीक्षा में', s_rejected: 'अस्वीकृत', s_refused: 'अस्वीकृत', s_withdrawn: 'वापस लिया',
+    fHelp: 'सहायता और सवाल-जवाब', fA11y: 'सुगम्यता', fPrivacy: 'गोपनीयता', fTerms: 'उपयोग की शर्तें', fCopy: 'कॉपीराइट और लिंक नीति', fContact: 'संपर्क और सुझाव', fMap: 'साइट मैप',
+    emTitle: 'आपातकालीन नंबर', emNote: 'राष्ट्रीय और उत्तर प्रदेश के नंबर। यह डेमो साइट इनसे जुड़ी नहीं है।', em112: 'सभी आपात स्थितियाँ', em101: 'आग', em108: 'एम्बुलेंस', em1912: 'बिजली शिकायत', em1076: 'मुख्यमंत्री हेल्पलाइन (उ.प्र.)',
     skip: 'मुख्य सामग्री पर जाएँ', demoTag: 'डेमो', stripMsg: 'स्वतंत्र शोध प्रोटोटाइप, कृत्रिम (डेमो) डेटा के साथ। यह कोई आधिकारिक सरकारी वेबसाइट नहीं है और न ही लाइव शहर प्रणाली।',
     contrast: 'उच्च कंट्रास्ट', portalName: 'सिटी डेटा पोर्टल', portalSub: 'विभागों और नागरिकों के लिए साझा शहर डेटा और लाइव डैशबोर्ड', officerLogin: 'अधिकारी लॉगिन',
     navHome: 'आज का शहर', navMap: 'नक्शा', navDash: 'डैशबोर्ड', navDepts: 'विभाग', navData: 'खुला डेटा', navStatus: 'सेवा स्थिति', navAbout: 'परिचय', navHist: 'पिछली घटनाएँ',
@@ -128,7 +142,7 @@ const gkey = g => String(g || '').split('/').pop();
 let D = null; // last loaded data
 const KNOWN = new Set(['incidents', 'outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
 async function load() {
-  const [info, cat, status, alerts, fleet] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance'))]);
+  const [info, cat, status, alerts, fleet, cityAlertList, open] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance')), soft(get('/cil/v1/citizen-alerts')), soft(get('/ops/v1/transparency'))]);
   const docs = cat.results;
   const providers = new Map(docs.filter(d => V(d.itemType) === 'provider').map(d => [d.id, V(d.name)]));
   const pdesc = new Map(docs.filter(d => V(d.itemType) === 'provider').map(d => [d.id, V(d.itemDescription) || '']));
@@ -147,7 +161,7 @@ async function load() {
   const water = waterRaw.map(w => ({ ...w, date: String(w.date || '').slice(0, 10) })); // one day per row, whether given as a date or a date-time
   // Public datasets that have no built-in dashboard (for example ones a department adds later) get a simple table panel.
   const others = await Promise.all(pub.filter(i => !KNOWN.has(i.group)).slice(0, 12).map(async i => ({ item: i, rows: (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || [] })));
-  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, outages, incidents, at: new Date() };
+  D = { others, pdesc, info, status, alerts: alerts || [], cityAlerts: cityAlertList || [], open, fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, outages, incidents, at: new Date() };
 }
 
 // ---------- helpers ----------
@@ -183,6 +197,7 @@ const IC = {
   cone: '<path d="M9 4h6l4 16H5L9 4ZM7.5 10h9M6.5 15h11M3 20h18"/>',
   flood: '<path d="M3 15c2 0 2-1.5 4.5-1.5S10 15 12 15s2-1.5 4.5-1.5S19 15 21 15M3 19c2 0 2-1.5 4.5-1.5S10 19 12 19s2-1.5 4.5-1.5S19 19 21 19M12 3l5 6H7l5-6Z"/>',
   bolt: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>',
+  flame: '<path d="M12 3c1 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-4.5 2-7 2 1 3 3 3 5 1-2 1-6 1-9Z"/>',
   megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1ZM16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/>',
   pin: '<path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/>',
   data: '<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/>',
@@ -366,6 +381,37 @@ function renderAlerts() {
     : `<div class="alert ok" role="status"><span aria-hidden="true">✓</span><div>${esc(t('noAlerts'))}</div></div>`;
 }
 
+// Alerts written by an officer and approved by the control room (shown only here; nothing is sent out).
+const KIND_ICON = { flood: 'flood', water: 'water', power: 'bolt', traffic: 'car', health: 'bed', fire: 'flame', air: 'air', other: 'megaphone' };
+function renderCityAlerts() {
+  const L = D.cityAlerts, lvl = { warning: 'bad', advisory: 'warn', info: 'info' };
+  $('#calerts').innerHTML = `<p class="muted small">${esc(t('caNote'))}</p>` + (L.length
+    ? L.map(a => `<article class="calert ${lvl[a.level] || 'info'}" role="status"><div class="calert-i">${icon(KIND_ICON[a.kind] || 'megaphone')}</div><div><p class="calert-h"><span class="badge ${lvl[a.level] || 'info'}">${esc(t('lvl_' + a.level))}</span> <b>${esc(LANG === 'hi' && a.titleHi ? a.titleHi : a.title)}</b></p><p>${esc(LANG === 'hi' && a.messageHi ? a.messageHi : a.message)}</p><p class="muted small">${esc(t('caArea'))}: ${esc(a.area)} · ${esc(t('caFrom'))}: ${esc(a.department)} · ${esc(t('caApproved'))} ${esc(fmtDT(a.approvedAt))}${a.expiresAt ? ` · ${esc(t('caUntil'))} ${esc(fmtDT(a.expiresAt))}` : ''}</p></div></article>`).join('')
+    : `<div class="alert ok" role="status"><span aria-hidden="true">✓</span><div>${esc(t('caNone'))}</div></div>`);
+}
+
+// Transparency: counts the server makes from its own records, with no names or data values.
+function renderOpen() {
+  const o = D.open, box = $('#openbody');
+  if (!o) { box.innerHTML = `<p class="muted">${esc(t('noData'))}</p>`; return; }
+  const st = obj => Object.entries(obj || {}).map(([k, n]) => `<span class="badge ${k === 'approved' ? 'ok' : k === 'pending' ? 'warn' : 'info'}">${n} ${esc(t('s_' + k) || k)}</span>`).join(' ') || `<span class="muted">${esc(t('trNone'))}</span>`;
+  const acc = Object.entries(o.datasets || {}).map(([k, n]) => `<span class="badge ${{ public: 'ok', protected: 'info', private: 'warn', confidential: 'bad' }[k] || 'info'}">${n} ${esc(t('accessName')[k] || k)}</span>`).join(' ');
+  const sum = Object.values(o.datasets || {}).reduce((x, y) => x + y, 0);
+  box.innerHTML = `<div class="open-grid">
+    <div class="open-card"><p class="open-n">${o.departments}</p><p>${esc(t('trDepts'))}</p></div>
+    <div class="open-card"><p class="open-n">${sum}</p><p>${esc(t('trData'))}</p><p>${acc}</p></div>
+    <div class="open-card"><p class="open-n">${Object.values(o.accessRequests || {}).reduce((x, y) => x + y, 0)}</p><p>${esc(t('trReq'))}</p><p>${st(o.accessRequests)}</p></div>
+    <div class="open-card"><p class="open-n">${Object.values(o.citizenAlerts || {}).reduce((x, y) => x + y, 0)}</p><p>${esc(t('trAlerts'))}</p><p>${st(o.citizenAlerts)}</p></div>
+  </div>
+  <div class="open-two">
+    <section class="panel"><div class="panel-h"><h3>${esc(t('trShare'))}</h3></div>${o.sharing?.length ? `<div class="tbl-wrap"><table class="tbl"><tr><th>${esc(t('trFrom'))}</th><th>${esc(t('trTo'))}</th><th>${esc(t('trSets'))}</th></tr>${o.sharing.map(r => `<tr><td>${esc(r.from)}</td><td>${esc(r.to)}</td><td>${r.datasets}</td></tr>`).join('')}</table></div>` : `<p class="muted">${esc(t('trNone'))}</p>`}</section>
+    <section class="panel"><div class="panel-h"><h3>${esc(t('trAudit'))}</h3></div><p class="open-n">${o.audit.events}</p><p>${esc(t('trEvents'))} · ${o.audit.refused} ${esc(t('trRefused'))}</p>
+      <div class="alert ${o.audit.chainIntact ? 'ok' : 'bad'}"><span aria-hidden="true">${o.audit.chainIntact ? '✓' : '⚠'}</span><div>${esc(t(o.audit.chainIntact ? 'trChainOk' : 'trChainBad'))}</div></div>
+      <p class="muted small">${esc(t('trLast'))}: ${o.audit.lastEvent ? esc(fmtDT(o.audit.lastEvent)) : '–'} · <a href="${esc(o.audit.publicKey)}" target="_blank" rel="noopener">${esc(t('trKey'))}</a></p></section>
+  </div>
+  <p class="muted small">${esc(t('trAt'))} ${esc(fmtDT(o.generatedAt))}. ${esc(t('demoData'))}.</p>`;
+}
+
 // ---------- map ----------
 const LAYERS = [['aq', 'lAq', '#d93a2b'], ['traffic', 'lTraffic', '#f08a24'], ['beds', 'lBeds', '#2f5f8f'], ['bus', 'lBus', '#8e44ad'], ['wx', 'lWx', '#1f9d55']];
 const ON = new Set(['aq', 'traffic', 'beds', 'bus']);
@@ -531,7 +577,7 @@ function renderAll() {
   $('#city-name').textContent = city;
   document.title = `${city} ${t('portalName')} (demo)`;
   $('#updated').textContent = fmtTime(D.at);
-  renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderHistory(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
+  renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderCityAlerts(); renderAlerts(); renderMap(); renderHistory(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus(); renderOpen();
   paint(document);
 }
 

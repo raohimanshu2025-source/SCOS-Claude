@@ -49,7 +49,9 @@
     <a href="#depts" data-i18n="navDepts">Departments</a>
     <a href="#data" data-i18n="navData">Open data</a>
     <a href="#status" data-i18n="navStatus">Service status</a>
+    <a href="#open" data-i18n="navOpen">Transparency</a>
     <a href="#about" data-i18n="navAbout">About</a>
+    <a href="/info.html" data-i18n="navHelp">Help</a>
   </div>
 </nav>
 
@@ -87,6 +89,9 @@
     <div class="wrap">
       <h2 data-i18n="glanceTitle">The city today</h2>
       <div class="tiles" id="tiles"><p class="muted">…</p></div>
+      <h3 class="sub-h" data-i18n="caTitle">Alerts from the city</h3>
+      <div id="calerts" class="alerts"></div>
+      <h3 class="sub-h" data-i18n="autoTitle">Automatic alerts from sensors</h3>
       <div id="alerts" class="alerts"></div>
     </div>
   </section>
@@ -146,7 +151,15 @@
     </div>
   </section>
 
-  <section id="about" class="sec alt">
+  <section id="open" class="sec alt">
+    <div class="wrap">
+      <h2 data-i18n="trTitle">Transparency</h2>
+      <p class="muted" data-i18n="trLead">How this portal is used, in numbers.</p>
+      <div id="openbody"></div>
+    </div>
+  </section>
+
+  <section id="about" class="sec">
     <div class="wrap about">
       <div>
         <h2 data-i18n="aboutTitle">About this portal</h2>
@@ -169,6 +182,26 @@
 
 <footer class="foot">
   <div class="wrap foot-in">
+    <div class="em" aria-labelledby="em-h">
+      <h2 class="em-h" id="em-h" data-i18n="emTitle">Emergency numbers</h2>
+      <ul class="em-list">
+        <li><b>112</b> <span data-i18n="em112">All emergencies</span></li>
+        <li><b>101</b> <span data-i18n="em101">Fire</span></li>
+        <li><b>108</b> <span data-i18n="em108">Ambulance</span></li>
+        <li><b>1912</b> <span data-i18n="em1912">Electricity complaints</span></li>
+        <li><b>1076</b> <span data-i18n="em1076">CM Helpline (UP)</span></li>
+      </ul>
+      <p class="small" data-i18n="emNote">National and Uttar Pradesh numbers. This demo site is not connected to them.</p>
+    </div>
+    <nav class="foot-links" aria-label="Website policies">
+      <a href="/info.html#help" data-i18n="fHelp">Help and FAQ</a>
+      <a href="/info.html#accessibility" data-i18n="fA11y">Accessibility</a>
+      <a href="/info.html#privacy" data-i18n="fPrivacy">Privacy</a>
+      <a href="/info.html#terms" data-i18n="fTerms">Terms of use</a>
+      <a href="/info.html#copyright" data-i18n="fCopy">Copyright and linking</a>
+      <a href="/info.html#contact" data-i18n="fContact">Contact and feedback</a>
+      <a href="/info.html#sitemap" data-i18n="fMap">Sitemap</a>
+    </nav>
     <p data-i18n="foot1">Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.</p>
     <p class="small"><a href="/console.html" data-i18n="officerLogin">Officer login</a> · <a href="/status/v1" data-i18n="apiStatus">Status API</a> · <a href="/api" data-i18n="apiList">API list</a></p>
   </div>

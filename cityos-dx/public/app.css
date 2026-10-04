@@ -140,3 +140,4 @@ td.mono{white-space:nowrap}
 .who{font-size:.8rem;color:var(--muted);text-align:right}
 .navtitle{font-weight:600}
 .grow{flex:1}
+.pill.muted{background:var(--line);color:var(--muted)}

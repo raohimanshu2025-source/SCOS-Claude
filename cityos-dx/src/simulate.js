@@ -1,6 +1,7 @@
 // Synthetic data simulator: keeps the demo city's sensor streams moving. Demo data only.
 import { q } from './db.js';
 import { iso, round } from './util.js';
+import { cameraFrame } from './media-frames.js';
 
 // Adds one new synthetic reading per sensor so subscriptions and analytics see fresh data.
 export function simulateTick(app, now = Date.now()) {
@@ -24,6 +25,11 @@ export function simulateTick(app, now = Date.now()) {
     if (g === 'beds') n = { ...d, bedsFree: Math.round(j(d.bedsFree, 3, 0, d.bedsTotal)), observationDateTime: t };
     if (n) ins.run(it.id, t, JSON.stringify(n));
   }
+  // a new synthetic camera picture each minute
+  for (const it of catalogue.all('resourceItem').filter(i => i.doc.resourceType?.value === 'mediaStream')) {
+    q.run(db, 'INSERT OR IGNORE INTO media (item_id, ts, mime, bytes) VALUES (?,?,?,?)', it.id, t, 'image/svg+xml', Buffer.from(cameraFrame(String(it.doc.name.value).replace(/^Traffic camera, /, ''), Date.parse(t))));
+  }
+  q.run(db, 'DELETE FROM media WHERE ts < ?', iso(now - 86400e3));
   q.run(db, 'DELETE FROM readings WHERE ts < ?', iso(now - 8 * 86400e3));
 }
 

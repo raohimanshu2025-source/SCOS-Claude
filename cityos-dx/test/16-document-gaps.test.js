@@ -105,3 +105,36 @@ test('[COS-15] bus versus metro financial performance', async () => {
   assert.ok(m.bus && m.metro);
   for (const x of [m.bus, m.metro]) assert.equal(x.fareboxRatio, Math.round(x.revenuePerDay / x.costPerDay * 100) / 100);
 });
+
+test('[BIS-37] media: live and archived playback and download of camera pictures, under the same access rules', async () => {
+  const cam = 'urn:demo-cat:camera/cam-junction-5';
+  const anon = await c.req('GET', '/resource/v1/media/latest?id=' + encodeURIComponent(cam));
+  assert.equal(anon.status, 401, 'a protected camera needs a token');
+  const tok = (await c.req('POST', '/auth/v1/token', { as: 'control@mc.demo-city.example', body: { request: [{ id: cam }] } })).body.token;
+  assert.ok(tok, 'the control room may view the camera');
+  const as = { as: 'control@mc.demo-city.example', token: tok };
+  const list = await c.req('GET', '/resource/v1/media/list?id=' + encodeURIComponent(cam) + '&time=' + new Date(Date.now() - 3 * 3600e3).toISOString(), as);
+  assert.equal(list.status, 200, JSON.stringify(list.body));
+  assert.ok(list.body.total >= 20, 'two hours of archived pictures');
+  const latest = await c.req('GET', '/resource/v1/media/latest?id=' + encodeURIComponent(cam), { ...as, raw: true });
+  assert.equal(latest.status, 200); assert.match(latest.headers['content-type'], /image\/svg\+xml/); assert.match(latest.body, /DEMO · synthetic picture/);
+  assert.match(latest.headers['content-security-policy'], /sandbox/, 'pictures are served sandboxed');
+  const f = list.body.files[0];
+  const file = await c.req('GET', `/resource/v1/media/file?id=${encodeURIComponent(cam)}&ts=${encodeURIComponent(f.ts)}`, { ...as, raw: true });
+  assert.equal(file.status, 200); assert.match(file.headers['content-disposition'], /attachment; filename=".+\.svg"/);
+  // live: a multipart stream of pictures
+  const live = await new Promise((resolve, reject) => {
+    import('node:https').then(({ default: h }) => {
+      const r = h.request({ host: '127.0.0.1', port: c.port, path: '/resource/v1/media/live?id=' + encodeURIComponent(cam), headers: { token: tok }, ca: c.ca, servername: 'localhost', ...c.creds('control@mc.demo-city.example') }, res => {
+        let d = ''; res.on('data', x => { d += x; if (d.includes('</svg>')) { res.destroy(); resolve({ status: res.statusCode, type: res.headers['content-type'], body: d }); } });
+      });
+      r.on('error', reject); r.end();
+    });
+  });
+  assert.equal(live.status, 200); assert.match(live.type, /multipart\/x-mixed-replace/); assert.match(live.body, /--dxframe/);
+  // only the owner adds media, only to a media item, only allowed types
+  const pic = Buffer.from('<svg xmlns="http://www.w3.org/2000/svg"/>').toString('base64');
+  assert.equal((await c.req('POST', '/resource/v1/media', { as: 'officer@mc.demo-city.example', body: { id: cam, mime: 'image/svg+xml', data: pic } })).status, 403);
+  assert.equal((await c.req('POST', '/resource/v1/media', { as: 'officer@transport.demo-city.example', body: { id: cam, mime: 'text/html', data: pic } })).status, 400);
+  assert.equal((await c.req('POST', '/resource/v1/media', { as: 'officer@transport.demo-city.example', body: { id: cam, mime: 'image/svg+xml', data: pic } })).status, 201);
+});

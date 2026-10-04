@@ -10,6 +10,7 @@ import { q } from './db.js';
 import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
 import { seedTransit } from './seed-transit.js';
+import { cameraFrame } from './media-frames.js';
 
 let seedVal = 20261001;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -191,8 +192,10 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
     const id = res({ key: 'junction-' + (i + 1), grp: 'junctions', name: `${nm} traffic count (demo)`, desc: 'Vehicles per 15 minutes and average speed (synthetic).', tags: ['traffic', 'junction', 'congestion', ...tagz(loc)], rtype: 'messageStream', label: 'public', loc });
     ingest(id, times.map((t, k) => ({ junctionId: 'J-' + (i + 1), name: nm, location: geo(loc), vehicleCount: Math.max(0, Math.round(cnt[k])), avgSpeed: Math.max(2, spd[k]), observationDateTime: iso(t) })));
   });
-  const camId = res({ key: 'cam-ghantaghar', grp: 'camera', name: 'Traffic camera, Ghantaghar (demo)', desc: 'Stream descriptor of a junction camera. No video is hosted in this demo.', tags: ['traffic', 'camera', 'video'], rtype: 'mediaStream', label: 'private', loc: PL.Ghantaghar, data: { kind: 'table' } });
+  const camId = res({ key: 'cam-ghantaghar', grp: 'camera', name: 'Traffic camera, Ghantaghar (demo)', desc: 'Junction camera. Live and archived playback of synthetic pictures (no real camera).', tags: ['traffic', 'camera', 'video'], rtype: 'mediaStream', label: 'private', loc: PL.Ghantaghar, data: { kind: 'table' } });
   ingest(camId, [{ streamURL: `rtsp://camera.${dom('traffic')}/ghantaghar (placeholder)`, location: geo(PL.Ghantaghar) }]);
+  // synthetic camera pictures for playback (BIS 4.5.2.1): one every 5 minutes for the last 2 hours
+  for (let k = 24; k >= 0; k--) { const t = Math.floor(now / 300e3) * 300e3 - k * 300e3; resource.mediaPut(items[camId].officer, { id: camId, mime: 'image/svg+xml', data: Buffer.from(cameraFrame('Ghantaghar (demo)', t)).toString('base64'), ts: new Date(t).toISOString() }); }
   // Fire calls (protected)
   const FT = ['Building fire', 'Shop fire', 'Vehicle fire', 'Rescue', 'Factory fire', 'Electrical short circuit'];
   const fireId = res({ key: 'fire-calls', grp: 'firecalls', name: 'Fire and rescue calls, last 14 days', desc: 'Calls received by the fire control room with response time (synthetic).', tags: ['fire', 'rescue', 'emergency'], rtype: 'table', label: 'protected' });

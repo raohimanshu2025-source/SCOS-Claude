@@ -141,3 +141,4 @@ td.mono{white-space:nowrap}
 .navtitle{font-weight:600}
 .grow{flex:1}
 .pill.muted{background:var(--line);color:var(--muted)}
+.player img{width:100%;height:auto;background:#222;border-radius:8px;display:block}

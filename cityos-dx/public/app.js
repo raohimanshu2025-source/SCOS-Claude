@@ -43,6 +43,7 @@ const SCREENS = [
   ['catalogue', 'Catalogue', 'all'],
   ['access', 'Data access', 'all'],
   ['provider', 'Provider console', 'provider'],
+  ['media', 'Camera video', 'all'],
   ['cil', 'City intelligence', 'all'],
   ['iccc', 'ICCC dashboard', 'operator admin auditor'],
   ['calerts', 'Citizen alerts', 'provider operator admin auditor'],
@@ -274,6 +275,38 @@ const VIEWS = {
       else { const note = prompt(act === 'approve' ? 'Optional note for the record (what you checked):' : 'Reason for refusing:') ; if (note === null) return; x = await api('POST', '/cil/v1/citizen-alerts/decide', { id, approve: act === 'approve', note }); }
       toast(x.ok ? (act === 'approve' ? 'Approved. It is now on the public portal.' : act === 'refuse' ? 'Refused.' : 'Withdrawn.') : x.body.error); show();
     }; });
+  },
+
+  // BIS 4.5.2.1: live and archived playback of media streams, pause and stop, and download of media files.
+  async media(m) {
+    const cat = await api('GET', '/catalogue/v1/search?limit=500');
+    const cams = (cat.body.results || []).filter(d => d.resourceType?.value === 'mediaStream');
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Camera video</h2><p>Live and archived playback of a camera, with pause and stop, and download of single pictures (BIS 4.5.2.1). The pictures are synthetic; no real camera is connected. Protected cameras need an access token, as for any other data.</p></div>
+      ${card('Camera', `<form id="cf" class="row"><select name="id" class="grow">${cams.map(c => `<option value="${esc(c.id)}">${esc(c.name.value)} (${esc(c.accessPolicyLabel?.value || '')})</option>`).join('')}</select><button class="btn" type="button" id="ctk">Get access token</button></form><p class="hint" id="cts">No token yet. Public cameras need none.</p>`, 'BIS-37')}
+      <div class="grid2">${card('Live', `<div class="player"><img id="lv" alt="Live camera picture" width="640" height="360"><p class="hint" id="lvt">Stopped.</p></div><div class="row"><button class="btn primary" id="lplay">Play live</button><button class="btn" id="lpause">Pause</button><button class="btn danger" id="lstop">Stop</button></div>`, 'BIS-37')}
+      ${card('Archive', `<div class="row"><label class="f">From<input type="datetime-local" id="af"></label><label class="f">To<input type="datetime-local" id="at"></label><button class="btn" id="aload">Load</button></div><div class="player"><img id="av" alt="Archived camera picture" width="640" height="360"><p class="hint" id="avt">Load a time range.</p></div><input type="range" id="aslide" min="0" max="0" value="0" class="grow"><div class="row"><button class="btn primary" id="aplay">Play</button><button class="btn" id="apause">Pause</button><button class="btn danger" id="astop">Stop</button><button class="btn" id="adl">Download this picture</button></div>`, 'BIS-37')}</div></div>`;
+    let token = '', liveT = null, arcT = null, files = [];
+    const camId = () => $('#cf').id.value;
+    const hdr = () => (token ? { token } : {});
+    const fetchPic = async (u) => { const r = await fetch(u, { headers: hdr(), credentials: 'same-origin' }); if (!r.ok) { const j = await r.json().catch(() => ({})); throw new Error(j.error || r.status); } const b = await r.blob(); const url = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(b); }); return { url, ts: r.headers.get('x-media-time'), blob: b }; };
+    const local = d => new Date(d.getTime() - d.getTimezoneOffset() * 60e3).toISOString().slice(0, 16);
+    $('#af').value = local(new Date(Date.now() - 2 * 3600e3)); $('#at').value = local(new Date());
+    $('#ctk').onclick = async () => { const r = await api('POST', '/auth/v1/token', { request: [{ id: camId() }], purpose: 'view camera' }); if (r.ok) { token = r.body.token; $('#cts').textContent = 'Token granted, expires ' + r.body.expiry + '.'; } else $('#cts').textContent = r.body.error; };
+    $('#cf').id.onchange = () => { token = ''; $('#cts').textContent = 'No token yet. Public cameras need none.'; stopLive(); };
+    const tick = async () => { try { const f = await fetchPic('/resource/v1/media/latest?id=' + encodeURIComponent(camId())); $('#lv').src = f.url; $('#lvt').textContent = 'Live · picture of ' + f.ts; } catch (e) { $('#lvt').textContent = String(e.message); stopLive(); } };
+    const stopLive = () => { clearInterval(liveT); liveT = null; };
+    $('#lplay').onclick = () => { stopLive(); tick(); liveT = setInterval(tick, 2000); };
+    $('#lpause').onclick = () => { stopLive(); $('#lvt').textContent = 'Paused.'; };
+    $('#lstop').onclick = () => { stopLive(); $('#lv').removeAttribute('src'); $('#lvt').textContent = 'Stopped.'; };
+    const showFrame = async i => { const f = files[i]; if (!f) return; $('#aslide').value = i; try { const p = await fetchPic(`/resource/v1/media/file?id=${encodeURIComponent(camId())}&ts=${encodeURIComponent(f.ts)}`); $('#av').src = p.url; $('#avt').textContent = `${i + 1} of ${files.length} · ${f.ts}`; } catch (e) { $('#avt').textContent = String(e.message); } };
+    const stopArc = () => { clearInterval(arcT); arcT = null; };
+    $('#aload').onclick = async () => { stopArc(); const q = new URLSearchParams({ id: camId(), time: new Date($('#af').value).toISOString(), endtime: new Date($('#at').value).toISOString() }); const r = await api('GET', '/resource/v1/media/list?' + q, undefined, hdr()); if (!r.ok) { $('#avt').textContent = r.body.error; return; } files = r.body.files; $('#aslide').max = Math.max(0, files.length - 1); if (files.length) showFrame(0); else $('#avt').textContent = 'No pictures in that range.'; };
+    $('#aslide').oninput = e => showFrame(Number(e.target.value));
+    $('#aplay').onclick = () => { stopArc(); arcT = setInterval(() => { const i = Number($('#aslide').value) + 1; if (i >= files.length) return stopArc(); showFrame(i); }, 700); };
+    $('#apause').onclick = () => { stopArc(); };
+    $('#astop').onclick = () => { stopArc(); if (files.length) showFrame(0); };
+    $('#adl').onclick = async () => { const f = files[Number($('#aslide').value)]; if (!f) return; const r = await fetch(`/resource/v1/media/file?id=${encodeURIComponent(camId())}&ts=${encodeURIComponent(f.ts)}`, { headers: hdr() }); const b = await r.blob(); const fr = new FileReader(); fr.onload = () => { const a = document.createElement('a'); a.href = fr.result; a.download = (r.headers.get('content-disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'camera.svg'; a.click(); }; fr.readAsDataURL(b); };
+    const obs = new MutationObserver(() => { if (!document.body.contains($('#lv'))) { stopLive(); stopArc(); obs.disconnect(); } }); obs.observe(m, { childList: true });
   },
 
   async trust(m) {

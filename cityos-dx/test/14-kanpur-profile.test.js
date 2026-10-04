@@ -58,3 +58,14 @@ test('power cut notices for the citizen button are public and follow the powerNo
   assert.ok(Array.isArray(rows) && rows.length >= 4, JSON.stringify(r.body).slice(0, 200));
   for (const n of rows) for (const k of ['noticeId', 'area', 'zone', 'from', 'to', 'status']) assert.ok(n[k] != null, k);
 });
+
+test('past incident register: 52 public news incidents from the build set, each with a source link and no held-back incident', async () => {
+  const r = await c.req('GET', '/resource/v1/search?id=' + encodeURIComponent('urn:demo-cat:incidents/past-incidents-news'));
+  assert.equal(r.status, 200);
+  const rows = r.body.results ?? r.body;
+  assert.equal(rows.length, 52);
+  for (const x of rows) { assert.match(x.incidentId, /^KI-\d{3}$/); assert.match(x.sourceUrl, /^https:\/\//); assert.ok(!/\(/.test(x.departments), x.departments); }
+  const fs = await import('node:fs');
+  const ids = new Set(JSON.parse(fs.readFileSync(new URL('../src/data/kanpur-incidents-build.json', import.meta.url), 'utf8')).map(o => o.incidentId));
+  assert.deepEqual(new Set(rows.map(x => x.incidentId)), ids);
+});

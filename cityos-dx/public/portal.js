@@ -13,7 +13,7 @@ const T = {
   en: {
     skip: 'Skip to main content', demoTag: 'DEMO', stripMsg: 'Independent research prototype with synthetic demo data. Not an official government website and not a live city system.',
     contrast: 'High contrast', portalName: 'City Data Portal', portalSub: 'Shared city data and live dashboards for departments and citizens', officerLogin: 'Officer login',
-    navHome: 'City today', navMap: 'Map', navDash: 'Dashboards', navDepts: 'Departments', navData: 'Open data', navStatus: 'Service status', navAbout: 'About',
+    navHome: 'City today', navMap: 'Map', navDash: 'Dashboards', navDepts: 'Departments', navData: 'Open data', navStatus: 'Service status', navAbout: 'About', navHist: 'Past incidents',
     heroTitle: "One place for the city's data", heroLead: 'Departments publish their data once on a shared data exchange. Citizens see the public parts here. Officers log in to share protected data with other departments, with consent and a full audit trail.',
     gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', rainNow: 'rain {mm} mm', noRain: 'no rain',
     lmIIT: 'IIT Kanpur', lmGreenPark: 'Green Park', lmGhantaghar: 'Ghantaghar', lmJK: 'JK Temple', lmBarrage: 'Ganga Barrage',
@@ -38,6 +38,10 @@ const T = {
     junctionAvg: 'average at {n} junctions', slowest: 'slowest', inProgress: 'in progress', lanesClosed: 'lanes closed', none: 'None active', active: 'active', publicOf: 'public, of {n} in total',
     depts: 'departments', humidity: 'humidity', source: 'Source', noAlerts: 'No active alerts', alertsNow: 'Active alerts',
     band: ['Good', 'Satisfactory', 'Moderate', 'Poor', 'Very poor', 'Severe'], bandNote: 'Band uses CPCB AQI breakpoints for PM2.5; indicative only (demo readings).',
+    histTitle: 'Past incidents in Kanpur', histLead: '52 real incidents from 2021 to 2026: floods, pipe bursts, fires, power cuts and more. Each one shows how one failure spread to other city services, and which departments acted.', histWarn: 'Summarised from public news reports by an automated tool and not checked by hand. Open the news source before relying on any detail. These are real events, unlike the demo data elsewhere on this site.',
+    hFlood: 'Flood / waterlogging', hWater: 'Water / pipe burst', hFire: 'Fire', hPower: 'Power cut', hRoad: 'Road', hOther: 'Other', hAll: 'All', hYear: 'Year', hAllYears: 'All years', hFilter: 'Filter by type',
+    hMapLabel: 'Map of past incidents', hMapNote: '{n} of {m} incidents placed at the approximate centre of the locality named in the news. Tap a point to open it.', hSystems: 'City services affected', hMany: 'of {n} incidents affected three or more city services at once.',
+    hTrigger: 'What started it', hChain: 'How it spread (as reported)', hImpact: 'Impact', hDepts: 'Departments named in the news', hSource: 'Source', hSources: '{n} news source(s)', hShowAll: 'Show all {n} incidents',
     lAq: 'Air quality', lTraffic: 'Traffic', lBeds: 'Hospitals', lBus: 'Buses', lWx: 'Weather', river: 'Ganga (approximate line)',
     pAq: 'Air quality by station', pAqTrend: 'City average PM2.5, last 24 hours', pWx: 'Weather stations', pWater: 'Water supply by zone', pWaterTrend: 'City average supply hours, last 14 days',
     pBeds: 'Hospital beds', pTraffic: 'Traffic at main junctions', pBus: 'City bus service', pRoad: 'Road works and lane closures', pPermit: 'Building permissions', pFlood: 'Flood alerts',
@@ -51,7 +55,7 @@ const T = {
   hi: {
     skip: 'मुख्य सामग्री पर जाएँ', demoTag: 'डेमो', stripMsg: 'स्वतंत्र शोध प्रोटोटाइप, कृत्रिम (डेमो) डेटा के साथ। यह कोई आधिकारिक सरकारी वेबसाइट नहीं है और न ही लाइव शहर प्रणाली।',
     contrast: 'उच्च कंट्रास्ट', portalName: 'सिटी डेटा पोर्टल', portalSub: 'विभागों और नागरिकों के लिए साझा शहर डेटा और लाइव डैशबोर्ड', officerLogin: 'अधिकारी लॉगिन',
-    navHome: 'आज का शहर', navMap: 'नक्शा', navDash: 'डैशबोर्ड', navDepts: 'विभाग', navData: 'खुला डेटा', navStatus: 'सेवा स्थिति', navAbout: 'परिचय',
+    navHome: 'आज का शहर', navMap: 'नक्शा', navDash: 'डैशबोर्ड', navDepts: 'विभाग', navData: 'खुला डेटा', navStatus: 'सेवा स्थिति', navAbout: 'परिचय', navHist: 'पिछली घटनाएँ',
     heroTitle: 'शहर के डेटा के लिए एक जगह', heroLead: 'विभाग अपना डेटा एक साझा डेटा एक्सचेंज पर एक बार प्रकाशित करते हैं। नागरिक यहाँ सार्वजनिक भाग देखते हैं। अधिकारी लॉगिन करके सहमति और पूरे ऑडिट रिकॉर्ड के साथ संरक्षित डेटा दूसरे विभागों से साझा करते हैं।',
     gMorning: 'सुप्रभात', gAfternoon: 'नमस्कार', gEvening: 'शुभ संध्या', gNight: 'शुभ रात्रि', rainNow: 'वर्षा {mm} मिमी', noRain: 'वर्षा नहीं',
     lmIIT: 'आईआईटी कानपुर', lmGreenPark: 'ग्रीन पार्क', lmGhantaghar: 'घंटाघर', lmJK: 'जे.के. मंदिर', lmBarrage: 'गंगा बैराज',
@@ -75,6 +79,10 @@ const T = {
     junctionAvg: '{n} चौराहों का औसत', slowest: 'सबसे धीमा', inProgress: 'जारी', lanesClosed: 'लेन बंद', none: 'कोई सक्रिय नहीं', active: 'सक्रिय', publicOf: 'सार्वजनिक, कुल {n} में से',
     depts: 'विभाग', humidity: 'आर्द्रता', source: 'स्रोत', noAlerts: 'कोई सक्रिय अलर्ट नहीं', alertsNow: 'सक्रिय अलर्ट',
     band: ['अच्छा', 'संतोषजनक', 'मध्यम', 'खराब', 'बहुत खराब', 'गंभीर'], bandNote: 'श्रेणी PM2.5 के लिए CPCB AQI सीमाओं पर आधारित है; केवल संकेतात्मक (डेमो माप)।',
+    histTitle: 'कानपुर की पिछली घटनाएँ', histLead: '2021 से 2026 तक की 52 असली घटनाएँ: बाढ़, पाइप फटना, आग, बिजली कटौती और अन्य। हर घटना दिखाती है कि एक खराबी दूसरी शहरी सेवाओं तक कैसे फैली और किन विभागों ने कार्रवाई की। विवरण अंग्रेज़ी में हैं।', histWarn: 'सार्वजनिक समाचारों से एक स्वचालित टूल द्वारा सारांशित, हाथ से जाँचा नहीं गया। किसी भी विवरण पर भरोसा करने से पहले समाचार स्रोत खोलें। यह असली घटनाएँ हैं, साइट के बाकी डेमो डेटा जैसी नहीं।',
+    hFlood: 'बाढ़ / जलभराव', hWater: 'पानी / पाइप फटना', hFire: 'आग', hPower: 'बिजली कटौती', hRoad: 'सड़क', hOther: 'अन्य', hAll: 'सभी', hYear: 'वर्ष', hAllYears: 'सभी वर्ष', hFilter: 'प्रकार से छाँटें',
+    hMapLabel: 'पिछली घटनाओं का नक्शा', hMapNote: '{m} में से {n} घटनाएँ समाचार में बताए गए इलाके के अनुमानित केंद्र पर दिखाई गई हैं। खोलने के लिए बिंदु पर टैप करें।', hSystems: 'प्रभावित शहरी सेवाएँ', hMany: 'घटनाओं ({n} में से) ने एक साथ तीन या अधिक शहरी सेवाओं को प्रभावित किया।',
+    hTrigger: 'शुरुआत कैसे हुई', hChain: 'कैसे फैली (समाचार अनुसार)', hImpact: 'प्रभाव', hDepts: 'समाचार में नामित विभाग', hSource: 'स्रोत', hSources: '{n} समाचार स्रोत', hShowAll: 'सभी {n} घटनाएँ दिखाएँ',
     lAq: 'वायु गुणवत्ता', lTraffic: 'यातायात', lBeds: 'अस्पताल', lBus: 'बसें', lWx: 'मौसम', river: 'गंगा (अनुमानित रेखा)',
     pAq: 'स्टेशन अनुसार वायु गुणवत्ता', pAqTrend: 'शहर औसत PM2.5, पिछले 24 घंटे', pWx: 'मौसम स्टेशन', pWater: 'ज़ोन अनुसार जल आपूर्ति', pWaterTrend: 'शहर औसत आपूर्ति घंटे, पिछले 14 दिन',
     pBeds: 'अस्पताल बिस्तर', pTraffic: 'मुख्य चौराहों पर यातायात', pBus: 'सिटी बस सेवा', pRoad: 'सड़क कार्य और लेन बंदी', pPermit: 'भवन अनुमतियाँ', pFlood: 'बाढ़ अलर्ट',
@@ -118,7 +126,7 @@ const V = d => d?.value;
 const gkey = g => String(g || '').split('/').pop();
 
 let D = null; // last loaded data
-const KNOWN = new Set(['outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
+const KNOWN = new Set(['incidents', 'outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
 async function load() {
   const [info, cat, status, alerts, fleet] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance'))]);
   const docs = cat.results;
@@ -134,12 +142,12 @@ async function load() {
   const latest = async g => (await Promise.all(byGroup(g).map(i => soft(get('/resource/v1/latest?id=' + encodeURIComponent(i.id)))))).filter(Boolean).map(x => (Array.isArray(x.results) ? x.results[0] : x)).filter(Boolean);
   const rows = async g => { const i = byGroup(g)[0]; if (!i) return []; const r = await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))); return r?.results || []; };
   const series = async g => Promise.all(byGroup(g).map(async i => (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || []));
-  const [aq, aqSeries, wx, beds, junc, bus, waterRaw, roads, permits, flood, zones, outages] = await Promise.all([
-    latest('aqm'), series('aqm'), latest('weather'), latest('beds'), latest('junctions'), latest('itms'), rows('water'), rows('roadworks'), rows('permits'), rows('floodalert'), rows('gis'), rows('outages')]);
+  const [aq, aqSeries, wx, beds, junc, bus, waterRaw, roads, permits, flood, zones, outages, incidents] = await Promise.all([
+    latest('aqm'), series('aqm'), latest('weather'), latest('beds'), latest('junctions'), latest('itms'), rows('water'), rows('roadworks'), rows('permits'), rows('floodalert'), rows('gis'), rows('outages'), rows('incidents')]);
   const water = waterRaw.map(w => ({ ...w, date: String(w.date || '').slice(0, 10) })); // one day per row, whether given as a date or a date-time
   // Public datasets that have no built-in dashboard (for example ones a department adds later) get a simple table panel.
   const others = await Promise.all(pub.filter(i => !KNOWN.has(i.group)).slice(0, 12).map(async i => ({ item: i, rows: (await soft(get('/resource/v1/search?id=' + encodeURIComponent(i.id))))?.results || [] })));
-  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, outages, at: new Date() };
+  D = { others, pdesc, info, status, alerts: alerts || [], fleet: fleet?.output || null, providers, groups, items, aq, aqSeries, wx, beds, junc, bus, water, roads, permits, flood, zones, outages, incidents, at: new Date() };
 }
 
 // ---------- helpers ----------
@@ -362,21 +370,28 @@ function renderAlerts() {
 const LAYERS = [['aq', 'lAq', '#d93a2b'], ['traffic', 'lTraffic', '#f08a24'], ['beds', 'lBeds', '#2f5f8f'], ['bus', 'lBus', '#8e44ad'], ['wx', 'lWx', '#1f9d55']];
 const ON = new Set(['aq', 'traffic', 'beds', 'bus']);
 const QCOL = ['#1f9d55', '#8cc63f', '#f2c230', '#f08a24', '#d93a2b', '#8e1b1b'];
-function renderMap() {
+// Projection, zone grid and river shared by the city map and the past incidents map.
+function mapFrame(W = 720) {
   const pts = [...D.aq, ...D.wx, ...D.beds, ...D.junc, ...D.bus].map(loc).filter(Boolean);
   const zc = D.zones.flatMap(z => z.boundary?.coordinates?.[0] || []);
-  const all = zc.length ? zc : pts; if (!all.length) { $('#mapsvg').innerHTML = `<p class="muted">${esc(t('noData'))}</p>`; return; }
+  const all = zc.length ? zc : pts; if (!all.length) return null;
   let w = Math.min(...all.map(p => p[0])), e = Math.max(...all.map(p => p[0])), s = Math.min(...all.map(p => p[1])), n = Math.max(...all.map(p => p[1]));
   const padX = (e - w) * 0.04 || 0.01, padY = (n - s) * 0.04 || 0.01; w -= padX; e += padX; s -= padY; n += padY;
-  const kx = Math.cos(((s + n) / 2) * Math.PI / 180), W = 720, H = Math.round(W * (n - s) / ((e - w) * kx));
+  const kx = Math.cos(((s + n) / 2) * Math.PI / 180), H = Math.round(W * (n - s) / ((e - w) * kx));
   const X = lon => ((lon - w) / (e - w)) * W, Y = lat => ((n - lat) / (n - s)) * H;
   const P = c => `${X(c[0]).toFixed(1)},${Y(c[1]).toFixed(1)}`;
-  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('mapTitle'))}">`;
-  for (const z of D.zones) { const ring = z.boundary?.coordinates?.[0]; if (!ring) continue; const cx = Math.min(...ring.map(p => X(p[0]))) + 10, cy = Math.min(...ring.map(p => Y(p[1]))) + 22; svg += `<polygon class="zone" points="${ring.map(P).join(' ')}"/><text class="zone-l" x="${cx.toFixed(0)}" y="${cy.toFixed(0)}" text-anchor="start">${esc(z.wardId || z.zone || '')}</text>`; }
+  let base = '';
+  for (const z of D.zones) { const ring = z.boundary?.coordinates?.[0]; if (!ring) continue; const cx = Math.min(...ring.map(p => X(p[0]))) + 10, cy = Math.min(...ring.map(p => Y(p[1]))) + 22; base += `<polygon class="zone" points="${ring.map(P).join(' ')}"/><text class="zone-l" x="${cx.toFixed(0)}" y="${cy.toFixed(0)}" text-anchor="start">${esc(z.wardId || z.zone || '')}</text>`; }
   if (/kanpur/i.test(D.info?.city || '')) { // approximate course of the Ganga along the north-east edge of the demo area
     const river = [[80.22, 26.545], [80.27, 26.528], [80.31, 26.512], [80.35, 26.49], [80.38, 26.468], [80.405, 26.445], [80.425, 26.42]];
-    svg += `<path class="river" d="M${river.map(P).join('L')}"/><text class="river-l" x="${X(80.33).toFixed(0)}" y="${(Y(26.5) - 14).toFixed(0)}">${esc(t('river'))}</text>`;
+    base += `<path class="river" d="M${river.map(P).join('L')}"/><text class="river-l" x="${X(80.33).toFixed(0)}" y="${(Y(26.5) - 14).toFixed(0)}">${esc(t('river'))}</text>`;
   }
+  return { W, H, X, Y, P, base };
+}
+function renderMap() {
+  const F = mapFrame(); if (!F) { $('#mapsvg').innerHTML = `<p class="muted">${esc(t('noData'))}</p>`; return; }
+  const { W, H, X, Y } = F;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t('mapTitle'))}">` + F.base;
   const dot = (c, r, fill, title, label, shape = 'c', dx = 0, dy = 0) => {
     const x = X(c[0]) + dx, y = Y(c[1]) + dy;
     const g = shape === 's' ? `<rect class="pt" x="${(x - r).toFixed(1)}" y="${(y - r).toFixed(1)}" width="${2 * r}" height="${2 * r}" rx="2" fill="${fill}"><title>${esc(title)}</title></rect>`
@@ -399,6 +414,56 @@ function renderMap() {
   $('#legend').innerHTML = t('band').map((b, i) => `<span><span class="sw" data-c="${QCOL[i]}"></span>${esc(b)}</span>`).join('') + `<span>· ${esc(t('bandNote'))}</span>`;
   $('#legend').querySelectorAll('[data-c]').forEach(e => { e.style.background = e.dataset.c; });
 }
+
+// ---------- past incidents (real incidents from news reports) ----------
+const HTYPES = [['Flood', 'hFlood', '#2f7fc8'], ['Water', 'hWater', '#12a4b6'], ['Fire', 'hFire', '#d93a2b'], ['Power', 'hPower', '#e8961f'], ['Road', 'hRoad', '#8e44ad'], ['Other', 'hOther', '#6b7785']];
+const htype = x => (HTYPES.find(([k]) => String(x.type).startsWith(k)) || HTYPES[5]);
+let HF = { type: '', year: '', all: false, open: '' };
+function renderHistory() {
+  const box = $('#histbody'); if (!box) return;
+  const inc = [...(D.incidents || [])].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  $('#history').hidden = !inc.length; if (!inc.length) return;
+  const years = [...new Set(inc.map(x => String(x.date).slice(0, 4)))].sort().reverse();
+  const shown = inc.filter(x => (!HF.type || htype(x)[0] === HF.type) && (!HF.year || String(x.date).startsWith(HF.year)));
+  const count = k => inc.filter(x => htype(x)[0] === k && (!HF.year || String(x.date).startsWith(HF.year))).length;
+  const chips = `<div class="hchips" role="group" aria-label="${esc(t('hFilter'))}"><button type="button" class="hchip" data-ht="" aria-pressed="${!HF.type}">${esc(t('hAll'))} <b>${HF.year ? inc.filter(x => String(x.date).startsWith(HF.year)).length : inc.length}</b></button>${HTYPES.map(([k, l, c]) => `<button type="button" class="hchip" data-ht="${k}" aria-pressed="${HF.type === k}"><span class="sw" data-c="${c}"></span>${esc(t(l))} <b>${count(k)}</b></button>`).join('')}
+    <label class="hyear">${esc(t('hYear'))} <select id="hyear"><option value="">${esc(t('hAllYears'))}</option>${years.map(y => `<option ${HF.year === y ? 'selected' : ''}>${y}</option>`).join('')}</select></label></div>`;
+  // map
+  const F = mapFrame(560); let map = '';
+  if (F) {
+    const placed = shown.filter(x => x.location?.coordinates), seen = {};
+    map = `<svg viewBox="0 0 ${F.W} ${F.H}" role="img" aria-label="${esc(t('hMapLabel'))}">` + F.base + placed.map(x => {
+      const c = x.location.coordinates, key = c.join(), k = (seen[key] = (seen[key] || 0) + 1) - 1; // spread incidents at the same locality in a small ring
+      const a = k * 2.4, r = k ? 7 + 3 * Math.sqrt(k) : 0, cx = F.X(c[0]) + r * Math.cos(a), cy = F.Y(c[1]) + r * Math.sin(a);
+      return `<circle class="pt hpt" data-id="${esc(x.incidentId)}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="${htype(x)[2]}" stroke="#fff" stroke-width="1.5"><title>${esc(`${x.date} · ${x.summary}`)}</title></circle>`;
+    }).join('') + '</svg>' + `<p class="small muted">${esc(t('hMapNote', { n: placed.length, m: shown.length }))}</p>`;
+  }
+  // which city systems the incidents touched
+  const sys = {}; for (const x of shown) for (const y of String(x.systems).split(',').map(v => v.trim()).filter(Boolean)) sys[y] = (sys[y] || 0) + 1;
+  const top = Object.entries(sys).sort((a, b) => b[1] - a[1]).slice(0, 8), many = shown.filter(x => String(x.systems).split(',').filter(v => v.trim()).length >= 3).length;
+  const side = `<h3>${esc(t('hSystems'))}</h3>` + bars(top.map(([k, v]) => ({ label: k, value: v, max: top[0]?.[1] || 1, cls: 'info', text: String(v) })))
+    + `<p class="hstat"><b>${many}</b> ${esc(t('hMany', { n: shown.length }))}</p>`;
+  // timeline
+  const list = HF.all ? shown : shown.slice(0, 8);
+  let yr = '';
+  const cards = list.map(x => {
+    const y = String(x.date).slice(0, 4), head = y !== yr ? `<h3 class="hy">${y}</h3>` : ''; yr = y;
+    const [, l, c] = htype(x), steps = String(x.chain).split('→').map(v => v.trim()).filter(Boolean);
+    return head + `<details class="hcard" id="inc-${esc(x.incidentId)}" ${HF.open === x.incidentId ? 'open' : ''}><summary><span class="hdate">${esc(fmtDay(x.date))}</span><span class="hbadge" data-c="${c}">${esc(t(l))}</span><b>${esc(x.summary)}</b><span class="small muted">${esc(String(x.place).split(/[;(]/)[0])}</span></summary>
+      <div class="hdet"><p><b>${esc(t('hTrigger'))}:</b> ${esc(x.trigger)}</p><p><b>${esc(t('hChain'))}:</b></p><ol class="hchain">${steps.map(v => `<li>${esc(v)}</li>`).join('')}</ol>
+      <p><b>${esc(t('hImpact'))}:</b> ${esc(x.impact)}</p><p><b>${esc(t('hDepts'))}:</b> ${esc(x.departments)}</p>
+      <p class="small"><a href="${esc(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(t('hSource'))}: ${esc(x.publisher)} ↗</a> · ${esc(t('hSources', { n: x.sources }))} · ${esc(x.incidentId)}</p></div></details>`;
+  }).join('');
+  const more = shown.length > list.length ? `<button type="button" class="cta-sm" id="hmore">${esc(t('hShowAll', { n: shown.length }))}</button>` : '';
+  box.innerHTML = chips + `<div class="hgrid"><div class="hmap">${map}</div><div class="hside">${side}</div></div><div class="htl">${cards || `<p class="muted">${esc(t('noData'))}</p>`}</div>${more}`;
+  box.querySelectorAll('[data-c]').forEach(e => { e.style.background = e.dataset.c; });
+  paint(box);
+  box.querySelectorAll('[data-ht]').forEach(b => { b.onclick = () => { HF.type = b.dataset.ht; renderHistory(); }; });
+  $('#hyear').onchange = e => { HF.year = e.target.value; renderHistory(); };
+  if ($('#hmore')) $('#hmore').onclick = () => { HF.all = true; renderHistory(); };
+  box.querySelectorAll('.hpt').forEach(el => { el.onclick = () => { HF.open = el.dataset.id; HF.all = true; renderHistory(); document.getElementById('inc-' + el.dataset.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }; });
+}
+const fmtDay = d => (/^\d{4}-\d{2}-\d{2}/.test(d) ? new Intl.DateTimeFormat(LANG === 'hi' ? 'hi-IN' : 'en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(String(d).slice(0, 10) + 'T12:00:00Z')) : d);
 
 // ---------- dashboards ----------
 function renderDash() {
@@ -466,7 +531,7 @@ function renderAll() {
   $('#city-name').textContent = city;
   document.title = `${city} ${t('portalName')} (demo)`;
   $('#updated').textContent = fmtTime(D.at);
-  renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
+  renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderAlerts(); renderMap(); renderHistory(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus();
   paint(document);
 }
 

@@ -1,6 +1,8 @@
 // Kanpur profile (DX_CITY_PROFILE=kanpur): the same data exchange and City Intelligence Layer, set up with
 // Kanpur's city departments. Department names are real; every reading, record, boundary and position is
 // SYNTHETIC demo data (zone boundaries are a simple grid, places are approximate). Not an official system.
+// One exception: the past incident register is 52 real incidents summarised from public news reports
+// (src/data/kanpur-incidents-build.json, the thesis build set; the 10 held-back test incidents are not included).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -127,6 +129,7 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   group('permits', 'Building permissions', 'kda', 'rs1', 'buildingPermit', 'openAPI');
   group('roadworks', 'Road works', 'pwd', 'rs1', 'roadWork', 'openAPI');
   group('outages', 'Power cut notices', 'kesco', 'rs1', 'powerNotice', 'openAPI');
+  group('incidents', 'Past incidents (from news reports)', 'iccc', 'rs1', 'pastIncident', 'openAPI');
   group('itms', 'Bus positions', 'kctsl', 'rs1', 'busPosition', 'asyncAPI');
   group('stops', 'Bus stops', 'kctsl', 'rs1', 'busStops', 'openAPI');
   group('fare', 'Fare revenue', 'kctsl', 'rs1', 'fareRevenue', 'openAPI');
@@ -214,6 +217,14 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
     ['KESCO-N-503', 'Govind Nagar', 'Zone 5', 'Planned', 38, 41, 'Transformer replacement', 'Scheduled'],
     ['KESCO-N-500', 'Kalyanpur', 'Zone 1', 'Unplanned', -20, -17, 'Cable fault', 'Restored'],
   ].map(([noticeId, area, zone, type, a, b, reason, status]) => ({ noticeId, area: area + ' (demo)', zone, type, from: hr(a), to: hr(b), reason, status })));
+  // ICCC past incident register: real incidents from public news reports (not synthetic). A point is shown only
+  // when the reported place names a known locality; the point is that locality's approximate centre.
+  const NEAR = { ...PL, Barra: [80.292, 26.425], Juhi: [80.315, 26.432], Bansmandi: [80.356, 26.466], Chamanganj: [80.356, 26.476], Collectorganj: [80.35, 26.459], MallRoad: [80.345, 26.466], BrahmNagar: [80.338, 26.466], Hallet: [80.333, 26.478] };
+  const ALIAS = { SwaroopNagar: ['swaroop nagar', 'swarup nagar'], Central: ['kanpur central'], MallRoad: ['mall road'], BrahmNagar: ['brahm nagar'], Hallet: ['hallet', 'gsvm', 'lps institute'] };
+  const placeOf = txt => { const t = String(txt).toLowerCase(); return Object.keys(NEAR).find(k => (ALIAS[k] || [k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()]).some(a => t.includes(a))); };
+  const incId = res({ key: 'past-incidents-news', grp: 'incidents', name: 'Past incidents in Kanpur (from news reports)', desc: 'Floods, pipe bursts, fires, power outages and other incidents in Kanpur, 2021-2026, summarised from public news reports with a link to each source. Not checked by hand; open the source before relying on any detail.', tags: ['incidents', 'history', 'flood', 'fire', 'power', 'water'], rtype: 'table', label: 'public' });
+  const INC = JSON.parse(fs.readFileSync(new URL('./data/kanpur-incidents-build.json', import.meta.url), 'utf8'));
+  ingest(incId, INC.map(o => { const k = placeOf(o.place); const row = { ...o, chain: o.chain.join(' → '), systems: o.systems.join(', '), departments: o.departments.replace(/\s*\([^)]*\)/g, '') /* department names only, no officials' names */, area: k ? k.replace(/([a-z])([A-Z])/g, '$1 $2') : '' }; if (k) row.location = geo(NEAR[k]); return row; }));
   // KCTSL buses
   const ROUTES = { 'R-1': ['Kalyanpur', 'Rawatpur', 'SwaroopNagar', 'Parade', 'Central', 'Jajmau'], 'R-7': ['Panki', 'Kakadeo', 'GovindNagar', 'KidwaiNagar', 'Naubasta'] };
   const stopsId = res({ key: 'bus-stops', grp: 'stops', name: 'City bus stops (demo routes 1 and 7)', desc: 'Stop locations for two demo routes.', tags: ['transport', 'bus', 'stops'], rtype: 'table', label: 'public' });

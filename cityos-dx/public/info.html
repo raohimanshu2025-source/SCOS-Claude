@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help and website policies · City Data Portal (demo)</title>
+<meta name="description" content="Help, accessibility statement, privacy, terms of use, copyright and linking policy, contact and sitemap for the City Data Portal demo. Independent research prototype; not an official government website.">
+<link rel="icon" href="/portal-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/portal.css">
+<link rel="stylesheet" href="/sky.css">
+<script src="/sky-theme.js"></script>
+<script src="/info.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#content"><span data-l="en">Skip to main content</span><span data-l="hi" lang="hi" hidden>मुख्य सामग्री पर जाएँ</span></a>
+
+<div class="strip" role="note">
+  <div class="wrap strip-in">
+    <p class="strip-msg"><b>DEMO</b> <span data-l="en">Independent research prototype with synthetic demo data. Not an official government website and not a live city system.</span><span data-l="hi" lang="hi" hidden>सिंथेटिक डेमो डेटा वाला स्वतंत्र शोध प्रोटोटाइप। यह आधिकारिक सरकारी वेबसाइट नहीं है और न ही कोई चालू शहरी प्रणाली।</span></p>
+    <div class="a11y" aria-label="Display settings">
+      <button type="button" class="a11y-btn" id="fs-dn" aria-label="Smaller text">A−</button>
+      <button type="button" class="a11y-btn" id="fs-0" aria-label="Normal text">A</button>
+      <button type="button" class="a11y-btn" id="fs-up" aria-label="Larger text">A+</button>
+      <button type="button" class="a11y-btn" id="contrast" aria-pressed="false"><span data-l="en">High contrast</span><span data-l="hi" lang="hi" hidden>उच्च कंट्रास्ट</span></button>
+      <button type="button" class="a11y-btn lang" id="lang" lang="hi">हिंदी</button>
+    </div>
+  </div>
+</div>
+
+<header class="mast">
+  <div class="wrap mast-in">
+    <a class="brand" href="/" aria-label="Home">
+      <img src="/portal-mark.svg" alt="" width="44" height="44">
+      <span class="brand-t">
+        <span class="brand-1"><span data-l="en">City Data Portal</span><span data-l="hi" lang="hi" hidden>सिटी डेटा पोर्टल</span></span>
+        <span class="brand-2"><span data-l="en">Help and website policies</span><span data-l="hi" lang="hi" hidden>सहायता और वेबसाइट नीतियाँ</span></span>
+      </span>
+    </a>
+    <a class="login-btn" href="/"><span data-l="en">Back to the portal</span><span data-l="hi" lang="hi" hidden>पोर्टल पर वापस</span></a>
+  </div>
+</header>
+
+<main id="content" class="sec">
+  <div class="wrap info-wrap">
+    <nav class="info-toc" aria-label="On this page">
+      <a href="#help"><span data-l="en">Help and FAQ</span><span data-l="hi" lang="hi" hidden>सहायता और सवाल-जवाब</span></a>
+      <a href="#emergency"><span data-l="en">Emergency numbers</span><span data-l="hi" lang="hi" hidden>आपातकालीन नंबर</span></a>
+      <a href="#accessibility"><span data-l="en">Accessibility</span><span data-l="hi" lang="hi" hidden>सुगम्यता</span></a>
+      <a href="#privacy"><span data-l="en">Privacy</span><span data-l="hi" lang="hi" hidden>गोपनीयता</span></a>
+      <a href="#terms"><span data-l="en">Terms of use</span><span data-l="hi" lang="hi" hidden>उपयोग की शर्तें</span></a>
+      <a href="#copyright"><span data-l="en">Copyright and linking</span><span data-l="hi" lang="hi" hidden>कॉपीराइट और लिंक नीति</span></a>
+      <a href="#contact"><span data-l="en">Contact and feedback</span><span data-l="hi" lang="hi" hidden>संपर्क और सुझाव</span></a>
+      <a href="#sitemap"><span data-l="en">Sitemap</span><span data-l="hi" lang="hi" hidden>साइट मैप</span></a>
+    </nav>
+
+    <div class="info-body">
+      <section id="help" class="info-sec">
+        <div data-l="en">
+          <h1>Help and frequently asked questions</h1>
+          <h3>What is this website?</h3>
+          <p>A working demonstration of a city data portal. Departments publish their data once on a shared data exchange; citizens see the public parts here; officers log in to share protected data with other departments, with consent and a signed audit trail. It follows two public documents: the BIS draft on the Smart Cities Data Exchange (2019) and the paper "City Operating System and City Intelligence Layer" (2023).</p>
+          <h3>Is this the official Kanpur website?</h3>
+          <p>No. It is an independent research prototype. No department has supplied, checked or approved anything on it. Department names are used only to show how the system would be organised.</p>
+          <h3>Is the data real?</h3>
+          <p>The dashboards, maps, alerts and department data are synthetic (made up for the demo). The "Past incidents" section is different: it summarises real incidents from public news reports, with a link to each source. Those summaries were made with software help and have not been checked by hand.</p>
+          <h3>What do Public, Protected, Private and Confidential mean?</h3>
+          <ul>
+            <li><b>Public:</b> anyone can see and download it.</li>
+            <li><b>Protected:</b> staff of a registered department can get it after logging in.</li>
+            <li><b>Private:</b> only people the owning department names can get it.</li>
+            <li><b>Confidential:</b> each request needs the owning department's approval.</li>
+          </ul>
+          <h3>Who writes the "Alerts from the city"?</h3>
+          <p>A department officer or the control room writes an alert. A different control room officer must approve it before it appears (two-person rule). Every step is written to the signed audit log. Alerts are shown on this website only: no SMS, e-mail or app message is sent.</p>
+          <h3>How do I download data?</h3>
+          <p>In "Open data", public datasets have a Download link that returns the data as JSON. Developers can see every interface on the <a href="/api">API list</a>.</p>
+          <h3>How do I change the language, text size or colours?</h3>
+          <p>Use the buttons at the top right: A− and A+ change the text size, "High contrast" switches to black on white, and "हिंदी / English" changes the language. Your choice is remembered on this device only.</p>
+          <h3>How does a department join?</h3>
+          <p>The data exchange administrator adds the department and its officers in the officer console. Each officer gets a digital certificate and a login, and must set a new password at first login.</p>
+          <h3>Why does the page look different at night or in rain?</h3>
+          <p>The colours follow the time in Kanpur (day, evening, night) and the demo weather stations (rain). "High contrast" turns these effects off; "reduce motion" in your device settings stops the rain moving.</p>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h1>सहायता और अक्सर पूछे जाने वाले सवाल</h1>
+          <h3>यह वेबसाइट क्या है?</h3>
+          <p>शहर के डेटा पोर्टल का एक चालू नमूना (डेमो)। विभाग अपना डेटा एक साझा डेटा एक्सचेंज पर एक बार प्रकाशित करते हैं; नागरिक यहाँ उसका सार्वजनिक हिस्सा देखते हैं; अधिकारी लॉग इन करके सुरक्षित डेटा दूसरे विभागों के साथ सहमति और हस्ताक्षरित ऑडिट रिकॉर्ड के साथ साझा करते हैं। यह दो सार्वजनिक दस्तावेज़ों पर आधारित है: स्मार्ट सिटी डेटा एक्सचेंज पर BIS का मसौदा (2019) और "सिटी ऑपरेटिंग सिस्टम और सिटी इंटेलिजेंस लेयर" पेपर (2023)।</p>
+          <h3>क्या यह कानपुर की आधिकारिक वेबसाइट है?</h3>
+          <p>नहीं। यह एक स्वतंत्र शोध प्रोटोटाइप है। किसी विभाग ने इसमें कुछ भी नहीं दिया, जाँचा या मंज़ूर किया है। विभागों के नाम सिर्फ़ यह दिखाने के लिए हैं कि प्रणाली कैसे व्यवस्थित होगी।</p>
+          <h3>क्या डेटा असली है?</h3>
+          <p>डैशबोर्ड, नक्शे, अलर्ट और विभागों का डेटा सिंथेटिक (डेमो के लिए बनाया गया) है। "पिछली घटनाएँ" भाग अलग है: इसमें सार्वजनिक समाचारों से असली घटनाओं का सार है, हर घटना के स्रोत के लिंक के साथ। ये सार सॉफ़्टवेयर की मदद से बनाए गए हैं और हाथ से जाँचे नहीं गए हैं।</p>
+          <h3>सार्वजनिक, संरक्षित, निजी और गोपनीय का क्या मतलब है?</h3>
+          <ul>
+            <li><b>सार्वजनिक:</b> कोई भी देख और डाउनलोड कर सकता है।</li>
+            <li><b>संरक्षित:</b> पंजीकृत विभाग के कर्मचारी लॉग इन करके पा सकते हैं।</li>
+            <li><b>निजी:</b> सिर्फ़ वही लोग पा सकते हैं जिन्हें डेटा का मालिक विभाग नामित करे।</li>
+            <li><b>गोपनीय:</b> हर अनुरोध पर मालिक विभाग की मंज़ूरी चाहिए।</li>
+          </ul>
+          <h3>"शहर की ओर से अलर्ट" कौन लिखता है?</h3>
+          <p>कोई विभागीय अधिकारी या कंट्रोल रूम अलर्ट लिखता है। दिखने से पहले कंट्रोल रूम का कोई दूसरा अधिकारी उसे मंज़ूर करता है (दो-व्यक्ति नियम)। हर कदम हस्ताक्षरित ऑडिट लॉग में दर्ज होता है। अलर्ट सिर्फ़ इसी वेबसाइट पर दिखते हैं: कोई SMS, ई-मेल या ऐप संदेश नहीं भेजा जाता।</p>
+          <h3>डेटा कैसे डाउनलोड करें?</h3>
+          <p>"खुला डेटा" में सार्वजनिक डेटासेट के आगे डाउनलोड लिंक है, जो डेटा JSON रूप में देता है। डेवलपर सभी इंटरफ़ेस <a href="/api">API सूची</a> में देख सकते हैं।</p>
+          <h3>भाषा, अक्षरों का आकार या रंग कैसे बदलें?</h3>
+          <p>ऊपर दाईं ओर के बटन इस्तेमाल करें: A− और A+ से अक्षर छोटे-बड़े होते हैं, "उच्च कंट्रास्ट" से सफ़ेद पर काला रंग आता है, और "हिंदी / English" से भाषा बदलती है। आपकी पसंद सिर्फ़ इसी डिवाइस पर याद रहती है।</p>
+          <h3>कोई विभाग कैसे जुड़ता है?</h3>
+          <p>डेटा एक्सचेंज का प्रशासक अधिकारी कंसोल में विभाग और उसके अधिकारियों को जोड़ता है। हर अधिकारी को डिजिटल प्रमाणपत्र और लॉगिन मिलता है, और पहली बार लॉग इन पर नया पासवर्ड बनाना होता है।</p>
+          <h3>रात या बारिश में पेज अलग क्यों दिखता है?</h3>
+          <p>रंग कानपुर के समय (दिन, शाम, रात) और डेमो मौसम स्टेशनों (बारिश) के अनुसार बदलते हैं। "उच्च कंट्रास्ट" से ये प्रभाव बंद हो जाते हैं; डिवाइस में "reduce motion" चालू करने पर बारिश रुक जाती है।</p>
+        </div>
+      </section>
+
+      <section id="emergency" class="info-sec">
+        <div data-l="en">
+          <h2>Emergency and helpline numbers</h2>
+          <p class="warn-box">In an emergency, call these numbers directly. This demo website is not connected to any of them and cannot receive emergency reports.</p>
+          <ul class="em-tbl">
+            <li><b>112</b> All emergencies (police, fire, ambulance)</li>
+            <li><b>101</b> Fire</li>
+            <li><b>108</b> Ambulance</li>
+            <li><b>1912</b> Electricity complaints (Uttar Pradesh)</li>
+            <li><b>1076</b> Chief Minister's Helpline (Uttar Pradesh)</li>
+          </ul>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>आपातकालीन और हेल्पलाइन नंबर</h2>
+          <p class="warn-box">आपात स्थिति में सीधे इन नंबरों पर कॉल करें। यह डेमो वेबसाइट इनमें से किसी से जुड़ी नहीं है और आपात सूचना नहीं ले सकती।</p>
+          <ul class="em-tbl">
+            <li><b>112</b> सभी आपात स्थितियाँ (पुलिस, आग, एम्बुलेंस)</li>
+            <li><b>101</b> आग</li>
+            <li><b>108</b> एम्बुलेंस</li>
+            <li><b>1912</b> बिजली शिकायत (उत्तर प्रदेश)</li>
+            <li><b>1076</b> मुख्यमंत्री हेल्पलाइन (उत्तर प्रदेश)</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="accessibility" class="info-sec">
+        <div data-l="en">
+          <h2>Accessibility statement</h2>
+          <p>We aim for this portal to be usable by everyone, including people who use screen readers, keyboards only, larger text or high contrast. The target is the Web Content Accessibility Guidelines (WCAG) 2.1 level AA, which the Guidelines for Indian Government Websites also refer to. The portal has <b>not</b> been independently audited, so we do not claim that it meets them.</p>
+          <h3>What is in place</h3>
+          <ul>
+            <li>A "Skip to main content" link and a clear heading order on every page.</li>
+            <li>Every control works with the keyboard and shows where the focus is.</li>
+            <li>Text size buttons (A−, A, A+) and a high contrast mode.</li>
+            <li>The whole public portal in Hindi and English.</li>
+            <li>Maps and charts also give their numbers as text or tables.</li>
+            <li>Moving effects stop when your device asks for reduced motion.</li>
+            <li>Works on phones and small screens without sideways scrolling.</li>
+            <li>No content depends on colour alone: badges carry words as well.</li>
+          </ul>
+          <h3>Known limits</h3>
+          <ul>
+            <li>The officer console is in English only.</li>
+            <li>The city map is a picture with a written legend; a screen reader user gets the same figures from the dashboards and tables.</li>
+            <li>Downloads are in JSON, which needs software to read.</li>
+            <li>It has not been tested with every screen reader.</li>
+          </ul>
+          <p>If something does not work for you, tell the person who showed you this demo (see Contact and feedback).</p>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>सुगम्यता वक्तव्य</h2>
+          <p>हमारा लक्ष्य है कि यह पोर्टल सभी के लिए उपयोगी हो, जिनमें स्क्रीन रीडर, सिर्फ़ कीबोर्ड, बड़े अक्षर या उच्च कंट्रास्ट इस्तेमाल करने वाले लोग शामिल हैं। लक्ष्य वेब कंटेंट एक्सेसिबिलिटी गाइडलाइंस (WCAG) 2.1 स्तर AA है, जिसका उल्लेख भारत सरकार की वेबसाइटों के दिशानिर्देश भी करते हैं। पोर्टल की स्वतंत्र जाँच <b>नहीं</b> हुई है, इसलिए हम यह दावा नहीं करते कि यह इन पर खरा उतरता है।</p>
+          <h3>क्या-क्या है</h3>
+          <ul>
+            <li>हर पेज पर "मुख्य सामग्री पर जाएँ" लिंक और शीर्षकों का साफ़ क्रम।</li>
+            <li>हर बटन कीबोर्ड से चलता है और फ़ोकस दिखता है।</li>
+            <li>अक्षर आकार के बटन (A−, A, A+) और उच्च कंट्रास्ट मोड।</li>
+            <li>पूरा सार्वजनिक पोर्टल हिंदी और अंग्रेज़ी में।</li>
+            <li>नक्शे और चार्ट अपने आँकड़े लिखकर या तालिका में भी देते हैं।</li>
+            <li>डिवाइस में कम गति (reduced motion) चुनने पर चलते प्रभाव रुक जाते हैं।</li>
+            <li>फ़ोन और छोटी स्क्रीन पर बिना दाएँ-बाएँ स्क्रॉल के चलता है।</li>
+            <li>कोई जानकारी सिर्फ़ रंग पर निर्भर नहीं: बैज पर शब्द भी लिखे हैं।</li>
+          </ul>
+          <h3>ज्ञात सीमाएँ</h3>
+          <ul>
+            <li>अधिकारी कंसोल सिर्फ़ अंग्रेज़ी में है।</li>
+            <li>शहर का नक्शा एक चित्र है जिसके साथ लिखित संकेत-सूची है; स्क्रीन रीडर उपयोगकर्ता वही आँकड़े डैशबोर्ड और तालिकाओं से पा सकते हैं।</li>
+            <li>डाउनलोड JSON में हैं, जिन्हें पढ़ने के लिए सॉफ़्टवेयर चाहिए।</li>
+            <li>हर स्क्रीन रीडर के साथ जाँच नहीं हुई है।</li>
+          </ul>
+          <p>अगर आपके लिए कुछ काम न करे, तो उस व्यक्ति को बताएँ जिसने आपको यह डेमो दिखाया (संपर्क और सुझाव देखें)।</p>
+        </div>
+      </section>
+
+      <section id="privacy" class="info-sec">
+        <div data-l="en">
+          <h2>Privacy policy</h2>
+          <ul>
+            <li><b>No account for citizens.</b> You can use every public page without logging in or giving any personal details.</li>
+            <li><b>No tracking.</b> There are no analytics, advertising or social media scripts, and no fonts or files from other websites.</li>
+            <li><b>Cookies.</b> Public pages set no cookies. The officer login uses one session cookie that is needed to stay logged in and ends when you log out.</li>
+            <li><b>Your settings.</b> Language, text size and contrast are stored in your own browser only, never on the server.</li>
+            <li><b>Your location.</b> "Hospital beds near me" asks your browser for your location only when you press the button. It is used on your device to sort the list and is never sent to the server.</li>
+            <li><b>Report a problem.</b> In this demo the form sends and stores nothing.</li>
+            <li><b>Server records.</b> To run the status page, the server records the time, page address, result and response time of each request, but not who made it. Your network address is held in memory for up to one minute to stop overload, then discarded.</li>
+            <li><b>Officer actions.</b> When officers log in, their actions (searches, data access, approvals) are written to a signed audit log, as the BIS document requires.</li>
+            <li><b>Demo personal data.</b> One confidential dataset contains made-up citizen names and phone numbers to show how confidential data is protected. They are not real people, and that data is never shown on public pages.</li>
+          </ul>
+          <p class="warn-box">A real city deployment would need a full privacy notice under the Digital Personal Data Protection Act, 2023, including a named grievance officer, before collecting any personal data. This demo collects no personal data from citizens.</p>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>गोपनीयता नीति</h2>
+          <ul>
+            <li><b>नागरिकों के लिए कोई खाता नहीं।</b> हर सार्वजनिक पेज बिना लॉग इन और बिना कोई निजी जानकारी दिए इस्तेमाल हो सकता है।</li>
+            <li><b>कोई ट्रैकिंग नहीं।</b> कोई एनालिटिक्स, विज्ञापन या सोशल मीडिया स्क्रिप्ट नहीं है, और न ही दूसरी वेबसाइटों से फ़ॉन्ट या फ़ाइलें।</li>
+            <li><b>कुकीज़।</b> सार्वजनिक पेज कोई कुकी नहीं रखते। अधिकारी लॉगिन एक सेशन कुकी रखता है जो लॉग इन रहने के लिए ज़रूरी है और लॉग आउट पर ख़त्म हो जाती है।</li>
+            <li><b>आपकी सेटिंग।</b> भाषा, अक्षर आकार और कंट्रास्ट सिर्फ़ आपके ब्राउज़र में रहते हैं, सर्वर पर कभी नहीं।</li>
+            <li><b>आपका स्थान।</b> "पास के अस्पताल बेड" बटन दबाने पर ही ब्राउज़र आपका स्थान पूछता है। यह सिर्फ़ आपके डिवाइस पर सूची क्रम में लगाने के लिए इस्तेमाल होता है और सर्वर पर कभी नहीं भेजा जाता।</li>
+            <li><b>समस्या बताएँ।</b> इस डेमो में यह फ़ॉर्म कुछ भी नहीं भेजता और न सहेजता है।</li>
+            <li><b>सर्वर रिकॉर्ड।</b> स्थिति पेज के लिए सर्वर हर अनुरोध का समय, पेज का पता, नतीजा और जवाब का समय दर्ज करता है, पर यह नहीं कि अनुरोध किसने किया। ओवरलोड रोकने के लिए आपका नेटवर्क पता अधिकतम एक मिनट तक मेमोरी में रहता है, फिर हटा दिया जाता है।</li>
+            <li><b>अधिकारियों की कार्रवाई।</b> अधिकारी लॉग इन करते हैं तो उनकी कार्रवाइयाँ (खोज, डेटा पहुँच, मंज़ूरी) हस्ताक्षरित ऑडिट लॉग में दर्ज होती हैं, जैसा BIS दस्तावेज़ कहता है।</li>
+            <li><b>डेमो निजी डेटा।</b> एक गोपनीय डेटासेट में बनावटी नागरिक नाम और फ़ोन नंबर हैं, ताकि दिखाया जा सके कि गोपनीय डेटा कैसे सुरक्षित रहता है। ये असली लोग नहीं हैं, और यह डेटा सार्वजनिक पेजों पर कभी नहीं दिखता।</li>
+          </ul>
+          <p class="warn-box">असली शहरी उपयोग में कोई भी निजी डेटा लेने से पहले डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम, 2023 के तहत पूरी गोपनीयता सूचना और नामित शिकायत अधिकारी ज़रूरी होंगे। यह डेमो नागरिकों से कोई निजी डेटा नहीं लेता।</p>
+        </div>
+      </section>
+
+      <section id="terms" class="info-sec">
+        <div data-l="en">
+          <h2>Terms of use and disclaimer</h2>
+          <ul>
+            <li>This is an independent research prototype for demonstration and discussion. It is not an official website of any government body and is not affiliated with or endorsed by any department named on it.</li>
+            <li>Do not use anything on this site for real decisions, emergencies or travel. For official information, contact the department concerned.</li>
+            <li>Dashboard and department data is synthetic. Past incidents are summaries of public news reports and may contain errors; read the original report through its link.</li>
+            <li>The site is provided "as is", without any promise that it is correct, complete or available. It runs only while its demo server is switched on.</li>
+            <li>The software is a research build. It has not had a government security audit and is not certified.</li>
+          </ul>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>उपयोग की शर्तें और अस्वीकरण</h2>
+          <ul>
+            <li>यह प्रदर्शन और चर्चा के लिए एक स्वतंत्र शोध प्रोटोटाइप है। यह किसी सरकारी संस्था की आधिकारिक वेबसाइट नहीं है और इसमें नामित किसी विभाग से जुड़ा या उनके द्वारा समर्थित नहीं है।</li>
+            <li>इस साइट की किसी भी चीज़ का इस्तेमाल असली फ़ैसलों, आपात स्थिति या यात्रा के लिए न करें। आधिकारिक जानकारी के लिए संबंधित विभाग से संपर्क करें।</li>
+            <li>डैशबोर्ड और विभागों का डेटा सिंथेटिक है। पिछली घटनाएँ सार्वजनिक समाचारों का सार हैं और इनमें गलतियाँ हो सकती हैं; मूल समाचार उसके लिंक से पढ़ें।</li>
+            <li>साइट "जैसी है वैसी" दी गई है, बिना इस वादे के कि यह सही, पूरी या हमेशा उपलब्ध है। यह तभी चलती है जब इसका डेमो सर्वर चालू हो।</li>
+            <li>सॉफ़्टवेयर एक शोध संस्करण है। इसका सरकारी सुरक्षा ऑडिट नहीं हुआ है और यह प्रमाणित नहीं है।</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="copyright" class="info-sec">
+        <div data-l="en">
+          <h2>Copyright and hyperlinking policy</h2>
+          <ul>
+            <li><b>Software:</b> open source under the Apache License 2.0.</li>
+            <li><b>Synthetic data:</b> may be reused freely, as long as it is clearly called demo data.</li>
+            <li><b>News reports:</b> the original articles belong to their publishers. This site shows only short summaries and links to the original page.</li>
+            <li><b>Linking to this site:</b> you may link to any page without asking. Please do not show it inside a frame or present it as an official website.</li>
+            <li><b>Links from this site:</b> links to news websites open the publisher's own page. We are not responsible for their content or availability.</li>
+          </ul>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>कॉपीराइट और लिंक नीति</h2>
+          <ul>
+            <li><b>सॉफ़्टवेयर:</b> Apache License 2.0 के तहत ओपन सोर्स।</li>
+            <li><b>सिंथेटिक डेटा:</b> साफ़ तौर पर डेमो डेटा बताकर, बिना रोक-टोक दोबारा इस्तेमाल किया जा सकता है।</li>
+            <li><b>समाचार:</b> मूल लेख उनके प्रकाशकों के हैं। यह साइट सिर्फ़ छोटा सार और मूल पेज का लिंक दिखाती है।</li>
+            <li><b>इस साइट से लिंक करना:</b> किसी भी पेज से बिना पूछे लिंक कर सकते हैं। कृपया इसे किसी फ़्रेम के अंदर न दिखाएँ और न ही आधिकारिक वेबसाइट बताएँ।</li>
+            <li><b>इस साइट से बाहर के लिंक:</b> समाचार साइटों के लिंक प्रकाशक का अपना पेज खोलते हैं। उनकी सामग्री या उपलब्धता के लिए हम ज़िम्मेदार नहीं हैं।</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="contact" class="info-sec">
+        <div data-l="en">
+          <h2>Contact and feedback</h2>
+          <p>This demo has no official contact office, helpline or complaint desk. For a real problem in the city, use the official channels of the department concerned or the numbers under <a href="#emergency">Emergency numbers</a>.</p>
+          <p>To give feedback on the demo itself (something wrong, unclear or missing), please tell the person who showed it to you. Feedback is welcome and helps the research.</p>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>संपर्क और सुझाव</h2>
+          <p>इस डेमो का कोई आधिकारिक संपर्क कार्यालय, हेल्पलाइन या शिकायत डेस्क नहीं है। शहर में किसी असली समस्या के लिए संबंधित विभाग के आधिकारिक माध्यम या <a href="#emergency">आपातकालीन नंबर</a> इस्तेमाल करें।</p>
+          <p>डेमो के बारे में सुझाव (कुछ गलत, अस्पष्ट या छूटा हुआ) उस व्यक्ति को दें जिसने आपको यह दिखाया। आपके सुझाव शोध में मदद करते हैं।</p>
+        </div>
+      </section>
+
+      <section id="sitemap" class="info-sec">
+        <div data-l="en">
+          <h2>Sitemap</h2>
+          <div class="sitemap">
+            <div><h3>Public portal</h3><ul>
+              <li><a href="/">Home: Namaste Kanpur, city pulse and citizen buttons</a></li>
+              <li><a href="/#glance">City today and alerts from the city</a></li>
+              <li><a href="/#map">City map</a></li>
+              <li><a href="/#dash">Live dashboards</a></li>
+              <li><a href="/#history">Past incidents</a></li>
+              <li><a href="/#depts">Departments</a></li>
+              <li><a href="/#data">Open data catalogue</a></li>
+              <li><a href="/#status">Service status</a></li>
+              <li><a href="/#open">Transparency</a></li>
+              <li><a href="/#about">About this portal</a></li>
+            </ul></div>
+            <div><h3>Officers</h3><ul>
+              <li><a href="/console.html">Officer console (login)</a></li>
+            </ul><h3>Developers</h3><ul>
+              <li><a href="/api">API list</a></li>
+              <li><a href="/status/v1">Status (JSON)</a></li>
+              <li><a href="/ops/v1/transparency">Transparency figures (JSON)</a></li>
+              <li><a href="/cil/v1/citizen-alerts">Approved city alerts (JSON)</a></li>
+            </ul></div>
+            <div><h3>Help and policies</h3><ul>
+              <li><a href="#help">Help and FAQ</a></li>
+              <li><a href="#emergency">Emergency numbers</a></li>
+              <li><a href="#accessibility">Accessibility statement</a></li>
+              <li><a href="#privacy">Privacy policy</a></li>
+              <li><a href="#terms">Terms of use</a></li>
+              <li><a href="#copyright">Copyright and linking</a></li>
+              <li><a href="#contact">Contact and feedback</a></li>
+            </ul></div>
+          </div>
+        </div>
+        <div data-l="hi" lang="hi" hidden>
+          <h2>साइट मैप</h2>
+          <div class="sitemap">
+            <div><h3>सार्वजनिक पोर्टल</h3><ul>
+              <li><a href="/">होम: नमस्ते कानपुर, शहर की नब्ज़ और नागरिक बटन</a></li>
+              <li><a href="/#glance">आज का शहर और शहर की ओर से अलर्ट</a></li>
+              <li><a href="/#map">शहर का नक्शा</a></li>
+              <li><a href="/#dash">लाइव डैशबोर्ड</a></li>
+              <li><a href="/#history">पिछली घटनाएँ</a></li>
+              <li><a href="/#depts">विभाग</a></li>
+              <li><a href="/#data">खुला डेटा सूची</a></li>
+              <li><a href="/#status">सेवा स्थिति</a></li>
+              <li><a href="/#open">पारदर्शिता</a></li>
+              <li><a href="/#about">इस पोर्टल के बारे में</a></li>
+            </ul></div>
+            <div><h3>अधिकारी</h3><ul>
+              <li><a href="/console.html">अधिकारी कंसोल (लॉगिन)</a></li>
+            </ul><h3>डेवलपर</h3><ul>
+              <li><a href="/api">API सूची</a></li>
+              <li><a href="/status/v1">स्थिति (JSON)</a></li>
+              <li><a href="/ops/v1/transparency">पारदर्शिता आँकड़े (JSON)</a></li>
+              <li><a href="/cil/v1/citizen-alerts">मंज़ूर अलर्ट (JSON)</a></li>
+            </ul></div>
+            <div><h3>सहायता और नीतियाँ</h3><ul>
+              <li><a href="#help">सहायता और सवाल-जवाब</a></li>
+              <li><a href="#emergency">आपातकालीन नंबर</a></li>
+              <li><a href="#accessibility">सुगम्यता वक्तव्य</a></li>
+              <li><a href="#privacy">गोपनीयता नीति</a></li>
+              <li><a href="#terms">उपयोग की शर्तें</a></li>
+              <li><a href="#copyright">कॉपीराइट और लिंक नीति</a></li>
+              <li><a href="#contact">संपर्क और सुझाव</a></li>
+            </ul></div>
+          </div>
+        </div>
+      </section>
+      <p class="muted small"><span data-l="en">Last reviewed: 4 October 2026.</span><span data-l="hi" lang="hi" hidden>अंतिम समीक्षा: 4 अक्टूबर 2026।</span></p>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span data-l="en">Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.</span><span data-l="hi" lang="hi" hidden>स्वतंत्र शोध प्रोटोटाइप। सिंथेटिक डेमो डेटा। किसी सरकारी विभाग से जुड़ा या उसके द्वारा समर्थित नहीं।</span></p>
+    <p class="small"><a href="/"><span data-l="en">Portal home</span><span data-l="hi" lang="hi" hidden>पोर्टल होम</span></a> · <a href="/console.html"><span data-l="en">Officer login</span><span data-l="hi" lang="hi" hidden>अधिकारी लॉगिन</span></a> · <a href="/api"><span data-l="en">API list</span><span data-l="hi" lang="hi" hidden>API सूची</span></a></p>
+  </div>
+</footer>
+</body>
+</html>

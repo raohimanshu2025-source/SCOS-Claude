@@ -19,6 +19,7 @@ import { makeCil } from './cil/cil.js';
 import { makeOps, serviceOfPath, backupDb, listBackups, securityHeaders, makeRateLimiter } from './ops/ops.js';
 import { simulateTick } from './simulate.js';
 import { makeConsoleHelpers } from './console-helpers.js';
+import { makeCitizenAlerts } from './citizen-alerts.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf' };
@@ -39,6 +40,8 @@ export function createApp(overrides = {}) {
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
   const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, resource, cil, ops };
   const helpers = makeConsoleHelpers(parts);
+  const citizenAlerts = makeCitizenAlerts(db, audit);
+  parts.citizenAlerts = citizenAlerts;
 
   const routes = [];
   const R = (method, pattern, fn) => routes.push({ method, pattern, fn });
@@ -149,11 +152,47 @@ export function createApp(overrides = {}) {
   R('POST', '/cil/v1/ask', c => cil.ask(c.p, c.body.question));
   R('GET', '/cil/v1/report', c => { role(c.p, 'operator', 'admin', 'auditor'); return cil.report(c.p, c.query.month); });
   R('POST', '/cil/v1/federate', c => cil.federate(c.p, c.body.path, c.body.body));
+  // Citizen alerts with officer approval (our addition): drafted by an officer, approved by a different control room officer.
+  R('GET', '/cil/v1/citizen-alerts', () => citizenAlerts.publicList());
+  R('GET', '/cil/v1/citizen-alerts/all', c => citizenAlerts.all(c.p));
+  R('POST', '/cil/v1/citizen-alerts', c => { c.status = 201; return citizenAlerts.draft(c.p, c.body); });
+  R('POST', '/cil/v1/citizen-alerts/decide', c => citizenAlerts.decide(c.p, c.body.id, !!c.body.approve, c.body.note));
+  R('POST', '/cil/v1/citizen-alerts/withdraw', c => citizenAlerts.withdraw(c.p, c.body.id));
   R('POST', /^\/cil\/v1(\/[a-z]+\/[A-Za-z]+)$/, (c, m) => cil.call(c.p, m[1], c.body, { format: c.query.format }));
 
   // ---- operations ----
   R('GET', '/status/v1', c => ops.status(Math.min(24 * 30, Number(c.query.hours) || 24)));
   R('GET', '/status/v1/heartbeat', () => ops.heartbeat());
+  // Transparency figures for the public portal (our addition): counts only, never names, e-mails or data values.
+  let chain = { at: 0, v: null };
+  R('GET', '/ops/v1/transparency', () => {
+    if (Date.now() - chain.at > 300e3) chain = { at: Date.now(), v: audit.verify() }; // checked at most every 5 minutes
+    const n = (sql, ...a) => q.get(db, sql, ...a)?.n ?? 0;
+    const orgName = id => q.get(db, 'SELECT name FROM orgs WHERE id=?', id)?.name || 'Other organisation';
+    const orgs = q.all(db, 'SELECT id, domain FROM orgs');
+    const orgOfEmail = e => { const d = String(e).split('@')[1] || ''; return orgs.find(o => d === o.domain || d.endsWith('.' + o.domain))?.id || null; };
+    // Standing access: for each department, which other departments are on its datasets' allow lists (BIS Table 4 "C").
+    const pairs = new Map();
+    for (const r of q.all(db, "SELECT owner_org, policy FROM items WHERE deleted=0 AND item_type='resourceItem' AND policy IS NOT NULL")) {
+      for (const asker of new Set((JSON.parse(r.policy).C || []).map(orgOfEmail))) {
+        if (!asker || asker === r.owner_org) continue;
+        const k = r.owner_org + '|' + asker; pairs.set(k, (pairs.get(k) || 0) + 1);
+      }
+    }
+    const sharing = [...pairs].map(([k, n]) => { const [o, a] = k.split('|'); return { from: orgName(o), to: orgName(a), datasets: n }; }).sort((a, b) => b.datasets - a.datasets).slice(0, 30);
+    const last = q.get(db, 'SELECT ts FROM audit ORDER BY seq DESC LIMIT 1');
+    return {
+      generatedAt: iso(Date.now()), city: cfg.cityName,
+      note: 'Counts made by this server from its own records. Demo data. No names, e-mail addresses or data values are shown.',
+      departments: n("SELECT COUNT(*) n FROM orgs WHERE whitelisted=1"),
+      datasets: Object.fromEntries(q.all(db, "SELECT COALESCE(label,'protected') label, COUNT(*) n FROM items WHERE deleted=0 AND item_type='resourceItem' GROUP BY label").map(r => [r.label, r.n])),
+      accessRequests: Object.fromEntries(q.all(db, 'SELECT status, COUNT(*) n FROM consents GROUP BY status').map(r => [r.status, r.n])),
+      sharing,
+      tokens: { issued: n('SELECT COUNT(*) n FROM tokens'), revoked: n('SELECT COUNT(*) n FROM tokens WHERE revoked_at IS NOT NULL') },
+      audit: { events: n('SELECT COUNT(*) n FROM audit'), refused: n('SELECT COUNT(*) n FROM audit WHERE ok=0'), lastEvent: last?.ts ?? null, chainIntact: chain.v.ok, checkedAt: iso(chain.at), publicKey: '/ops/v1/audit/public-key' },
+      citizenAlerts: citizenAlerts.counts(),
+    };
+  });
   R('GET', '/ops/v1/stats', c => { role(c.p, 'admin', 'auditor'); return ops.stats(); });
   R('GET', '/ops/v1/audit', c => {
     role(c.p, 'admin', 'auditor');

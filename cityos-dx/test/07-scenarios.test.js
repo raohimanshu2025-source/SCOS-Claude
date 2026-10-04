@@ -92,7 +92,7 @@ test('[BIS-13][BIS-24] the officer web console is served and needs no install', 
   const home = await c.req('GET', '/', { raw: true });
   assert.match(home.body, /href="\/console\.html"/);
   assert.match(home.body, /synthetic demo data\. Not an official government website and not a live city system/);
-  for (const f of ['/portal.js', '/portal.css', '/portal-mark.svg', '/sky.css', '/sky-theme.js']) assert.equal((await c.req('GET', f, { raw: true })).status, 200, f);
+  for (const f of ['/portal.js', '/portal.css', '/portal-mark.svg', '/sky.css', '/sky-theme.js', '/info.html', '/info.js']) assert.equal((await c.req('GET', f, { raw: true })).status, 200, f);
   const js = await c.req('GET', '/app.js', { raw: true });
   assert.match(js.headers['content-type'], /javascript/);
 });

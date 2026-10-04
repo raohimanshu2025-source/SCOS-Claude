@@ -45,6 +45,7 @@ const SCREENS = [
   ['provider', 'Provider console', 'provider'],
   ['cil', 'City intelligence', 'all'],
   ['iccc', 'ICCC dashboard', 'operator admin auditor'],
+  ['calerts', 'Citizen alerts', 'provider operator admin auditor'],
   ['trust', 'Certificates and trust', 'admin auditor'],
   ['ops', 'Operations and audit', 'admin auditor'],
   ['status', 'Status page', 'all'],
@@ -239,6 +240,40 @@ const VIEWS = {
     m.innerHTML = `<div class="view"><div class="view-head"><h2>ICCC dashboard</h2><p>Alerts raised by analytics and the monthly report on system performance (City OS Section 4).</p></div>
       ${card('Latest alerts', table(al.body.slice(0, 30).map(a => ({ time: a.ts, domain: a.domain, ward: a.ward, alert: a.msg, source: a.source }))), 'COS-28 COS-30')}
       ${card('Monthly report ' + (rep.body.month || ''), rep.ok ? `<h4>API use</h4>${table(rep.body.apiUse)}<h4>Alerts by domain</h4>${table(rep.body.alertsByDomain)}<h4>Uptime</h4>${table(rep.body.uptime)}` : `<p class="err">${esc(rep.body.error)}</p>`, 'COS-30')}</div>`;
+  },
+
+  // Citizen alerts (our addition): an officer drafts, a different control room officer approves; only approved alerts reach the public portal.
+  async calerts(m) {
+    const r = await api('GET', '/cil/v1/citizen-alerts/all');
+    const canDraft = ['provider', 'operator', 'admin'].includes(ME.role), canDecide = ['operator', 'admin'].includes(ME.role);
+    const me = ME.email || ME.username;
+    const rows = r.ok ? r.body : [];
+    const st = a => a.status === 'approved' && !a.live ? 'expired' : a.status;
+    const cls = { pending: 'pending', approved: 'ok', refused: 'bad', withdrawn: 'muted', expired: 'muted' };
+    const actions = a => {
+      const b = [];
+      if (a.status === 'pending' && canDecide && a.drafted_by !== me) b.push(`<button class="btn primary sm" data-act="approve" data-id="${a.id}">Approve</button><button class="btn danger sm" data-act="refuse" data-id="${a.id}">Refuse</button>`);
+      if (a.status === 'pending' && canDecide && a.drafted_by === me) b.push('<span class="hint">Needs another officer</span>');
+      if (['pending', 'approved'].includes(a.status) && (canDecide || a.drafted_by === me) && st(a) !== 'expired') b.push(`<button class="btn sm" data-act="withdraw" data-id="${a.id}">Withdraw</button>`);
+      return b.join(' ');
+    };
+    const list = rows.length ? `<div class="tbl-wrap"><table><tr><th>#</th><th>Status</th><th>Alert</th><th>Area</th><th>Written by</th><th>Decided by</th><th></th></tr>${rows.map(a => `<tr><td>${a.id}</td><td>${pill(st(a), cls[st(a)])}</td><td><b>${esc(a.level)} · ${esc(a.kind)}: ${esc(a.title)}</b><br><span class="small">${esc(a.message)}</span>${a.note ? `<br><span class="hint">Note: ${esc(a.note)}</span>` : ''}</td><td>${esc(a.area)}<br><span class="hint">${esc(a.department)}</span></td><td class="small">${esc(a.drafted_by)}<br>${esc(a.drafted_at)}</td><td class="small">${esc(a.decided_by || '')}<br>${esc(a.decided_at || '')}${a.expires_at ? `<br>until ${esc(a.expires_at)}` : ''}</td><td>${actions(a)}</td></tr>`).join('')}</table></div>` : '<p class="hint">No alerts yet.</p>';
+    const opt = xs => xs.map(x => `<option>${x}</option>`).join('');
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Citizen alerts</h2><p>An officer writes an alert; a <b>different</b> control room officer approves it before it appears on the public portal (two-person rule). Alerts are shown on the portal only: no SMS, e-mail or app message is sent. Every step is written to the signed audit log. This screen is our addition; the two documents do not ask for it.</p></div>
+      ${canDraft ? card('Write an alert', `<form id="caf" class="col">
+        <div class="row"><label class="f">Kind<select name="kind">${opt(['flood', 'water', 'power', 'traffic', 'health', 'fire', 'air', 'other'])}</select></label><label class="f">Level<select name="level">${opt(['info', 'advisory', 'warning'])}</select></label><label class="f">Area<input name="area" placeholder="e.g. Zone 6" required></label><label class="f">Show for (hours)<input name="hours" type="number" min="1" max="720" value="24" required></label></div>
+        <input name="title" maxlength="120" placeholder="Title (English)" required><textarea name="message" maxlength="600" rows="2" placeholder="Message (English): what is happening and what people should do" required></textarea>
+        <input name="titleHi" maxlength="120" placeholder="Title in Hindi (optional)" lang="hi"><textarea name="messageHi" maxlength="600" rows="2" placeholder="Message in Hindi (optional)" lang="hi"></textarea>
+        <button class="btn primary">Send for approval</button></form><div id="cao"></div>`) : ''}
+      ${card('All alerts', r.ok ? list : `<p class="err">${esc(r.body.error)}</p>`)}</div>`;
+    if (canDraft) $('#caf').onsubmit = async e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); f.hours = Number(f.hours); const x = await api('POST', '/cil/v1/citizen-alerts', f); if (!x.ok) return out($('#cao'), x); toast('Sent for approval. Another control room officer must approve it.'); show(); };
+    m.querySelectorAll('[data-act]').forEach(b => { b.onclick = async () => {
+      const id = Number(b.dataset.id), act = b.dataset.act;
+      let x;
+      if (act === 'withdraw') { if (!confirm('Withdraw alert #' + id + '? It will disappear from the portal.')) return; x = await api('POST', '/cil/v1/citizen-alerts/withdraw', { id }); }
+      else { const note = prompt(act === 'approve' ? 'Optional note for the record (what you checked):' : 'Reason for refusing:') ; if (note === null) return; x = await api('POST', '/cil/v1/citizen-alerts/decide', { id, approve: act === 'approve', note }); }
+      toast(x.ok ? (act === 'approve' ? 'Approved. It is now on the public portal.' : act === 'refuse' ? 'Refused.' : 'Withdrawn.') : x.body.error); show();
+    }; });
   },
 
   async trust(m) {

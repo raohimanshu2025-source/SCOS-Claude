@@ -20,6 +20,7 @@ import { makeOps, serviceOfPath, backupDb, listBackups, securityHeaders, makeRat
 import { simulateTick } from './simulate.js';
 import { makeConsoleHelpers } from './console-helpers.js';
 import { makeCitizenAlerts } from './citizen-alerts.js';
+import { checkRsDns } from './identity/dns-check.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf' };
@@ -105,7 +106,8 @@ export function createApp(overrides = {}) {
 
   // ---- authorization, consent, policy ----
   R('POST', '/auth/v1/token', c => authz.requestToken(c.p, c.body.request, c.body.purpose));
-  R('POST', '/auth/v1/token/introspect', c => {
+  R('POST', '/auth/v1/token/introspect', async c => {
+    if (cfg.rsDnsCheck && c.p.kind === 'rs') await checkRsDns(c.p.cn, c.ip); // Figure 2 step 8
     const r = authz.introspect(c.p, c.body.token, c.body.id, { useCache: false });
     need(r.ok, 403, 'invalid token: ' + r.reason); return r.body;
   });

@@ -47,6 +47,7 @@ export function loadConfig(overrides = {}) {
     simulatorMs: num('DX_SIMULATOR_MS', 60000),
     demoData: bool('DX_DEMO_DATA', 'true'),
     logRequests: bool('DX_LOG_REQUESTS', 'false'),
+    rsDnsCheck: bool('DX_RS_DNS_CHECK', 'false'), // Figure 2 step 8: resource server host must resolve to the caller's address
   };
   return { ...cfg, ...overrides, dbFile: overrides.dbFile ?? cfg.dbFile };
 }

@@ -71,6 +71,8 @@ Put other settings in `/etc/cityos-dx.env` (see TECHNICAL.md section 7). The uni
 - **Revoke:** enter serial and reason. The CRL updates at once. Publish `/identity/v1/crl.pem` wherever resource servers fetch it.
 - **Renew the server certificate** before it expires: move the old server files out of `pki/server/` and run `node scripts/init-pki.js` again (it only creates what is missing), then restart.
 - **Add a department:** register the organisation, white-list it, then approve its organisation certificate request and its officers' requests.
+- **Script for departments (BIS 5.4.2):** give a department `scripts/org-certificates.js`. With its organisation certificate it lists and decides its own employees' requests: `DX_URL=https://dx.example:8443 DX_CA_FILE=root.crt ORG_CERT=org.crt ORG_KEY=org.key node scripts/org-certificates.js list`, then `approve <id>` or `reject <id> "reason"`.
+- **DNS check of resource servers (Figure 2 step 8):** once resource servers have real host names, set `DX_RS_DNS_CHECK=true`. An introspection call from a resource server is then refused unless its certificate's host name resolves to the caller's address.
 
 ## 7. Service drills
 

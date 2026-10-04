@@ -81,7 +81,23 @@ export function makeResource(db, cfg, audit, catalogue, authz) {
   }
   const ctxOf = model => `<catalogue-link>/${model}/${model}_dataModel.json`;
 
+  // BIS 4.5.2.1: an operation such as get data or status asked on a resource group runs on every item of the
+  // group. Each item is checked on its own; items the caller may not read are listed with the reason.
+  function readGroup(p, op, params, token, grp) {
+    need(['latest', 'status', 'count'].includes(op), 400, 'on a resource group, use latest, status or count');
+    const items = catalogue.all('resourceItem').filter(i => i.doc.resourceServerGroup?.value === grp.id);
+    const results = [], refused = [];
+    for (const i of items) {
+      try { results.push(read(p, op, { ...params, id: i.id, trace: undefined }, token)); }
+      catch (e) { refused.push({ id: i.id, status: e.status || 500, error: e.message }); }
+    }
+    audit.log('Resource', actorOf(p), `${op} on group`, `${grp.id}: ${results.length} item(s) answered, ${refused.length} refused`);
+    return { group: grp.id, items: items.length, results, refused };
+  }
+
   function read(p, op, params, token) {
+    const grp = catalogue.get(String(params.id || ''));
+    if (grp?.item_type === 'resourceServerGroup') return readGroup(p, op, params, token, grp);
     const trace = [];
     const { it, srv, model } = locate(params.id);
     const t0 = Date.now();

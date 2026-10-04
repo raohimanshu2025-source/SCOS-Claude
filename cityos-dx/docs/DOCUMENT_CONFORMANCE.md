@@ -12,17 +12,19 @@ It was done on 29-30 September 2026. The check led to fixes in the server, 24 ne
 | | BIS | COS | Total |
 |---|---|---|---|
 | Points | 125 | 37 | 162 |
-| Working and tested | 104 | 25 | 129 |
-| Partly met | 11 | 9 | 20 |
-| Not met | 2 | 0 | 2 |
+| Working and tested | 107 | 27 | 134 |
+| Partly met | 9 | 7 | 16 |
+| Not met | 1 | 0 | 1 |
 | Statement, no function | 5 | 3 | 8 |
 | Out of scope in the document | 3 | 0 | 3 |
 
-**Not met:** trusted execution environments for policy enforcement (BIS-111) and operations on resource groups (BIS-124).
+**Not met:** trusted execution environments for policy enforcement (BIS-111).
 
-**Partly met:** BIS-37, 55, 60, 78, 92, 102, 109, 113, 114, 118, 125 and COS-08, 12, 15, 16, 23, 31, 33, 34, 37. Each row in the PDF says what is missing.
+**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model).
 
-So the software does **not** follow the two documents 100%. It follows the 129 tested points, and it says plainly where it falls short.
+**Partly met:** BIS-37, 55, 60, 78, 92, 102, 114, 118, 125 and COS-08, 12, 15, 31, 33, 34, 37. Each row in the PDF says what is missing.
+
+So the software does **not** follow the two documents 100%. It follows the 134 tested points, and it says plainly where it falls short.
 
 ## What the check found and fixed
 

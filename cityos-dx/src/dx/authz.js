@@ -5,7 +5,7 @@ import { iso, fail, need, randHex, sha256, str } from '../util.js';
 import { LABEL_CLASSES, checkPolicy, LABEL_DEFAULTS } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
-export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null) {
+export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, central = null) {
   const cache = new Map(); // resource-server introspection cache: tokenHash|itemId -> expiry (BIS 4.5.2.2)
   const state = { up: true };
   const providerEmail = it => {
@@ -22,6 +22,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null) {
     if (pol.label === 'public') return { ok: true, via: 'public item' };
     const need_ = LABEL_CLASSES[pol.label];
     if (!need_.includes(p.cls)) return { ok: false, code: 403, msg: `class ${p.cls} ${p.via === 'id-token' ? 'identity (ID token)' : 'certificate'} cannot access ${pol.label} data; needs class ${need_.join(' or ')} (BIS 5.4.2)` };
+    const cr_ = central?.check(p, it); if (cr_) return { ok: false, code: 403, msg: cr_ }; // state or national rules only narrow access
     if (pol.C.includes(p.email)) return art?.status === 'active' ? { ok: true, via: `policy (consent artefact ${art.id})`, until: art.validTo } : { ok: true, via: 'policy' };
     const lic = q.get(db, 'SELECT app FROM licences WHERE item_id=? AND developer=?', it.id, p.email);
     if (lic) return { ok: true, via: 'licence agreement for ' + lic.app };
@@ -53,7 +54,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null) {
         fail(worst.d.code, worst.d.msg, { denied: bad.map(b => ({ id: b.it.id, reason: b.d.msg, consent: b.d.consent })) });
       }
       const token = `${cfg.authHost}/${p.email}/${randHex(32)}`; // BIS 5.2 token shape
-      const exp = Math.min(Date.now() + cfg.tokenTtlSec * 1000, ...decisions.map(x => x.d.until || Infinity)); // never outlives a consent artefact
+      const exp = Math.min(Date.now() + Math.min(cfg.tokenTtlSec, central ? central.maxTtl() : Infinity) * 1000, ...decisions.map(x => x.d.until || Infinity)); // never outlives a consent artefact
       const duties = Object.fromEntries(items.map(it => [it.id, it.policy.A]));
       const policyRef = items.map(it => `${it.id}#v${it.policy.version}`).join(' ');
       q.run(db, 'INSERT INTO tokens (hash, consumer, cert_serial, items, cls, policy_ref, duties, via, issued_at, expires_at, tail) VALUES (?,?,?,?,?,?,?,?,?,?,?)',

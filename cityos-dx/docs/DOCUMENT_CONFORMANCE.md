@@ -12,19 +12,19 @@ It was done on 29-30 September 2026. The check led to fixes in the server, 24 ne
 | | BIS | COS | Total |
 |---|---|---|---|
 | Points | 125 | 37 | 162 |
-| Working and tested | 111 | 30 | 141 |
-| Partly met | 5 | 4 | 9 |
+| Working and tested | 111 | 32 | 143 |
+| Partly met | 5 | 2 | 7 |
 | Not met | 1 | 0 | 1 |
 | Statement, no function | 5 | 3 | 8 |
 | Out of scope in the document | 3 | 0 | 3 |
 
 **Not met:** trusted execution environments for policy enforcement (BIS-111).
 
-**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model). Then the Figure 7 multimodal transit APIs (COS-37, COS-12): travel time by walking, bicycle, autorickshaw and car, metro and suburban rail arrivals, and bus, metro and rail occupancy, using rain and flood alerts; and bus versus metro financial performance (COS-15). The metro and suburban rail timetables and occupancy readings are synthetic data added for this. Then media playback (BIS-37): live and archived playback of camera pictures, pause and stop, and file download, under the normal token rules; the pictures are synthetic SVG images, not real video. Then MQTT 5.0 over TLS for streams with AsyncAPI documents (BIS-92); AMQP is still not offered, so BIS-102 stays partly met. Then signed consent artefacts in the layout of the MeitY Electronic Consent Framework (BIS-118), whose token is what updates the access control policy, with expiry and revocation (BIS-125); the field layout is our reading of that framework and has not been checked against a certified consent manager.
+**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model). Then the Figure 7 multimodal transit APIs (COS-37, COS-12): travel time by walking, bicycle, autorickshaw and car, metro and suburban rail arrivals, and bus, metro and rail occupancy, using rain and flood alerts; and bus versus metro financial performance (COS-15). The metro and suburban rail timetables and occupancy readings are synthetic data added for this. Then media playback (BIS-37): live and archived playback of camera pictures, pause and stop, and file download, under the normal token rules; the pictures are synthetic SVG images, not real video. Then MQTT 5.0 over TLS for streams with AsyncAPI documents (BIS-92); AMQP is still not offered, so BIS-102 stays partly met. Then signed consent artefacts in the layout of the MeitY Electronic Consent Framework (BIS-118), whose token is what updates the access control policy, with expiry and revocation (BIS-125); the field layout is our reading of that framework and has not been checked against a certified consent manager. Then state-level and sector-wise reports (COS-34) and the three-tier federation of City OS Figure 2 (COS-08): each city publishes its sector figures in its own data exchange, a state node reads every city through it, a national node reads the states, and central access rules set at state or national level narrow access in the cities. The ten figures are a demo set, not an agreed national indicator list.
 
-**Partly met:** BIS-55, 60, 78, 102, 114 and COS-08, 31, 33, 34. Each row in the PDF says what is missing.
+**Partly met:** BIS-55, 60, 78, 102, 114 and COS-31, 33. Each row in the PDF says what is missing.
 
-So the software does **not** follow the two documents 100%. It follows the 141 tested points, and it says plainly where it falls short.
+So the software does **not** follow the two documents 100%. It follows the 143 tested points, and it says plainly where it falls short.
 
 ## What the check found and fixed
 

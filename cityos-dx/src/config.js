@@ -31,6 +31,10 @@ export function loadConfig(overrides = {}) {
     schedulerMinuteMs: num('DX_SCHEDULER_MINUTE_MS', 60000),
     schedulerEnabled: bool('DX_SCHEDULER', 'true'),
     heartbeatMs: num('DX_HEARTBEAT_MS', 60000),
+    // City OS Section 1: 'city' (one city), 'state' (peers are cities) or 'national' (peers are state nodes).
+    tier: env('DX_TIER', 'city'),
+    regionName: env('DX_REGION_NAME', 'Demo State'),
+    centralPolicyUrl: env('DX_CENTRAL_POLICY_URL', ''), // state or national node whose central access rules this city applies
     federationPeers: env('DX_FEDERATION_PEERS', '').split(',').map(s => s.trim()).filter(Boolean),
     cilServiceEmail: env('DX_CIL_SERVICE_EMAIL', kanpur ? 'cil@iccc.kanpur-demo.example' : 'cil@mc.demo-city.example'),
     federationCaFile: env('DX_FEDERATION_CA_FILE', ''),

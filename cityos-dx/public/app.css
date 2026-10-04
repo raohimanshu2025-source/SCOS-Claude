@@ -142,3 +142,4 @@ td.mono{white-space:nowrap}
 .grow{flex:1}
 .pill.muted{background:var(--line);color:var(--muted)}
 .player img{width:100%;height:auto;background:#222;border-radius:8px;display:block}
+ul.plain{list-style:none;padding:0;margin:0}ul.plain li{padding:4px 0}

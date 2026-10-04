@@ -2543,10 +2543,12 @@
   "anchor": "fed-map",
   "how": "Three demo cities with different sources answer the same API. State and national views aggregate them, and a national policy switch applies to all three.",
   "server": {
-   "status": "partial",
-   "how": "City-to-city federation over mutual TLS works and is tested with two cities; state-level and national-level tiers and central access policies are not implemented, and federation calls the other city's CIL API rather than going through its data exchange layer.",
+   "status": "working",
+   "how": "Federated deployment in three tiers set by DX_TIER: city, state and national. Each city publishes its sector figures as a public item in its own data exchange; a state node reads every city through that city's data exchange (catalogue search, then resource API), so the data exchange is the backplane between COSs; a national node reads the state reports. The output API is the same at every level. Central access rules (blocked consumers, allowed certificate classes per label, maximum token life) are set on a state or national node and pulled every hour by cities, where they only narrow access and are logged (tested with four servers). City-to-city federation of one CIL API also works.",
    "tests": [
-    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated",
+    "[COS-08][COS-34] a state node reads each city through its data exchange; a national node reads the state; same output at every level",
+    "[COS-08] central access rules set at state level narrow access in each city, and are logged"
    ]
   }
  },
@@ -3040,9 +3042,11 @@
   "anchor": "fed-kpi",
   "how": "The state view produces a state-level report and a sector-wise table from the three demo cities.",
   "server": {
-   "status": "partial",
-   "how": "A federated aggregate of one KPI across cities works (tested); state-level and sector-wise reports are not produced.",
+   "status": "working",
+   "how": "Sector-wise performance reports (transport, solid waste, flood and drainage, environment, citizen services; ten figures) are computed hourly by each city's CIL from protected data and published as aggregates only. State-level and national reports combine them (totals or averages, with best and lowest city), via GET /cil/v1/reports/region, and the console shows them under Sector reports (tested). The figures are a fixed demo set, not an agreed national indicator list.",
    "tests": [
+    "[COS-34] a city publishes sector-wise performance figures as a public item in its own data exchange",
+    "[COS-08][COS-34] a state node reads each city through its data exchange; a national node reads the state; same output at every level",
     "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
    ]
   }

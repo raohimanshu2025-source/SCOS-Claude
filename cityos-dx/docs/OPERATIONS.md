@@ -5,7 +5,7 @@ For the people who install and run the server. All data in the demo city is synt
 ## 1. Requirements
 
 - Linux server with Node.js 22.13 or later and OpenSSL 3, or Docker.
-- One open TCP port (default 8443).
+- One open TCP port (default 8443), and port 8883 if MQTT streams are wanted (`DX_MQTT_PORT`; `-1` switches MQTT off).
 - A DNS name for the server. Set `DX_PUBLIC_NAME` to it before creating the PKI.
 
 ## 2. Install
@@ -72,6 +72,7 @@ Put other settings in `/etc/cityos-dx.env` (see TECHNICAL.md section 7). The uni
 - **Renew the server certificate** before it expires: move the old server files out of `pki/server/` and run `node scripts/init-pki.js` again (it only creates what is missing), then restart.
 - **Add a department:** register the organisation, white-list it, then approve its organisation certificate request and its officers' requests.
 - **Script for departments (BIS 5.4.2):** give a department `scripts/org-certificates.js`. With its organisation certificate it lists and decides its own employees' requests: `DX_URL=https://dx.example:8443 DX_CA_FILE=root.crt ORG_CERT=org.crt ORG_KEY=org.key node scripts/org-certificates.js list`, then `approve <id>` or `reject <id> "reason"`.
+- **MQTT streams (BIS 6.5):** the server also listens for MQTT 5.0 over TLS on `DX_MQTT_PORT` (default 8883). Clients use their DX certificate and give a DX access token as the MQTT password for protected items; topics are resource item ids. `GET /catalogue/v1/asyncapi?id=<item or group>` gives the AsyncAPI document. If the port is busy the DX still starts and logs that MQTT is off.
 - **DNS check of resource servers (Figure 2 step 8):** once resource servers have real host names, set `DX_RS_DNS_CHECK=true`. An introspection call from a resource server is then refused unless its certificate's host name resolves to the caller's address.
 
 ## 7. Service drills

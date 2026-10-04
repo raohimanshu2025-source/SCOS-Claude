@@ -1751,10 +1751,13 @@
   "anchor": "cat-access",
   "how": "REST items carry an OpenAPI object whose schema refers to the data model. The streaming item carries an AsyncAPI-style object; no real MQTT or AMQP broker exists.",
   "server": {
-   "status": "partial",
-   "how": "Items carry OpenAPI access information that refers to the data model (tested). Streams are served as server-sent events; MQTT or AMQP with AsyncAPI is not implemented.",
+   "status": "working",
+   "how": "REST items carry OpenAPI access information that refers to the data model. Streams are also offered over MQTT 5.0 (and 3.1.1) over TLS on port 8883, with the DX certificate and a DX token as the MQTT password; topics are item ids and each subscription is checked like a read. GET /catalogue/v1/asyncapi?id= gives an AsyncAPI 2.6 document per item or group that points to the MQTT server and the data model (tested). AMQP is not offered.",
    "tests": [
-    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items"
+    "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items",
+    "[BIS-92] MQTT 5.0 over TLS: a public group streams its latest and new packets",
+    "[BIS-92] protected items need a DX token as the MQTT password; MQTT 3.1.1 also works",
+    "[BIS-92] AsyncAPI 2.6 document for a group points to the MQTT server and the data model"
    ]
   }
  },
@@ -1950,7 +1953,7 @@
   "how": "JSON, GeoJSON, ISO 8601 times and UN/CEFACT unit codes are used in the demo data. TLS, OAuth, MQTT and AMQP are shown by name only.",
   "server": {
    "status": "partial",
-   "how": "TLS 1.2+, HTTP/1.1, JSON, GeoJSON and ISO 8601 are used and tested. MQTT and AMQP are not implemented.",
+   "how": "TLS 1.2+, HTTP/1.1, JSON, GeoJSON and ISO 8601 are used and tested. MQTT 5.0 over TLS is now used for streams (tested under BIS-92). AMQP is not implemented.",
    "tests": [
     "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times"
    ]

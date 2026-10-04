@@ -21,6 +21,7 @@ import { simulateTick } from './simulate.js';
 import { makeConsoleHelpers } from './console-helpers.js';
 import { makeCitizenAlerts } from './citizen-alerts.js';
 import { checkRsDns } from './identity/dns-check.js';
+import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -97,6 +98,7 @@ export function createApp(overrides = {}) {
   R('POST', '/catalogue/v1/items/simple', c => { c.status = 201; return helpers.addItem(c.body, c.p); }); // console helper: builds the item from a form
   R('PUT', '/catalogue/v1/items', c => catalogue.update(String(c.query.id || ''), c.body.item, c.p).doc);
   R('DELETE', '/catalogue/v1/items', c => { catalogue.remove(String(c.query.id || ''), c.p); return { deleted: c.query.id }; });
+  R('GET', '/catalogue/v1/asyncapi', c => { need(cfg.mqttPort !== -1, 404, 'MQTT is switched off on this DX'); const d = asyncApiDoc({ cfg, catalogue, id: String(c.query.id || ''), port: app.mqttAddress?.port || cfg.mqttPort }); need(d && Object.keys(d.channels).length, 404, 'no resource item or group with that id'); return d; });
   R('GET', '/catalogue/v1/datamodels', c => { if (!c.query.name) return Object.keys(MODELS); const d = dataModelDoc(c.query.name); need(d, 404, 'no such data model'); return d; });
   R('GET', '/catalogue/v1/context', c => { const d = contextDoc(String(c.query.name || '')); need(d, 404, 'contexts: core, common'); return d; });
   R('GET', '/catalogue/v1/schemas', c => { if (!c.query.type) return Object.keys(MANDATORY); const d = baseSchema(String(c.query.type)); need(d, 404, 'no such item type'); return d; });
@@ -321,18 +323,23 @@ export function createApp(overrides = {}) {
   tlsTimer?.unref();
   server.on('close', () => tlsTimer && clearInterval(tlsTimer));
 
+  // MQTT 5.0 over TLS for streams (BIS 6.5); the same certificates and tokens as HTTPS.
+  const mqtt = cfg.mqttPort === -1 ? null : makeMqtt({ db, cfg, identity, resource, catalogue, audit, tlsOptions });
+
   let simTimer = null;
-  return {
-    ...parts, server, routes,
+  const app = {
+    ...parts, server, routes, mqtt, mqttAddress: null,
     listen(port = cfg.port, host = cfg.host) {
-      return new Promise(r => server.listen(port, host, () => {
+      return new Promise(r => server.listen(port, host, async () => {
         ops.start(); cil.start();
+        if (mqtt) app.mqttAddress = await mqtt.listen(cfg.mqttPort, host);
         if (cfg.simulator) { simTimer = setInterval(() => { try { simulateTick(parts); } catch (e) { console.error('simulator', e.message); } }, cfg.simulatorMs); simTimer.unref(); }
         r(server.address());
       }));
     },
-    close() { ops.stop(); cil.stop(); clearInterval(simTimer); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
+    async close() { ops.stop(); cil.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
   };
+  return app;
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -340,6 +347,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!q.get(app.db, 'SELECT 1 FROM accounts LIMIT 1')) { console.error('No accounts yet. Run: npm run seed'); process.exit(1); }
   const a = await app.listen();
   console.log(`City OS DX reference implementation for ${app.cfg.cityName} on https://${a.address}:${a.port} (demo data)`);
+  if (app.mqttAddress) console.log(`MQTT 5.0 over TLS on mqtts://${a.address}:${app.mqttAddress.port}`);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, async () => { await app.close(); process.exit(0); });
 }
 export { pkiPaths };

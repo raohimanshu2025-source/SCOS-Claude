@@ -91,7 +91,7 @@ export function pkiPaths(pkiDir) {
     caDir: path.join(d, 'dxca'), caKey: path.join(d, 'dxca', 'dxca.key'), caCrt: path.join(d, 'dxca', 'dxca.crt'),
     caCnf: path.join(d, 'dxca', 'openssl.cnf'), crl: path.join(d, 'dxca', 'crl.pem'),
     serverKey: path.join(d, 'server', 'server.key'), serverCrt: path.join(d, 'server', 'server.crt'),
-    auditKey: path.join(d, 'audit', 'audit-ed25519.key'),
+    auditKey: path.join(d, 'audit', 'audit-ed25519.key'), consentKey: path.join(d, 'audit', 'consent-ed25519.key'),
     idpKey: path.join(d, 'idp', 'idp-ed25519.key'), idpPub: path.join(d, 'idp', 'idp-ed25519.pub'),
     clients: path.join(d, 'clients'),
   };
@@ -130,7 +130,7 @@ export function initPki(pkiDir, { publicName = 'dx.demo-city.example', crlUrl, a
       ossl(['x509', '-req', '-CA', p.caCrt, '-CAkey', p.caKey, '-CAcreateserial', '-days', '397', '-sha256', '-extfile', ext, '-extensions', 's', '-out', p.serverCrt], csr);
     } finally { rmTmp(ext); }
   }
-  for (const [file, pub] of [[p.auditKey, null], [p.idpKey, p.idpPub]]) {
+  for (const [file, pub] of [[p.auditKey, null], [p.consentKey, null], [p.idpKey, p.idpPub]]) {
     if (fs.existsSync(file)) continue;
     const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
     fs.writeFileSync(file, privateKey.export({ type: 'pkcs8', format: 'pem' }), { mode: 0o600 });

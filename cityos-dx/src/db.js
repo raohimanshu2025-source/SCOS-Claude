@@ -24,6 +24,8 @@ const SCHEMA = [
      accesses INTEGER NOT NULL DEFAULT 0, last_access TEXT)`,
   `CREATE TABLE IF NOT EXISTS consents (id TEXT PRIMARY KEY, consumer TEXT NOT NULL, item_id TEXT NOT NULL, purpose TEXT NOT NULL, status TEXT NOT NULL, cls INTEGER,
      org TEXT, created_at TEXT NOT NULL, decided_at TEXT, decided_by TEXT)`,
+  `CREATE TABLE IF NOT EXISTS consent_artefacts (id TEXT PRIMARY KEY, consent_id TEXT NOT NULL, consumer TEXT NOT NULL, item_id TEXT NOT NULL, valid_to INTEGER NOT NULL,
+     artefact TEXT NOT NULL, token TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, revoked_at TEXT, uses INTEGER NOT NULL DEFAULT 0, last_use TEXT)`,
   `CREATE TABLE IF NOT EXISTS licences (item_id TEXT NOT NULL, app TEXT NOT NULL, developer TEXT NOT NULL, terms TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY(item_id, app))`,
   `CREATE TABLE IF NOT EXISTS watches (consumer TEXT NOT NULL, item_id TEXT NOT NULL, PRIMARY KEY(consumer, item_id))`,
   `CREATE TABLE IF NOT EXISTS notices (id INTEGER PRIMARY KEY AUTOINCREMENT, recipient TEXT NOT NULL, msg TEXT NOT NULL, created_at TEXT NOT NULL, delivered INTEGER NOT NULL DEFAULT 0)`,

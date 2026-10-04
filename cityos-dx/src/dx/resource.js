@@ -7,6 +7,7 @@ import { iso, fail, need, sha256 } from '../util.js';
 import { MODELS, modelOfRef, validatePacket } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
+const MEDIA_TYPES = ['image/svg+xml', 'image/jpeg', 'image/png', 'video/mp4', 'video/webm'];
 const OPS = { gt: (a, b) => a > b, ge: (a, b) => a >= b, lt: (a, b) => a < b, le: (a, b) => a <= b, eq: (a, b) => a == b }; // eslint-disable-line eqeqeq
 export const timeFieldOf = model => Object.entries(MODELS[model]?.props || {}).find(([, d]) => d[0] === 'TimeProperty')?.[0];
 
@@ -150,6 +151,37 @@ export function makeResource(db, cfg, audit, catalogue, authz) {
     read,
     rowsOf: (it) => rowsOf(it, modelOfRef(it.doc.refDataModel.value), localServers().get(it.doc.resourceServer.value)),
     // Provider pushes data (BIS Table 1: provider provides the data), checked against the data model (6.4.2).
+    // BIS 4.5.2.1 media resources: live and archived playback and download of media files (camera pictures here).
+    mediaPut(p, { id, mime, data, ts }) {
+      const it = catalogue.get(String(id || '')); need(it && it.item_type === 'resourceItem', 404, 'no such resource item');
+      catalogue.assertOwner(it, p, 'add media to');
+      need(it.doc.resourceType.value === 'mediaStream', 400, 'media can only be added to a mediaStream item');
+      need(MEDIA_TYPES.includes(mime), 400, 'mime must be one of ' + MEDIA_TYPES.join(', '));
+      const buf = Buffer.from(String(data || ''), 'base64'); need(buf.length > 0 && buf.length <= 2 << 20, 400, 'data must be base64, 1 byte to 2 MB');
+      const t = iso(ts ? Date.parse(ts) : Date.now()); need(!isNaN(Date.parse(t)), 400, 'ts must be ISO 8601');
+      q.run(db, 'INSERT OR REPLACE INTO media (item_id, ts, mime, bytes) VALUES (?,?,?,?)', it.id, t, mime, buf);
+      q.run(db, 'DELETE FROM media WHERE item_id=? AND ts NOT IN (SELECT ts FROM media WHERE item_id=? ORDER BY ts DESC LIMIT 500)', it.id, it.id);
+      return { id: it.id, ts: t, mime, bytes: buf.length };
+    },
+    mediaRead(p, op, params, token) {
+      const { it, srv } = locate(params.id);
+      need(it.doc.resourceType.value === 'mediaStream', 400, 'not a media resource');
+      const tok = authorize(p, it, srv, token, []);
+      let out;
+      if (op === 'list') {
+        const a = params.time ? Date.parse(params.time) : 0, b = params.endtime ? Date.parse(params.endtime) : Date.now() + 60e3;
+        need(!isNaN(a) && !isNaN(b), 400, 'time and endtime must be ISO 8601');
+        const rows = q.all(db, 'SELECT ts, mime, length(bytes) bytes FROM media WHERE item_id=? AND ts>=? AND ts<=? ORDER BY ts', it.id, iso(a), iso(b));
+        out = { id: it.id, total: rows.length, files: rows.map(r => ({ ts: r.ts, mime: r.mime, bytes: r.bytes })) };
+      } else {
+        const r = op === 'file' ? q.get(db, 'SELECT * FROM media WHERE item_id=? AND ts=?', it.id, iso(Date.parse(params.ts))) : q.get(db, 'SELECT * FROM media WHERE item_id=? ORDER BY ts DESC LIMIT 1', it.id);
+        need(r, 404, 'no media file' + (op === 'file' ? ' at that time' : ' yet'));
+        out = { ts: r.ts, mime: r.mime, bytes: Buffer.from(r.bytes) };
+      }
+      if (op !== 'live') audit.log('Resource', actorOf(p), 'media ' + op, `${it.id}${tok ? ' token …' + tok.tail : ''}`);
+      return out;
+    },
+
     ingest(p, { id, data, mode }) {
       const it = catalogue.get(String(id || '')); need(it && it.item_type === 'resourceItem', 404, 'no such resource item');
       catalogue.assertOwner(it, p, 'ingest');

@@ -9,6 +9,7 @@ import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
 import { seedKanpur } from './seed-kanpur.js';
 import { seedTransit } from './seed-transit.js';
+import { cameraFrame } from './media-frames.js';
 
 let seedVal = 20230727;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -171,8 +172,10 @@ export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
   ingest(grId, Array.from({ length: 180 }, (_, i) => { const w = WARDS[Math.floor(rnd() * rnd() * 9)]; return { ref: 'G-' + (5000 + i), ward: w.id, category: GCATS[Math.floor(rnd() * (w.id === 'W3' ? 3 : 6))], date: DAYS[Math.floor(rnd() * 14)], citizenName: 'Citizen ' + (i + 1), phone: '9XXXXXX' + String(100 + i).slice(-3) }; }));
   res({ key: 'grievance-counts', grp: 'grievview', name: 'Grievance counts by ward and category (view)', desc: 'A view over the grievance records with no personal details.', tags: ['grievance', 'citizen', 'view'], rtype: 'table', label: 'protected', data: { kind: 'count', src: grId, attrs: ['ward', 'category'] } });
   // others
-  const camId = res({ key: 'cam-junction-5', grp: 'camera', name: 'Traffic camera, Junction 5', desc: 'Stream descriptor of a junction camera. No video is hosted in this reference implementation.', tags: ['transport', 'camera', 'video'], rtype: 'mediaStream', label: 'private', loc: pt(.45, .5), data: { kind: 'table' } });
+  const camId = res({ key: 'cam-junction-5', grp: 'camera', name: 'Traffic camera, Junction 5', desc: 'Junction camera. Live and archived playback of synthetic pictures (no real camera).', tags: ['transport', 'camera', 'video'], rtype: 'mediaStream', label: 'private', loc: pt(.45, .5), data: { kind: 'table' } });
   ingest(camId, [{ streamURL: 'rtsp://camera.transport.demo-city.example/junction-5 (placeholder)', location: { type: 'Point', coordinates: pt(.45, .5) } }]);
+  // synthetic camera pictures for playback (BIS 4.5.2.1): one every 5 minutes for the last 2 hours
+  for (let k = 24; k >= 0; k--) { const t = Math.floor(now / 300e3) * 300e3 - k * 300e3; resource.mediaPut(items[camId].officer, { id: camId, mime: 'image/svg+xml', data: Buffer.from(cameraFrame('Junction 5', t)).toString('base64'), ts: new Date(t).toISOString() }); }
   const gisId = res({ key: 'ward-boundaries', grp: 'gis', name: 'Ward boundaries', desc: 'Nine synthetic wards as GeoJSON.', tags: ['gis', 'ward', 'boundary'], rtype: 'file', label: 'public' });
   ingest(gisId, WARDS.map(w => ({ wardId: w.id, boundary: { type: 'Polygon', coordinates: [[[w.bbox[0], w.bbox[1]], [w.bbox[2], w.bbox[1]], [w.bbox[2], w.bbox[3]], [w.bbox[0], w.bbox[3]], [w.bbox[0], w.bbox[1]]]] } })));
   const fareId = res({ key: 'fare-revenue', grp: 'fare', name: 'Fare revenue and cost by mode', desc: 'Daily revenue and operating cost for bus and metro (synthetic).', tags: ['transport', 'finance', 'revenue'], rtype: 'table', label: 'protected' });
@@ -188,6 +191,7 @@ export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
   addC('urn:demo-cat:grievview/grievance-counts', ['control@mc.demo-city.example', 'cil@mc.demo-city.example']);
   for (let i = 1; i <= 5; i++) addC(`urn:demo-cat:drains/drain-${i}`, ['control@mc.demo-city.example', 'cil@mc.demo-city.example']);
   addC(fareId, ['control@mc.demo-city.example', 'cil@mc.demo-city.example']); // the control room reads fares for the Figure 7 financial comparison
+  addC(camId, ['control@mc.demo-city.example']); // the control room watches the junction camera (BIS-37 playback)
   app.audit.log('Operations', 'seed', 'Demo city seeded', `${catalogue.all().length} catalogue items, synthetic data`);
   return { passwords: pw, certs: Object.fromEntries(Object.entries(certs).map(([e, c]) => [e, c.serial])) };
 }

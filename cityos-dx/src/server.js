@@ -23,6 +23,7 @@ import { makeCitizenAlerts } from './citizen-alerts.js';
 import { checkRsDns } from './identity/dns-check.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
+const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf' };
 
 export function createApp(overrides = {}) {
@@ -136,6 +137,24 @@ export function createApp(overrides = {}) {
   R('DELETE', '/resource/v1/subscription', c => { resource.unsubscribe(c.p, c.query.sid); return { ok: true }; });
   R('GET', '/resource/v1/subscription/stream', c => { c.stream = true; startStream(c); });
   R('POST', '/resource/v1/ingest', c => resource.ingest(c.p, c.body));
+  // BIS 4.5.2.1 media: add, list (archived), latest, file download and live playback (multipart stream of pictures).
+  R('POST', '/resource/v1/media', c => { c.status = 201; return resource.mediaPut(c.p, c.body); });
+  R('GET', '/resource/v1/media/list', c => resource.mediaRead(c.p, 'list', c.query, tokenOf(c.req)));
+  for (const op of ['latest', 'file']) R('GET', '/resource/v1/media/' + op, c => {
+    const f = resource.mediaRead(c.p, op, c.query, tokenOf(c.req));
+    c.raw = { type: f.mime, body: f.bytes, headers: { 'x-media-time': f.ts, 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox", ...(op === 'file' ? { 'content-disposition': `attachment; filename="${String(c.query.id).split('/').pop()}-${f.ts.replace(/[:]/g, '')}${MEDIA_EXT[f.mime] || ''}"` } : {}) } };
+  });
+  R('GET', '/resource/v1/media/live', c => {
+    const first = resource.mediaRead(c.p, 'latest', c.query, tokenOf(c.req)); // checks access once, like a subscription
+    c.stream = true;
+    const B = 'dxframe';
+    c.res.writeHead(200, { 'content-type': `multipart/x-mixed-replace; boundary=${B}`, 'cache-control': 'no-store' });
+    let last = '';
+    const push = f => { if (f.ts === last) return; last = f.ts; c.res.write(`--${B}\r\ncontent-type: ${f.mime}\r\ncontent-length: ${f.bytes.length}\r\nx-media-time: ${f.ts}\r\n\r\n`); c.res.write(f.bytes); c.res.write('\r\n'); };
+    push(first);
+    const iv = setInterval(() => { try { push(resource.mediaRead(c.p, 'live', c.query, tokenOf(c.req))); } catch { clearInterval(iv); c.res.end(); } }, 2000);
+    c.req.on('close', () => clearInterval(iv));
+  });
   R('GET', '/resource/v1/servers', () => [...resource.localServers().values()].map(s => ({ id: s.id, host: s.host, legacy: s.legacy, up: resource.serverUp(s.id) })));
 
   // ---- notifications ----
@@ -260,7 +279,7 @@ export function createApp(overrides = {}) {
       need(hit, 404, `no route ${req.method} ${url.pathname}`);
       const out = await hit.r.fn(c, hit.m);
       if (c.stream) return;
-      if (c.raw) { res.writeHead(200, { 'content-type': c.raw.type }); return res.end(c.raw.body); }
+      if (c.raw) { res.writeHead(200, { 'content-type': c.raw.type, ...(c.raw.headers || {}) }); return res.end(c.raw.body); }
       status = c.status || 200; send(res, status, out ?? { ok: true });
     } catch (e) {
       status = e instanceof HttpError ? e.status : 500;

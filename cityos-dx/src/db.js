@@ -35,6 +35,7 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS citizen_alerts (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, level TEXT NOT NULL, title TEXT NOT NULL, message TEXT NOT NULL,
      title_hi TEXT, message_hi TEXT, area TEXT NOT NULL, department TEXT NOT NULL, status TEXT NOT NULL, drafted_by TEXT NOT NULL, drafted_at TEXT NOT NULL, hours REAL NOT NULL,
      decided_by TEXT, decided_at TEXT, note TEXT, expires_at TEXT, withdrawn_by TEXT, withdrawn_at TEXT)`,
+  `CREATE TABLE IF NOT EXISTS media (item_id TEXT NOT NULL, ts TEXT NOT NULL, mime TEXT NOT NULL, bytes BLOB NOT NULL, PRIMARY KEY (item_id, ts))`,
   `CREATE TABLE IF NOT EXISTS heartbeats (ts TEXT NOT NULL, service TEXT NOT NULL, up INTEGER NOT NULL, PRIMARY KEY (ts, service))`,
   `CREATE TABLE IF NOT EXISTS api_calls (id INTEGER PRIMARY KEY AUTOINCREMENT, ts TEXT NOT NULL, service TEXT NOT NULL, route TEXT NOT NULL, status INTEGER NOT NULL, ms REAL NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS api_calls_ts ON api_calls(ts)`,

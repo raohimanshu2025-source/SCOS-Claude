@@ -700,10 +700,11 @@
   "anchor": "con-media",
   "how": "A demo camera item plays a drawn animation with play, pause and stop. A GIS layer returns GeoJSON. Real video is not used.",
   "server": {
-   "status": "partial",
-   "how": "GIS files download as GeoJSON (tested). A camera is catalogued as a mediaStream with its stream address, but no video is hosted or played.",
+   "status": "working",
+   "how": "GIS files download as GeoJSON (tested). Camera media: live playback as a multipart picture stream (/resource/v1/media/live) or by polling the latest picture, archived playback by time range (/resource/v1/media/list and /file), download of a single file, and play, pause and stop in the console's Camera video screen; access follows the same token rules as other data (tested). The pictures are synthetic SVG images, not real video.",
    "tests": [
-    "[BIS-37] GIS file download as GeoJSON"
+    "[BIS-37] GIS file download as GeoJSON",
+    "[BIS-37] media: live and archived playback and download of camera pictures, under the same access rules"
    ]
   }
  },

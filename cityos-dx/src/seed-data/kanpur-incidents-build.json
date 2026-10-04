@@ -1,0 +1,1348 @@
+[
+ {
+  "incidentId": "KI-001",
+  "type": "Fire",
+  "date": "2021-03-28",
+  "place": "LPS Institute of Cardiology (Hriday Rog Sansthan), GSVM Medical College, Kanpur; first-floor storeroom near ICU",
+  "summary": "Fire near ICU at LPS Institute of Cardiology (GSVM) forces evacuation of ~140-175 patients",
+  "trigger": "Suspected short circuit in a storeroom (exact cause pending investigation)",
+  "chain": [
+   "Fire in first-floor storeroom near ICU; smoke spread",
+   "Fire tenders deployed (NewsBytes: at least seven; India TV: 'a couple')",
+   "Window panes on first floor broken to let smoke out",
+   "About 140-175 patients evacuated from ICU and neighbouring wards and shifted to other wards",
+   "CM orders care for evacuated patients and high-level probe (Principal Secretary Health Education, DG Fire, Divisional Commissioner)"
+  ],
+  "systems": [
+   "health/hospital",
+   "fire/rescue",
+   "buildings"
+  ],
+  "departments": "Fire Service, Police (Police Commissioner / Addl. Commissioner Akash Kulhari), LPS Institute of Cardiology / GSVM, State Government (CM, Principal Secretary Health Education, DG Fire)",
+  "impact": "140-175 patients evacuated (sources give 140, 146, 175); no casualties",
+  "sources": 3,
+  "sourceUrl": "https://www.indiatvnews.com/news/india/lps-institute-of-cardiology-kanpur-hospital-fire-cardiology-department-blaze-up-cm-yogi-adityanath-orders-probe-693994",
+  "publisher": "India TV",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-004",
+  "type": "Fire",
+  "date": "2022-09-29",
+  "place": "Barra area, Kanpur; two-storey building with storage basement and coaching institute on first floor",
+  "summary": "Basement fire in Barra building traps coaching students; 20+ rescued by fire and police",
+  "trigger": "Fire in basement used as storage (prima facie)",
+  "chain": [
+   "Fire in basement storage; dense smoke reaches first-floor coaching class",
+   "About 25 students trapped in coaching institute",
+   "4 fire tenders and police rescue over 20 students",
+   "Fire officials directed to check whether building had fire NOC"
+  ],
+  "systems": [
+   "buildings",
+   "education",
+   "fire/rescue"
+  ],
+  "departments": "Fire Service, Police (Commissioner of Police B P Jogdand)",
+  "impact": "Over 20 students rescued (about 25 trapped); no injuries mentioned",
+  "sources": 1,
+  "sourceUrl": "https://www.deccanherald.com/amp/story/india%2Fmassive-fire-breaks-out-in-two-storey-building-in-kanpur-over-20-students-rescued-1149516.html",
+  "publisher": "Deccan Herald (PTI)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-005",
+  "type": "Power outage",
+  "date": "2023-03-18",
+  "place": "80 localities incl. Juhi Bamburhiya, Baradevi, Natwantola, Ludhora, Hamirpur Road, Juhi Lal Colony, Barra, Vishwa Bank Colony, Kidwai Nagar, Naubasta, Nawabganj, Nirala Nagar, Govind Nagar, Panki, Jajmau; ZPS at Bhutbangla, Usmanpur, Rajiv Park",
+  "summary": "Power crisis during KESCO workers' strike stops 30+ tubewells and zonal pumping stations",
+  "trigger": "Electricity supply failures; a broken high-tension line in the Barra area was not repaired because of the KESCO workers' strike",
+  "chain": [
+   "HT line broken in Barra; not repaired due to KESCO staff strike",
+   "More than 30 tubewells and zonal pumping stations (Bhutbangla, Usmanpur, Rajiv Park ZPS) could not run",
+   "Kidwai Nagar area ZPS non-functional for three days",
+   "Water shortage for 5-6 lakh people in 80 localities; long queues at water ATMs; people buying water; disputes over water until queues were organised",
+   "Tankers deployed but described as insufficient"
+  ],
+  "systems": [
+   "power",
+   "water supply"
+  ],
+  "departments": "KESCO, Jalkal (water department), Kanpur Nagar Nigam",
+  "impact": "30+ tubewells/pumping stations offline; 5-6 lakh people affected; 80 localities; Kidwai Nagar ZPS down 3 days",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/water-shortage-increased-due-to-power-crisis-in-kanpur-more-than-30-tubewells-and-pumping-stations-did-not-wo-2023-03-18",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-006",
+  "type": "Fire",
+  "date": "2023-03-31",
+  "place": "Bansmandi, near Hamraj Market: AR Tower (Afaq Rasool Tower), Nafees Tower, Hamraj Complex, Masood/Maqsood complex",
+  "summary": "Bansmandi / Hamraj market complex fire guts 500-800 shops; 38-hour operation with Army, NDRF, outside-district tenders",
+  "trigger": "Short circuit at a transformer outside AR Tower (ETV Bharat, citing officials); Tribune: short circuit following a dust storm; others: suspected short circuit",
+  "chain": [
+   "Short circuit at transformer outside AR Tower starts fire",
+   "Strong wind gusts spread fire to 100+ shops before brigades arrived, then to five complexes",
+   "Additional fire tenders sought from Kanpur Dehat, Unnao, Lucknow, Kannauj; hydraulic platforms from Lucknow/Allahabad",
+   "Army vehicles mobilised/requested",
+   "Fire still burning after 24 hours; doused after 38-hour operation with ~60 tenders",
+   "Buildings developed cracks; one body (Gyan Chand, 40) found",
+   "Four-member committee formed to assess damage and investigate"
+  ],
+  "systems": [
+   "power",
+   "buildings",
+   "fire/rescue",
+   "other"
+  ],
+  "departments": "Fire Service (Dy Director Ajay Kumar; BP Jogdand), Police (Joint CP), Army, NDRF, Fire services of neighbouring districts, State Government (Dy CM Brajesh Pathak)",
+  "impact": "500 to 800+ shops gutted; losses reported as Rs 100 crore (Tribune) to over Rs 500 crore (Deccan Herald); one death (Gyan Chand, 40)",
+  "sources": 5,
+  "sourceUrl": "https://www.etvbharat.com/english/state/uttar-pradesh/fire-broke-out-in-textile-market-bansmandi-kanpur-500-shops-caught-fire/na20230331105924079079009",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-007",
+  "type": "Power outage",
+  "date": "2023-06-17",
+  "place": "Ratanpur (B Block), Karrahi, Pashupati Nagar, Babupurwa substation zones, Ghantaghar, Dalmandi, Jarauli Phase-1 and 20+ localities",
+  "summary": "Heat-driven 133 faults in 24 hours; long outages in Ratanpur/Karrahi worsen water crisis; metro works damaged HT line",
+  "trigger": "Extreme heat causing feeder tripping, transmission line faults and transformer failures; an HT line was also damaged by metro construction",
+  "chain": [
+   "133 faults in 24 hours; peak load 695 MW",
+   "Ratanpur B Block without power 11.5 hours; Karrahi 9 hours",
+   "Water crisis intensified because pumps could not run",
+   "9,025 complaint calls to the helpline"
+  ],
+  "systems": [
+   "power",
+   "water supply"
+  ],
+  "departments": "KESCO",
+  "impact": "133 faults/24h; maximum outage 11.5 h; 9,025 helpline complaints; max load 695 MW",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-power-crisis-there-is-no-electricity-for-12-hours-crisis-due-to-133-faults-in-24-hours-2023-06-17",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-008",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2024-04-08",
+  "place": "Shatabdi Nagar (Himalaya, Himgiri, Shivalik residential schemes)",
+  "summary": "Newly laid KDA scheme pipeline bursts at five places in Shatabdi Nagar; 18,000 residents short of water for 8 days",
+  "trigger": "Pipeline laid three months earlier by Jal Nigam's Construction & Design Services (C&DS) unit ruptured at five places during testing of a new (third) tubewell; pipeline had not been tested before activation",
+  "chain": [
+   "Pipeline ruptured at five locations during testing",
+   "About 18,000 residents faced severe water shortage for 8 days; supply reduced to ~20 minutes each morning at low pressure",
+   "More than 25 families vacated apartments"
+  ],
+  "systems": [
+   "water supply",
+   "buildings"
+  ],
+  "departments": "UP Jal Nigam (C&DS unit, Lucknow), KDA",
+  "impact": "~18,000 residents; 8 days shortage; >25 families vacated; pipeline broke at 5 places",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/the-fountain-of-corruption-of-jal-nigam-burst-in-shatabdi-nagar-the-pipeline-laid-three-months-ago-broke-at-f-2024-04-11",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-009",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2024-05-21",
+  "place": "Barra-6 (Mahavir Chowk, green belt); affected: Nirala Nagar, Barra 2-8, Saket Nagar, Govind Nagar, Usmanpur, Gujaini",
+  "summary": "Metro excavation damages 900mm water main at Barra-6; 50 localities without water ~50 hours, FIR against Metro",
+  "trigger": "900mm water pipeline damaged during metro excavation work in green belt",
+  "chain": [
+   "900mm pipeline damaged by metro excavation",
+   "Complete water supply shutdown in ~50 localities for ~50 hours",
+   "Residents relied on neighbours' submersibles and hand pumps; tankers deployed to some areas",
+   "900 mm pipeline damaged during metro digging",
+   "Water supply halted in about 50 localities for ~50 hours",
+   "Residents relied on neighbours' submersibles/hand pumps; tankers deployed",
+   "Temporary pipeline repair; supply resumed",
+   "Water department filed complaint/FIR against metro"
+  ],
+  "systems": [
+   "water supply",
+   "other"
+  ],
+  "departments": "Jalkal Vibhag (water supply department), UPMRC / Kanpur Metro, Jalkal (water supply department), UPMRC",
+  "impact": "50 localities; ~50 hours outage; 900mm main",
+  "sources": 1,
+  "sourceUrl": "https://www.timesnowhindi.com/cities/kanpur-news/water-supply-resume-in-50-localities-after-repairing-of-broken-water-pipeline-in-kanpur-article-110299822",
+  "publisher": "Times Now Navbharat (Hindi)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-010",
+  "type": "Power outage",
+  "date": "2024-06-23",
+  "place": "Swarup Nagar, Ashok Nagar, Harsh Nagar, Vijay Nagar, Dada Nagar, Beconganj, Shastri Nagar, Vinayakpur, Gurudev Palace area, Barra, Arya Nagar and others",
+  "summary": "Power crisis on a summer Sunday: cable faults hit Medical College and water-works feeders; ~100 localities without power 4-8 h",
+  "trigger": "Underground cable faults, transformer damage, HT line failures, emergency transformer maintenance",
+  "chain": [
+   "Underground cable faults affecting Medical College feeder and water-authority (Jal Sansthan) feeders",
+   "Transformer damage and HT line failures at substations; frequent tripping",
+   "About one-third of city / ~100 localities without power for 4-8 hours; residents 'soaked in sweat'",
+   "Scheduled cuts announced for Monday 8 AM-12 noon for maintenance"
+  ],
+  "systems": [
+   "power",
+   "health/hospital",
+   "water supply"
+  ],
+  "departments": "KESCO (media officer Shrikant)",
+  "impact": "~100 localities; 4-8 h outages",
+  "sources": 1,
+  "sourceUrl": "https://www.amritvichar.com/article/475826/kanpur-news-one-third-of-the-city-boiled-due-to",
+  "publisher": "Amrit Vichar",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-011",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2024-07-12",
+  "place": "Sarvodaya Nagar near Ratandeep Hospital (Amar Ujala); Rawatpur Crossing–Devki Chauraha road (Amrit Vichar); affected: Barra, Saket Nagar, Nirala Nagar, Gaushala, Usmanpur, Kidwai Nagar, Vijay Nagar, Kakadeo, Govind Nagar, Nawabganj, Vishnupuri, Company Bagh, Azad Nagar, Rawatpur and others",
+  "summary": "Ganga Barrage main rising line bursts at Sarvodaya Nagar/Rawatpur; road caves in, supply cut to south Kanpur for 3-4 days",
+  "trigger": "Underground main (rising) pipeline from Ganga Barrage WTP ruptured; Amrit Vichar says a leak at the spot suddenly burst under pressure",
+  "chain": [
+   "10-12 ft water fountain; waterlogging",
+   "Road caved in: 40 ft wide x 10 ft deep crater (Amar Ujala) / road sank over 15 ft radius (Amrit Vichar)",
+   "Traffic movement affected ('आवागमन प्रभावित'); crater barricaded",
+   "Over 1 crore litres wasted in ~1.5 hours",
+   "Ganga Barrage WTP supply shut; south Kanpur supply suspended till 15 July"
+  ],
+  "systems": [
+   "water supply",
+   "roads/traffic"
+  ],
+  "departments": "UP Jal Nigam",
+  "impact": "Amar Ujala: 2.5 lakh population without water 3 days, >25 localities, >1 crore litres lost; Amrit Vichar: 50 localities, ~10 lakh people, 6 crore litres/day barrage supply halted; Times Now: ~25 lakh residents (as summarised)",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/water-crisis-pipeline-burst-in-sarvodayanagar-2-5-lakh-population-will-not-get-water-for-three-days-2024-07-13",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-012",
+  "type": "Power outage",
+  "date": "2024-09-13",
+  "place": "Kidwai Nagar (H-Block), Sarvodaya Nagar, Naubasta, Usmanpur, Juhi Safed Colony, Gwaltoli (near Commissioner's office), Sanjay Van Road, Mirpur Harding Road, Govind Nagar feeder",
+  "summary": "Storm topples trees onto lines, 12 KESCO substations down overnight; pumps stop, water crisis for ~10 lakh; cable fire near Commissioner office",
+  "trigger": "Storm and heavy rain; trees fell on power wires",
+  "chain": [
+   "Trees fell on wires; 12 KESCO substations lost supply overnight",
+   "Pumps that depend on electricity stopped, water supply crisis",
+   "At Gwaltoli a falling tree hit underground cables near the Commissioner's office, causing a cable fire, controlled by the fire brigade",
+   "Trees blocked roads at Sanjay Van Road and Mirpur Harding Road; power restored by early morning",
+   "Govind Nagar feeder tripping kept power off 10 AM-9 PM; Kidwai Nagar H-Block 12-4 PM"
+  ],
+  "systems": [
+   "power",
+   "water supply",
+   "roads/traffic",
+   "fire/rescue"
+  ],
+  "departments": "KESCO, Fire brigade",
+  "impact": "About 10 lakh (1 million) population affected; 12 substations down",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/trees-fell-on-wires-due-to-storm-and-rain-water-crisis-also-due-to-power-failure-10-lakh-population-affected-2024-09-13",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-013",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2024-10-15",
+  "place": "Parade Ramlila Ground road (Parade to Bada Chauraha)",
+  "summary": "Road near Parade Ramlila ground built by Metro in four days caves in over sewer chamber",
+  "trigger": "Sewer chamber beneath hastily built temporary road caused collapse",
+  "chain": [
+   "4 ft wide, 5 ft deep pit formed in road",
+   "Traffic disrupted; road partly blocked with plastic barricading"
+  ],
+  "systems": [
+   "sewer",
+   "roads/traffic"
+  ],
+  "departments": "Kanpur Metro (UPMRC)",
+  "impact": "Pit 4 ft wide x 5 ft deep",
+  "sources": 1,
+  "sourceUrl": "https://www.amritvichar.com/article/499902/the-road-in-kanpur-was-built-in-four-days-and",
+  "publisher": "Amrit Vichar",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-014",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2024-11-30",
+  "place": "Near Fazalganj Fire Station, metro Corridor-2 route (CSA–Barra-8 via Vijay Nagar); southern Kanpur",
+  "summary": "Metro Corridor-2 excavation breaks main pipeline near Fazalganj fire station; road flooded, fire station waterlogged, south Kanpur supply cut 4 days",
+  "trigger": "UPMRC excavation for Corridor-2 elevated track damaged main water pipeline",
+  "chain": [
+   "Main pipeline broken by metro excavation",
+   "Over 1 crore litres spilled; road looked like a canal",
+   "Fazalganj fire station flooded",
+   "Traffic disrupted",
+   "Supply to southern area suspended for 4 days from 2 Dec",
+   "Main water pipeline damaged by metro excavation",
+   "Supply started from Ganga Barrage plant; damaged line burst, fountain from chamber",
+   "Road waterlogged 'like a canal', traffic disrupted; Fazalganj fire station flooded",
+   "Supply shut off",
+   "Water kept flowing until 1:30 PM; >1 crore litres lost",
+   "Southern zone (25 localities) without water supply for 4 days during repair"
+  ],
+  "systems": [
+   "water supply",
+   "roads/traffic",
+   "fire/rescue",
+   "other"
+  ],
+  "departments": "UP Jal Nigam, UPMRC (Metro), Home Guard, UPMRC, Jal Nigam (EE Ajmal Husain)",
+  "impact": ">1 crore litres wasted; southern area without supply 4 days",
+  "sources": 2,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-metro-broke-the-main-pipeline-water-shortage-in-the-southern-area-2024-12-01",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-015",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2025-01-31",
+  "place": "Vijay Nagar Galla Mandi; southern Kanpur (Barrage WTP supply zone)",
+  "summary": "Metro breaks main pipeline near Galla Mandi during shifting; ~2.5 lakh south Kanpur residents short of water",
+  "trigger": "Negligence by UPMRC during pipeline shifting for Metro Corridor-2 (CSA–Barra-8)",
+  "chain": [
+   "Main pipeline broken during shifting",
+   "Supply from Barrage WTP to southern Kanpur disrupted; ~2.5 lakh residents affected"
+  ],
+  "systems": [
+   "water supply",
+   "other"
+  ],
+  "departments": "UPMRC, UP Jal Nigam",
+  "impact": "~2.5 lakh residents",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-metro-broke-the-main-pipeline-near-galla-mandi-2025-02-02",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-016",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2025-02-19",
+  "place": "Juhi Garha, Hamirpur Road (South Zone); affected: Baradevi, Karpatri Nagar, Ludhaura, Sant Ravidas Nagar, Juhi, Natwan Tola and others",
+  "summary": "Metro sewer-chamber excavation ruptures two water lines at Juhi Garha; 24 localities without water two days",
+  "trigger": "Metro Corporation workers constructing a sewage chamber dug a 7 ft deep, 20 ft wide pit that ruptured two water lines",
+  "chain": [
+   "Jal Nigam 150mm main from Rajiv Gandhi Park (Baradevi) and 250mm Ganga Barrage supply line ruptured",
+   "24 localities (~30,000 people) without water for two days"
+  ],
+  "systems": [
+   "water supply",
+   "sewer",
+   "other"
+  ],
+  "departments": "UP Jal Nigam, Metro Corporation (UPMRC)",
+  "impact": "~30,000 people; 24 localities; 2 days",
+  "sources": 1,
+  "sourceUrl": "https://www.amritvichar.com/article/523831/kanpur-in-the-supply-pit-in-the-broken-drinking-water",
+  "publisher": "Amrit Vichar",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-017",
+  "type": "Flood / waterlogging",
+  "date": "2025-04-10",
+  "place": "Rawatpur Station (in front of), Kanpur; 'several areas' waterlogged",
+  "summary": "Unseasonal heavy rain waterlogs Rawatpur Station area; Roadways bus stuck in mud causes severe jam",
+  "trigger": "Unseasonal heavy rain (बेमौसम तेज बारिश)",
+  "chain": [
+   "Waterlogging in several areas of the city",
+   "Waterlogging in front of Rawatpur Station turned the road to mud",
+   "A UPSRTC Roadways bus got stuck in the mud",
+   "Severe traffic jam developed"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "other"
+  ],
+  "departments": "Roadways (bus)",
+  "impact": "",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-kanapara-ma-bhara-brasha-ka-btha-jalbharava-kaca-ma-fasa-radavaja-bsa-lga-bhayakara-jama-2025-04-10",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-018",
+  "type": "Fire",
+  "date": "2025-05-04",
+  "place": "Premnagar, Chamanganj police station area (densely populated), six-storey building with ground-floor shoe factory and warehouse",
+  "summary": "Chamanganj/Premnagar six-storey shoe factory building fire kills family of five; SDRF called, nearby buildings evacuated",
+  "trigger": "Suspected short circuit in ground-floor shoe factory",
+  "chain": [
+   "Fire in ground-floor shoe factory spreads through six-storey building; chemical fumes from leather/adhesive",
+   "Five family members trapped",
+   "35 fire vehicles deployed; firefighters break walls with hammers",
+   "SDRF called for rescue",
+   "Police from over a dozen stations deployed; ~200 m perimeter sealed; nearby buildings evacuated",
+   "Smoke enters nearby homes via running fans/coolers",
+   "Charred bodies recovered",
+   "Building developed cracks"
+  ],
+  "systems": [
+   "buildings",
+   "fire/rescue",
+   "health/hospital",
+   "roads/traffic"
+  ],
+  "departments": "Fire Service (CFO Deepak Sharma), Police (ADCP Central Rajesh Srivastava), SDRF, District Admin (ADM Rajesh Singh), Mayor Pramila Pandey",
+  "impact": "5 dead (shoe trader Danish, wife Nazneen, three daughters); Zee reported 5 others sent to hospital in critical condition",
+  "sources": 5,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-fire-broke-out-in-a-six-storey-building-in-the-chaman-ganj-area-of-the-city-2025-05-05",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-019",
+  "type": "Fire",
+  "date": "2025-05-13",
+  "place": "Near Galla Mandi, Collectorganj, Kanpur",
+  "summary": "Chemical godown fire near Galla Mandi, Collectorganj: area power cut and traffic diverted",
+  "trigger": "Fire in chemical godown (godowns reportedly built on illegally occupied land, per eyewitnesses)",
+  "chain": [
+   "Fire in chemical godown spreads within minutes; explosions heard; flames/smoke visible for kilometres",
+   "More than half a dozen fire tenders reach site",
+   "Electricity of the area cut given seriousness of incident",
+   "Traffic diverted to control the situation",
+   "Local administration and police present"
+  ],
+  "systems": [
+   "power",
+   "roads/traffic",
+   "buildings",
+   "fire/rescue"
+  ],
+  "departments": "Fire Service, Police, Local administration",
+  "impact": "Several shops affected; no deaths reported initially",
+  "sources": 1,
+  "sourceUrl": "https://www.kisantak.in/knowledge/story/fire-in-galla-mandi-in-kanpur-fire-brigade-team-on-spot-more-details-awaited-1212889-2025-05-13",
+  "publisher": "Kisan Tak (India Today group)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-020",
+  "type": "Power outage",
+  "date": "2025-05-15",
+  "place": "Barasirahi KESCO substation, Kalyanpur; Mirzapur, Kalyanpur Khurd, Kalyanpur Kalan, Guba Garden, Panki Road",
+  "summary": "Three days of cuts in Kalyanpur; residents and traders surround Barasirahi substation, police called",
+  "trigger": "Repeated shutdowns for ABC (aerial bunched cable) line replacement work",
+  "chain": [
+   "Power cuts over three days in severe heat; on 15 May power went off ~7 PM until midnight",
+   "Residents and traders (led by a Kalyanpur youth industry-trade association) surrounded the substation",
+   "Police called to the protest"
+  ],
+  "systems": [
+   "power",
+   "other"
+  ],
+  "departments": "KESCO, Police",
+  "impact": "Three days of cuts",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/people-troubled-by-power-cuts-created-a-ruckus-at-the-substation-kanpur-news-c-362-1-ka11006-123801-2025-05-16",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-023",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2025-06-30",
+  "place": "Brahm Nagar Chauraha (main); Jawahar Nagar (near blind school gate); Swaroop Nagar",
+  "summary": "Heavy rain collapses Daat nala at Brahm Nagar; road craters at three spots, trees fall, KESCO lines to be shifted",
+  "trigger": "Heavy rain; underground Daat (brick arch) nala collapsed",
+  "chain": [
+   "~10 ft crater at Brahm Nagar; 5 ft at Jawahar Nagar; 3 ft at Swaroop Nagar",
+   "Trees fell at Brahm Nagar due to road collapse",
+   "Routes barricaded / cordoned",
+   "Overhead KESCO electric lines required shifting"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "power"
+  ],
+  "departments": "Kanpur Nagar Nigam, Mayor (Pramila Pandey), KESCO",
+  "impact": "3 sites; crater depths 10, 5, 3 ft",
+  "sources": 1,
+  "sourceUrl": "https://abcnews.media/kanpur-heavy-rains-trouble-on-the-road-dot-nala-collapsed-in-brahmanagar-trees-fell-due-to-road-collapse-road-collapsed-at-two-more-places/",
+  "publisher": "ABC News (abcnews.media, Hindi local portal)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-025",
+  "type": "Flood / waterlogging",
+  "date": "2025-08-04",
+  "place": "City-wide: 100+ localities incl. Jarib Chowki, Gandhinagar, Khalasi Line, Rambagh, Kaushalpuri, Saket Nagar, Gujaini, Dabauli, Rawatpur, Swaroop Nagar, Jawahar Nagar, Ramadevi, Yashodanagar, Kidwai Nagar, Jarauli, Shyamnagar, Kalyanpur, Panki, Govind Nagar/Chawla Market, Nandlal Chauraha, Motijheel, Gwaltoli, Barra (Vishwa Bank), Fazalganj, Dadanagar, Jajmau; Kanpur Central station; Wendy School",
+  "summary": "72 mm overnight rain floods 100+ localities; 14 KESCO substations waterlogged, 6-7 h power cuts, rail tracks flooded, schools/factories hit, death in Jajmau",
+  "trigger": "Heavy overnight rain, 72 mm (season's highest to date)",
+  "chain": [
+   "Waterlogging (1-2 ft) in 100+ localities, residential and industrial",
+   "14 KESCO substations waterlogged and 30+ substations faulted; tree branches fell on 11 kV/HT lines disrupting 14 feeders",
+   "Power supply disrupted 6-7 hours",
+   "Drinking water supply disrupted",
+   "Water on track at Kanpur Central during rain; signal system problems; trains stopped and run at Bhimsen, Panki Dham, Govindpuri, Bhaupur, Gangapul, Gangaghat etc.",
+   "Parents carried children through waterlogging in front of Wendy School; school closures reported",
+   "Municipal garbage collection and street sweeping suspended",
+   "Factory operations halted, commerce disrupted",
+   "Mound (tila) collapsed in Jajmau burying a couple; woman died"
+  ],
+  "systems": [
+   "drainage",
+   "power",
+   "water supply",
+   "rail",
+   "education",
+   "roads/traffic",
+   "buildings",
+   "other"
+  ],
+  "departments": "KESCO, Kanpur Nagar Nigam, Meteorological Department, Railways (Central station, train operations)",
+  "impact": "72 mm rain; 100+ localities waterlogged; 14 substations flooded, 30+ faulted, 14 feeders hit; power cut 6-7 h; 1 death in Jajmau (article also reports 2 deaths in Ghatampur, which is outside the city)",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-72-mm-rain-filled-water-in-more-than-100-localities-power-was-cut-for-six-to-seven-hours-2025-08-05",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-026",
+  "type": "Flood / waterlogging",
+  "date": "2025-08-05",
+  "place": "VIP Road, Chunniganj, Jareeb Chowki, Tatmil Chauraha, Ghantaghar, Medical College bridge, Govindpuri, Dadanagar bridge, GT Road, Mall Road, Birhana Road, Meston Road, Rail Bazar, Rambagh, Arya Nagar, Sharda Nagar, Fazalganj, Panki, Kalyanpur crossing, Bithoor Road, Swaroop Nagar, Juhi Khalwa bridge",
+  "summary": "Day after heavy rain: waterlogging plus tree fall on Juhi Khalwa bridge gridlocks whole city",
+  "trigger": "Heavy rain causing waterlogging; tree fall; damaged roads",
+  "chain": [
+   "Waterlogging in many areas",
+   "Tree fell on Juhi Khalwa bridge blocking traffic",
+   "Traffic diverted to alternate routes; congestion multiplied on Dadanagar bridge and other roads",
+   "Afternoon rain worsened conditions; whole city gripped by jam"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "other"
+  ],
+  "departments": "Police (traffic management)",
+  "impact": "",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-city-is-stuck-in-jam-traffic-system-collapsed-waterlogging-and-vehicles-suddenly-came-out-2025-08-06",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-027",
+  "type": "Flood / waterlogging",
+  "date": "2025-09-02",
+  "place": "Dada Nagar, Panki Sites 1-5, Fazalganj industrial area, Ruma, Steel Nagar, Trade Nagar",
+  "summary": "Morning downpour floods industrial areas 3-4 ft; 10,000+ units hit, shift fails to start",
+  "trigger": "Heavy rain (झमाझम बरसात)",
+  "chain": [
+   "3-4 ft water inside factories in industrial areas",
+   "Raw and finished goods submerged",
+   "Morning shift (7 AM) could not start; over 50% employee absence",
+   "Production disrupted"
+  ],
+  "systems": [
+   "drainage",
+   "buildings",
+   "other"
+  ],
+  "departments": "",
+  "impact": "10,000+ units affected; water 3-4 ft; >50% worker absenteeism",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-rain-wreaked-havoc-in-the-industrial-area-factories-filled-with-water-up-to-three-four-feet-2025-09-02",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-028",
+  "type": "Fire",
+  "date": "2025-10-10",
+  "place": "Panki Padav, near Maurang Mandi, Panki police station area, Kanpur",
+  "summary": "Fire at L&T/Metro warehouse in Panki spreads to coaching hostel and nearby houses",
+  "trigger": "Suspected short circuit; chemicals stored in yard intensified the blaze",
+  "chain": [
+   "Fire in warehouse storing Metro materials (L&T / Metro company)",
+   "Sparks/fire spread to adjacent coaching students' hostel (rooftop water tank and belongings burnt) and ~10 neighbouring houses; homes evacuated",
+   "Adjacent tractor agency destroyed (Times Now)",
+   "8 fire tenders from Panki, Kidwai Nagar, Fazalganj stations",
+   "Fire controlled after ~5 hours"
+  ],
+  "systems": [
+   "rail",
+   "buildings",
+   "education",
+   "fire/rescue"
+  ],
+  "departments": "Fire Service, Police, Administrative authorities, Metro organisation / L&T",
+  "impact": "Goods worth ~Rs 10 crore destroyed; hostel water tank and belongings, ~10 nearby houses affected; no casualties",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-fire-massive-fire-at-l-t-warehouse-goods-worth-around-rs-10-crore-destroyed-no-casualties-reported-2025-10-11",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-029",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2025-12-16",
+  "place": "Makrabatganj slope, feeder main between Company Bagh and Phool Bagh (intermediate pumping station, Phool Bagh)",
+  "summary": "Main Barrage feeder pipeline breaks on Makrabatganj slope; water flows on roads/drains for a week, 2.5 lakh people without supply 24-26 Dec",
+  "trigger": "Rupture in the primary feeder main from Ganga Barrage",
+  "chain": [
+   "Water leaking onto road and into drains for ~7 days (~25 lakh litres/day per summary)",
+   "Excavation on 23 Dec for repair",
+   "Supply from Company Bagh chauraha toward city shut 24-26 Dec; ~2.5 lakh people affected; southern area normal"
+  ],
+  "systems": [
+   "water supply",
+   "roads/traffic",
+   "drainage"
+  ],
+  "departments": "UP Jal Nigam (Sub-Engineer Yogendra Kumar)",
+  "impact": "~2.5 lakh people; 3-day shutdown",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-the-main-pipeline-has-burst-in-makrabatganj-water-supply-will-be-disrupted-from-today-until-the-26-2025-12-23",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-030",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2026-01-28",
+  "place": "Brahm Nagar",
+  "summary": "Daat nala collapses again at Brahm Nagar after rain; road cut, 2-3 km detours, cracks in houses, 7 vacate notices",
+  "trigger": "Daat nala collapse (cause not stated; small hole reported months earlier and ignored); rain worsened it",
+  "chain": [
+   "Road over nala collapsed",
+   "Residents detour 2-3 km; access to Kanpur Court, Civil Lines, northern areas disrupted",
+   "Cracks in nearby homes; 7 homeowners served notice to vacate"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "buildings"
+  ],
+  "departments": "Kanpur Nagar Nigam, UP Jal Nigam",
+  "impact": "7 houses; 2-3 km detour",
+  "sources": 1,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/difficulty-due-to-collapse-of-dot-drain-in-brahmanagar-in-kanpur-uttar-pradesh-news-ups26012805795",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-031",
+  "type": "Road accident / blockage",
+  "date": "2026-02-08",
+  "place": "VIP Road near Rev-3 Mall, Gwaltoli area",
+  "summary": "Speeding Lamborghini hits auto, motorcycle and pedestrians on VIP Road, crashes into electric pole; 6 injured",
+  "trigger": "Speeding Lamborghini (allegedly driven by Shivam Mishra)",
+  "chain": [
+   "Car hit an auto-rickshaw, then a parked Royal Enfield; rider flung ~10 ft",
+   "Car dragged motorcycle and hit an electric pole",
+   "Six injured taken to private hospital",
+   "Vehicle seized; FIR to be registered"
+  ],
+  "systems": [
+   "roads/traffic",
+   "health/hospital",
+   "power"
+  ],
+  "departments": "Police (DCP Central Atul Kumar Srivastava), Private hospital",
+  "impact": "6 injured",
+  "sources": 1,
+  "sourceUrl": "https://www.deccanherald.com/amp/story/india/uttar-pradesh/up-businessmans-son-ploughs-lamborghini-into-people-in-kanpur-six-injured-3891470",
+  "publisher": "Deccan Herald",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-033",
+  "type": "Road accident / blockage",
+  "date": "2026-04-08",
+  "place": "Fazalganj Industrial Area, Navin Nagar, Kakadeo, Kalyanpur, Kidwai Nagar",
+  "summary": "Storm fells trees and electric poles on roads in Fazalganj industrial area and other areas; roads blocked, ~5 lakh without power",
+  "trigger": "Severe storm and heavy rain",
+  "chain": [
+   "Trees fell across main roads in industrial area",
+   "Electric poles collapsed",
+   "Roads blocked, traffic hindered",
+   "About 5 lakh residents faced power outage",
+   "KESCO tree trimming at substations and pole repair; MD warns of action for negligence"
+  ],
+  "systems": [
+   "roads/traffic",
+   "power"
+  ],
+  "departments": "KESCO (MD Samual Paul), FIETA (industrial association)",
+  "impact": "~500,000 residents without power (as reported)",
+  "sources": 1,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/trees-and-pillars-fell-on-the-road-in-kanpur-industrial-area-uttar-pradesh-news-ups26040806643",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-034",
+  "type": "Power outage",
+  "date": "2026-05-19",
+  "place": "Barra (Barra-2 / Vidyut Colony substation, Shastri Chowk), Karrahi, Karrahi Road (Gulabi Building to Tapu Chauraha), Gunjan Vihar, Vishwa Bank Barra, Thakur Chauraha substation, Daroga Guest House Chowk, Gujaini, Daboli, Tatya Tope Nagar, Naubasta Hansapuram",
+  "summary": "South Kanpur (Barra/Karrahi/Gujaini) multi-day power crisis after CUGL digging cut main underground cable during record 792 MW demand; water supply hit, substations locked and stoned, police deployed, 4 detained",
+  "trigger": "CUGL (gas company) damaged the main underground cable (reported as '220 kVA') during digging; at the same time record heat-driven demand (792 MW, temps 44 C+) overloaded a 400 kVA transformer, with ABC cable faults and repeated tripping",
+  "chain": [
+   "CUGL digging damaged the main underground cable feeding south Kanpur; KESCO announced 4-6 days of load restrictions and shutdowns for Barra/Gujaini area",
+   "ABC cable fault at Karrahi; power off 36+ hours in Barra/Karrahi",
+   "400 kVA transformer overloaded in heat; power cut every ~30 minutes for 48+ hours, ~5 lakh residents affected",
+   "Water supply disrupted because there was no power for pumps",
+   "Residents surrounded Thakur Chauraha substation at night; police arrived",
+   "150-200 residents put up barriers and sat in on Karrahi Road (road blockade)",
+   "Hundreds from Barra power colony locked the KESCO substation office gates and officers' rooms; Barra police deployed",
+   "Crowd stoned Barra Vidyut Colony substation and smashed chairs; a KESCO worker held ~3 hours; police used lathis, 4 detained"
+  ],
+  "systems": [
+   "power",
+   "water supply",
+   "roads/traffic",
+   "other"
+  ],
+  "departments": "KESCO, Police (Barra police station), CUGL (Central UP Gas Ltd)",
+  "impact": "Around 5 lakh residents affected (Karrahi article); outages 36-48+ hours in places, 4 consecutive days in Barra; record demand 792 MW; 4 detained",
+  "sources": 7,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-power-crisis-major-unrest-at-barra-sub-station-angry-consumers-lock-up-kesco-office-police-deployed-2026-05-19",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-036",
+  "type": "Fire",
+  "date": "2026-05-25",
+  "place": "Near Jugul Palace, Chakeri police station area, Kanpur",
+  "summary": "Transformer fire in Chakeri causes overnight power outage in heat",
+  "trigger": "Transformer emitted sparks with a loud noise and caught fire (cause undetermined)",
+  "chain": [
+   "Transformer bursts into flames; panic in locality",
+   "Residents call fire brigade and electricity department, which reach the spot",
+   "Supply to surrounding locality cut for entire night",
+   "Residents suffer in intense heat and humidity"
+  ],
+  "systems": [
+   "power",
+   "fire/rescue"
+  ],
+  "departments": "Fire Service, Electricity department",
+  "impact": "Overnight outage for surrounding locality; number of households not stated",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-transformer-blaze-triggers-nightlong-power-crisis-in-chakeri-2026-05-25",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-037",
+  "type": "Flood / waterlogging",
+  "date": "2026-07-03",
+  "place": "VIP Road, Gwaltoli, Govind Nagar/Chawla Market chauraha, Panki, Sisamau, Rafaka; Devki chauraha (Kakadeo), Narendra Mohan bridge, Govindpuri bridge, Kidwai Nagar, Jarib Chowki, Tatmil chauraha; Hallet (LLR) hospital",
+  "summary": "First monsoon rain: 80 locations waterlogged, Metro barricades aggravate jams, Hallet hospital premises flooded",
+  "trigger": "First, sudden heavy monsoon rain",
+  "chain": [
+   "Waterlogging at ~80 locations; major and minor drains overflowed",
+   "Metro tin barricades at Devki chauraha obstructed flow",
+   "Hours-long traffic jams at major intersections; vehicles broke down mid-road",
+   "Hallet hospital premises waterlogged; patients waded knee-deep water; traffic affected in low-lying areas",
+   "70 complaints to Nagar Nigam control room; 8 resolved immediately, others in 2-4 h"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "health/hospital",
+   "other"
+  ],
+  "departments": "Kanpur Nagar Nigam, UP Metro / Metro department, GSVM Medical College (Hallet), Health Department",
+  "impact": "~80 locations waterlogged; 70 complaints; jams lasting hours",
+  "sources": 3,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/waterlogging-on-kanpur-roads-due-to-rain-bjp-mla-issues-these-instructions-to-officials-ups26070304325",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-038",
+  "type": "Fire",
+  "date": "2026-07-15",
+  "place": "Lala Lajpat Rai (Hallet) Hospital, GSVM Medical College; ENT department electric panel, adjoining ultrasound and X-ray centres",
+  "summary": "Electrical panel fire in LLR (Hallet) Hospital ENT dept; 100+ evacuated, X-ray and ultrasound suspended",
+  "trigger": "Short circuit in ENT department electrical panel",
+  "chain": [
+   "Short circuit and fire in ENT electrical panel",
+   "Smoke spreads to adjoining ultrasound and X-ray centres",
+   "Hospital staff and security evacuate 100+ patients and attendants",
+   "Fire put out within minutes with extinguishers",
+   "Ultrasound and X-ray services temporarily suspended",
+   "Technical investigation ordered"
+  ],
+  "systems": [
+   "power",
+   "health/hospital"
+  ],
+  "departments": "LLR (Hallet) Hospital / GSVM administration (Prof. Saurabh Agarwal), Hospital security",
+  "impact": "100+ patients/attendants evacuated; diagnostic services suspended temporarily; no casualties",
+  "sources": 2,
+  "sourceUrl": "https://www.amritvichar.com/article/587662/kanpur-news--fire-breaks-out-in-the-electrical-panel-at-hallet-hospital--operations-in-the-ent-and-radiology-departments-come-to-a-halt",
+  "publisher": "Amrit Vichar",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-039",
+  "type": "Power outage",
+  "date": "2026-07-21",
+  "place": "Awas Vikas-1, Kailash Vihar, Kalyanpur, Ahirwan, Yadav Nagar, New Shivli, Govind Nagar, Panki, Lajpat Nagar, Darshanpurwa, Fazalganj, Jarib Chowki, Bhannanapurwa, Harrisganj, JK Colony, Jajmau, Krishna Nagar, Transport Nagar, Singhpur Bithoor, Awadhpuri; transformer failures around Ghantaghar/Express Road, Pashupati Nagar, Shyam Nagar, Yashoda Nagar",
+  "summary": "Rain-induced faults cause up to 9-hour outages in 72+ localities; water supply disrupted as pumps fail",
+  "trigger": "Faults and tripping during rain on Friday and Monday; transformer failures at several substations",
+  "chain": [
+   "Faults/tripping and transformer failures; outages of 8-9 hours in worst areas, 5-6 hours elsewhere, 72+ localities",
+   "Water supply disrupted in affected zones because pumps failed",
+   "Consumers complained on toll-free 1912"
+  ],
+  "systems": [
+   "power",
+   "water supply"
+  ],
+  "departments": "KESCO",
+  "impact": "72+ localities; up to 8-9 hours without power",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/rain-induced-faults-caused-a-nine-hour-power-outage-residents-in-over-72-areas-grappled-with-the-electricity-crisis-kanpur-news-c-362-1-ka11006-152226-2026-07-21",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-040",
+  "type": "Flood / waterlogging",
+  "date": "2026-07-25",
+  "place": "Parmat temple road, Parade, Mall Road, Govind Nagar, Govindpuri bridge, Juhi Khalwa bridge, Fazalganj crossing, Lajpat Nagar, Pandu Nagar, Swaroop Nagar, Nirala Nagar, Kidwai Nagar, PAC chauraha",
+  "summary": "Rain submerges roads hiding open potholes/manholes; riders fall, ambulance stuck, Juhi Khalwa bridge closed, water enters homes and shops",
+  "trigger": "Heavy rain",
+  "chain": [
+   "Roads flooded; open potholes and manholes became invisible",
+   "Motorcyclists fell into submerged pits; a scooter sank into a crater near Parmat",
+   "Ambulance trapped at Fazalganj",
+   "Heavy congestion HDFC Bank to Fazalganj; Juhi Khalwa bridge closed with barriers",
+   "Water entered homes in Nirala Nagar, Kidwai Nagar and dozens of shops at PAC chauraha"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "health/hospital",
+   "buildings",
+   "sewer"
+  ],
+  "departments": "Kanpur Nagar Nigam (pre-monsoon drain-cleaning claims)",
+  "impact": "",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-submerged-in-rain-vehicles-stuck-in-waterlogging-and-traffic-jams-water-enters-homes-and-shops-2026-07-26",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-041",
+  "type": "Flood / waterlogging",
+  "date": "2026-07-27",
+  "place": "Hallet hospital to Moti Jheel, Afeem Kothi, Jarib Chowki, Tatmil, Gol Chauraha, Rawatpur, P Road; Swaroop Nagar police station area",
+  "summary": "Post-rain gridlock from Hallet to Motijheel traps ambulances and school traffic",
+  "trigger": "Heavy rain",
+  "chain": [
+   "After rain, traffic system collapsed; queue from Hallet to Moti Jheel",
+   "Ambulances carrying patients stuck despite sirens",
+   "School dismissal coincided with peak jam",
+   "Renewed heavy rain; riders parked haphazardly for shelter, jam spread to Afeem Kothi, Jarib Chowki, Rawatpur"
+  ],
+  "systems": [
+   "roads/traffic",
+   "health/hospital",
+   "education"
+  ],
+  "departments": "Police (Swaroop Nagar police station)",
+  "impact": "",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/traffic-crawls-after-rain-massive-jam-from-hallet-to-moti-jheel-in-kanpur-2026-07-27",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-043",
+  "type": "Other (collapse, heat, gas)",
+  "date": "2026-07-31",
+  "place": "Chandranagar, Sisamau police station area",
+  "summary": "Old dilapidated building/roof collapses in Chandranagar (Sisamau); four trapped, rescued by fire brigade and police, admitted to Hallet",
+  "trigger": "Collapse of old dilapidated building roof",
+  "chain": [
+   "Roof collapsed; four people trapped under debris",
+   "Fire brigade and police rescue operation; all four extracted",
+   "Four seriously injured (incl. two teenage girls) admitted to Hallet hospital"
+  ],
+  "systems": [
+   "buildings",
+   "fire/rescue",
+   "health/hospital"
+  ],
+  "departments": "Fire Service (Damkal), Police, Hallet hospital",
+  "impact": "4 seriously injured",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-roof-collapses-in-kanpur-chandranagar-four-people-trapped-in-debris-fire-brigade-and-police-conduct-rescue-2026-08-01",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-044",
+  "type": "Fire",
+  "date": "2026-08-04",
+  "place": "Near Govindpuri old bridge, Govind Nagar police station area, Kanpur (Gaurav Furniture showroom)",
+  "summary": "Four-storey furniture showroom fire at Govindpuri old bridge; bridge closed as precaution",
+  "trigger": "Suspected short circuit",
+  "chain": [
+   "Fire in four-storey furniture showroom spreads to all floors; smoke visible ~2 km",
+   "About six+ fire vehicles reach on information (Amrit Vichar headline: 10+)",
+   "Old Govindpuri bridge closed/traffic stopped as precaution",
+   "Adjacent shops and buildings evacuated",
+   "Several hours needed to control; showroom almost fully gutted"
+  ],
+  "systems": [
+   "roads/traffic",
+   "buildings",
+   "fire/rescue"
+  ],
+  "departments": "Fire Service, Police",
+  "impact": "Showroom almost completely gutted; losses in lakhs/crores (not firmly quantified); no casualties",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/massive-fire-guts-four-storey-furniture-showroom-in-govindpuri-2026-08-04",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-045",
+  "type": "Flood / waterlogging",
+  "date": "2026-08-05",
+  "place": "Govind Nagar; Kanshiram Hospital and CMO office; power: Swaroop Nagar, Kaushalpuri (Hanuman Park), Karnalganj Bajriya, Om Nagar (Darshanpurwa), Kidwai Nagar, Sarojini Nagar, Tilak Nagar, Shastri Nagar, Sharda Nagar M Block, Ganga Vihar (Jajmau), Lajpat Nagar, Transport Nagar, Barra Vishwa Bank",
+  "summary": "Rain waterlogs Govind Nagar (knee-deep, jams) and Kanshiram Hospital/CMO office; evening tree falls cut power to ~40 localities and hit water supply",
+  "trigger": "Continuous heavy rain",
+  "chain": [
+   "Knee-deep water on Govind Nagar roads; traffic system collapsed, vehicles stalled, long queues",
+   "Heavy waterlogging outside Kanshiram Hospital and CMO office; patients and attendants struggled to move",
+   "Trees fell, damaging poles, wires and transformers; a transformer fell off its platform at Karnalganj Bajriya",
+   "Power outage 4-8 h in ~40 localities",
+   "Water supply disrupted because of evening power cuts",
+   "Trees fell on poles/lines; transformer fell from platform; outages in ~40 localities for 4-8 hours (Om Nagar 8 hours)",
+   "Evening power loss disrupted water supply; residents without drinking water at peak demand hours",
+   "Residents complained via KESCO helpline and social media"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "health/hospital",
+   "power",
+   "water supply"
+  ],
+  "departments": "Kanpur Nagar Nigam (criticised), CMO office, KESCO",
+  "impact": "~50,000 consumers without power for 4-8 hours; ~40 localities",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-waterlogging-and-traffic-jams-in-govind-nagar-knee-deep-water-on-roads-following-rain-2026-08-05",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-046",
+  "type": "Power outage",
+  "date": "2026-08-07",
+  "place": "LLR (Hallet) Hospital, GSVM Medical College - gallery between wards 5 and 6, old building",
+  "summary": "Short circuit in cable during rewiring at LLR (Hallet) Hospital; ward power cut 15-20 minutes, panic among patients",
+  "trigger": "Short circuit in a cable during rewiring work in the old building",
+  "chain": [
+   "Short circuit/smoke in gallery cable between wards 5 and 6",
+   "Technical team cut power to the affected ward for about 15-20 minutes",
+   "Panic among patients (headline); no injuries; services continued"
+  ],
+  "systems": [
+   "power",
+   "health/hospital"
+  ],
+  "departments": "LLR (Hallet) Hospital / GSVM Medical College",
+  "impact": "15-20 minutes without power in the affected ward; no injuries",
+  "sources": 1,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/fire-caused-short-circuit-at-hallet-hospital-in-kanpur-ups26080707206",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-048",
+  "type": "Flood / waterlogging",
+  "date": "2026-08-26",
+  "place": "Kanshiram Hospital, CMO office; Rawatpur - Devki Palace crossing to Gutaiya crossing",
+  "summary": "Rain waterlogs Kanshiram Hospital and CMO office premises and Rawatpur road (Devki Palace-Gutaiya)",
+  "trigger": "Heavy rain / inadequate drainage",
+  "chain": [
+   "Heavy waterlogging inside Kanshiram Hospital and CMO office premises",
+   "Patients and attendants faced major difficulty entering/leaving hospital",
+   "Main road Devki Palace-Gutaiya crossing fully waterlogged; two-wheelers slipped and fell; thousands of commuters affected"
+  ],
+  "systems": [
+   "drainage",
+   "health/hospital",
+   "roads/traffic"
+  ],
+  "departments": "CMO office (affected premises)",
+  "impact": "",
+  "sources": 2,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-waterlogging-at-kanshi-ram-hospital-and-cmo-office-in-kanpur-2026-08-26",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-049",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2026-08-26",
+  "place": "Saraiya chauraha, Jajmau (VIP Road)",
+  "summary": "Sewer-line leak causes 18 ft deep cave-in at Saraiya chauraha, Jajmau after heavy rain; lane closed, homes at risk",
+  "trigger": "Leakage in underground sewer line (Newsgram); heavy overnight rain (84 mm per Aryan Age) eroded sub-surface after earlier pit had been filled with debris by Nagar Nigam Jalkal team",
+  "chain": [
+   "Road caved in: ~3 m wide, 18 ft deep",
+   "Rainwater poured into hole ('waterfall'); waterlogging in surrounding streets",
+   "One traffic lane closed; traffic congestion",
+   "Nine homes/shops' foundations threatened",
+   "Potholes had formed two months earlier; Jalkal filled with debris but leak persisted",
+   "Heavy rain; road caved in, 18-ft deep, ~3 m wide hole",
+   "Floodwater poured into cavity like a waterfall",
+   "Police barricaded area; road closed",
+   "Municipal repairs at Jajmau started from Sunday (per Amar Ujala)"
+  ],
+  "systems": [
+   "sewer",
+   "drainage",
+   "roads/traffic",
+   "buildings"
+  ],
+  "departments": "Kanpur Nagar Nigam (Jalkal team), Police, District Administration, Jalkal, Municipal Corporation (KNN)",
+  "impact": "Crater 18 ft deep x 3 m wide; 9 structures at risk; 84 mm rain",
+  "sources": 4,
+  "sourceUrl": "https://www.newsgram.com/uttar-pradesh/2026/08/27/kanpur-road-caves-in-heavy-rain-18-foot-hole-waterfall",
+  "publisher": "NewsGram",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-050",
+  "type": "Flood / waterlogging",
+  "date": "2026-08-27",
+  "place": "Hallet Hospital (GSVM Medical College)",
+  "summary": "Rain waterlogs Hallet (LLR) hospital campus; OPD roof leaks",
+  "trigger": "Heavy rain",
+  "chain": [
+   "Water accumulated at many spots across hospital premises",
+   "Patients and attendants had difficulty moving",
+   "Water leaked from OPD ceiling"
+  ],
+  "systems": [
+   "drainage",
+   "health/hospital",
+   "buildings"
+  ],
+  "departments": "GSVM Medical College / Hallet hospital (OPD)",
+  "impact": "",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-hallet-hospital-in-disarray-due-to-rain-waterlogging-on-premises-2026-08-27",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-051",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2026-08-27",
+  "place": "Road from Eidgah toward Brahm Nagar chauraha",
+  "summary": "Daat nala collapses on Eidgah–Brahm Nagar road; 10\" and 16\" Jalkal lines burst, two houses at risk, vacate notices",
+  "trigger": "Collapse of Daat nala (drain)",
+  "chain": [
+   "Daat nala and road collapsed",
+   "Jalkal water lines (10 inch and 16 inch) burst; water filled pit and came onto road",
+   "Soil erosion threatens two houses (Ashok Kureel, Abhay Pratap Singh)",
+   "Dot Nala collapsed under road",
+   "10-inch and 16-inch water supply pipelines damaged; water flooded roadway and surrounding area",
+   "Soil erosion threatens two adjacent houses; owners told to vacate",
+   "Water pooling in settlements behind GT Road; pumping continued through Sunday"
+  ],
+  "systems": [
+   "drainage",
+   "water supply",
+   "roads/traffic",
+   "buildings"
+  ],
+  "departments": "Kanpur Nagar Nigam (Zone-4), Jalkal (Zone-1), Nagar Nigam (KNN) Zone 4, Jal Nigam",
+  "impact": "2 houses at risk; 10\" and 16\" mains damaged",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-two-houses-affected-by-the-collapse-of-the-dot-nala-notices-issued-2026-08-30",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-052",
+  "type": "Other (collapse, heat, gas)",
+  "date": "2026-08-28",
+  "place": "Birhana Road, Jauhari Fatak area, Feelkhana police station",
+  "summary": "Old boundary wall collapses in rain onto two mud houses near Jauhari Fatak, Birhana Road; fruit vendor dead, woman critical",
+  "trigger": "Heavy rain; old boundary wall collapsed",
+  "chain": [
+   "Wall collapsed onto two adjacent mud structures; two people trapped",
+   "Police, SDRF and fire brigade extracted both in ~30 min",
+   "Taken to Ursula hospital; Karan Kashyap (27) declared dead",
+   "Usha (60) critically injured, referred to Hallet hospital"
+  ],
+  "systems": [
+   "buildings",
+   "fire/rescue",
+   "health/hospital"
+  ],
+  "departments": "Police, SDRF, Fire Service, Ursula hospital, Hallet hospital",
+  "impact": "1 dead, 1 critically injured",
+  "sources": 1,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/kanpur-heavy-rain-house-and-animal-shelter-collapse-youth-dead-two-rescued-ups26082906101",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-053",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-01",
+  "place": "Panki MIG, Swaroop Nagar (B and C Block), Jajmau old bridge",
+  "summary": "Record 48-hour September rain: Panki MIG and Swaroop Nagar drains overflow, roads submerged; Jajmau old bridge traffic crawls through waterlogged potholes",
+  "trigger": "Overnight heavy rain; 68 mm on 1 Sep and 65.2 mm on 2 Sep (to 5 PM) - 133.2 mm in 48 h, highest September 48-h total in 55 years",
+  "chain": [
+   "Drains and small channels overflowed",
+   "Roads submerged; road and drain indistinguishable",
+   "Two-wheeler riders and pedestrians most affected",
+   "On Jajmau old bridge rainwater filled potholes; vehicles crawled, congestion",
+   "Planned bridge repair (from 1 Sep) postponed for lack of NOC from Unnao district"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic"
+  ],
+  "departments": "Meteorological dept (CSA University), Unnao district (NOC)",
+  "impact": "133.2 mm in 48 h",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/severe-waterlogging-in-panki-mig-area-roads-submerged-after-overnight-rain-2026-09-01",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-054",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-03",
+  "place": "40-shop chauraha/market, Kidwai Nagar to Yashoda Nagar road",
+  "summary": "Collapsed drain submerges 40-shop market on Kidwai Nagar-Yashoda Nagar road; traders protest in water",
+  "trigger": "Drain collapse (नाला धंसा) blocking drainage during rain",
+  "chain": [
+   "Drain collapsed, blocking outflow",
+   "Rainwater accumulated across the area",
+   "About 40 shops submerged; ~2 ft water inside shops; business disrupted",
+   "Traders (Nagar Udyog Vyapar Mandal) protested standing in water"
+  ],
+  "systems": [
+   "drainage",
+   "buildings",
+   "roads/traffic"
+  ],
+  "departments": "",
+  "impact": "~40 shops, ~2 ft water",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/video/uttar-pradesh/kanpur/video-kanpur-drain-collapse-leaves-market-with-40-shops-submerged-traders-protest-while-standing-in-water-2026-09-03",
+  "publisher": "Amar Ujala (video page)",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-055",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-03",
+  "place": "Barra-8 Varun Vihar kachchi basti; Sundar Nagar colony; Gopalpuram; Mehrban Singh Purwa",
+  "summary": "Pandu river rises after record rain: 300 houses flooded in Barra-8 Varun Vihar, backflow through drain into Sundar Nagar, Gopalpuram roads under 2 ft; woman hospitalised at Hallet",
+  "trigger": "Rising Pandu river level (after early-September heavy rain)",
+  "chain": [
+   "Pandu water entered ~300 houses in Barra slum; residents moved belongings",
+   "River water reversed through colony drain into Sundar Nagar causing waterlogging",
+   "Gopalpuram roads under ~2 ft water; movement badly hindered; residents vacating homes",
+   "Elderly woman Vimla Devi nearly drowned; admitted to Hallet hospital in critical condition",
+   "Resident used his tractor to ferry people out"
+  ],
+  "systems": [
+   "drainage",
+   "buildings",
+   "roads/traffic",
+   "health/hospital"
+  ],
+  "departments": "Local administration (expected to provide relief), Hallet hospital",
+  "impact": "~300 houses flooded; 1 person critically ill",
+  "sources": 3,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/pandu-river-water-enters-300-houses-in-barra-situation-reminds-residents-of-2018-flood-2026-09-03",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-056",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-23",
+  "place": "Govindpuri old/new bridges, Govind Nagar, Fazalganj, Vijay Nagar, Jarib Chowki-Kalpi Road, Nandlal chauraha-Chawla-Govind Nagar new bridge, Dadanagar bridges, Mariyampur chauraha, JK Temple, Medical College bridge, Civil Lines, Gutaiya crossing",
+  "summary": "Rain and waterlogging gridlock city bridges all day; ambulances stuck, traffic police 'helpless'",
+  "trigger": "Heavy rain and waterlogging",
+  "chain": [
+   "Multi-directional jams from morning",
+   "Brief afternoon easing, then intense rain renewed gridlock",
+   "Several ambulances trapped (15+ min at Jarib Chowki-Kalpi Road); one needed police help to pass",
+   "Traffic police described as helpless; congestion till late evening"
+  ],
+  "systems": [
+   "drainage",
+   "roads/traffic",
+   "health/hospital"
+  ],
+  "departments": "Traffic Police, Police",
+  "impact": "Journeys of minutes took hours; ambulance delayed 15+ min",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-city-reels-under-gridlock-rain-and-waterlogging-bring-traffic-to-a-crawl-vehicles-inch-along-bridges-2026-09-24",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-058",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-25",
+  "place": "Substation serving Mehrban Singh Purwa, Mardanpur, Kanchanpur, RK Puram, Mohanpuram, Bihari Purwa, Pipauri, Banpurwa",
+  "summary": "Floodwater enters KESCO substation control room; ~2 lakh residents in 7 localities without power for 5 days",
+  "trigger": "Flood water entering substation control room and premises",
+  "chain": [
+   "Floodwater entered substation control room and premises",
+   "Power supply off to ~2 lakh population for ~5 days",
+   "Water pumped out; sandbag embankment built; panels and machines cleaned and dried before restart",
+   "Floodwater entered the substation premises and control room",
+   "Complete power cut to ~2 lakh people in the listed localities for five days",
+   "Water pumped out; restoration pending drying of panels"
+  ],
+  "systems": [
+   "power",
+   "drainage",
+   "buildings"
+  ],
+  "departments": "KESCO",
+  "impact": "~2,00,000 people without power ~5 days",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/kanpur-floodwaters-recede-from-the-control-room-population-of-two-lakh-to-get-electricity-soon-2026-09-30",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-059",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-26",
+  "place": "Gopalpuram (Barra), Varun Vihar, Gopal Nagar, Mauza Jarauli; Composite School World Bank Barra (relief camp); Pipauri/Banpurwa Mazar; Gopalapuram Jarauli Phase-2",
+  "summary": "Pandu river overflows into Barra Gopalpuram (5-7 ft); NDRF rescues 16+ families, 120 evacuated to relief camp; pregnant woman rescued from Pipauri",
+  "trigger": "Three consecutive days of rain causing Pandu river overflow",
+  "chain": [
+   "Water level rose 5-7 ft within hours; ground floors inundated",
+   "Residents trapped, moved to rooftops; belongings lost",
+   "NDRF rescued 16+ families by boat; ~120 people shifted to relief camp at Composite School",
+   "Family with pregnant woman trapped in Pipauri called 1070; NDRF rescued in 25 min; woman needed hospital check-up",
+   "Residents of Gopalapuram forced to commute by boat (resident bought a Rs 3,000 boat)"
+  ],
+  "systems": [
+   "drainage",
+   "buildings",
+   "fire/rescue",
+   "health/hospital",
+   "roads/traffic"
+  ],
+  "departments": "NDRF, Police, District Administration (SDM Sadar), Tehsildar Sadar",
+  "impact": "5-7 ft water; 16+ families rescued; ~120 evacuated",
+  "sources": 3,
+  "sourceUrl": "https://www.etvbharat.com/hi/state/kanpur-pandu-river-overflows-in-kanpur-7-feet-of-water-enters-gopalpuram-in-barra-ndrf-team-rescues-16-families-ups26092701267",
+  "publisher": "ETV Bharat",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-060",
+  "type": "Flood / waterlogging",
+  "date": "2026-09-27",
+  "place": "Awas Vikas-3 (Kalyanpur), Indira Nagar, Ratan Orbit apartments, Panki canal, IIT area/Barasirohi direction",
+  "summary": "Rafaka nala backflow and Panki canal overflow flood Awas Vikas-3 and Indira Nagar; 40+ homes and apartments inundated",
+  "trigger": "Two days of heavy rain; Rafaka nala overflow with backflow; Panki canal also overflowing",
+  "chain": [
+   "Rafaka nala overflowed",
+   "Streets waterlogged; backflow prevented drainage out of the colony",
+   "Water entered 40+ homes",
+   "Spread to Indira Nagar; water entered buildings and apartments (Ratan Orbit)"
+  ],
+  "systems": [
+   "drainage",
+   "buildings",
+   "roads/traffic",
+   "other"
+  ],
+  "departments": "Kanpur Nagar Nigam Zone-6, Irrigation Department, District Magistrate, Municipal Commissioner",
+  "impact": "40+ homes flooded; 2,000-3,000 population affected in Indira Nagar area",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/backflow-from-rafaka-nala-triggers-a-crisis-in-awas-vikas-kanpur-news-c-12-1-knp1063-1664388-2026-09-27",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-061",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2026-09-29",
+  "place": "Mall Road near Panchakki chowk, in front of KDA parking",
+  "summary": "Road roller sinks on Mall Road near Panchakki chowk as underground water pipelines give way; 4 ft crater",
+  "trigger": "Underground Jalkal and Jal Nigam water pipelines could not bear weight of PWD road roller being moved for road work",
+  "chain": [
+   "Roller sank; 4 ft deep crater formed",
+   "Water pipelines damaged",
+   "Traffic temporarily disrupted"
+  ],
+  "systems": [
+   "roads/traffic",
+   "water supply"
+  ],
+  "departments": "PWD (EE Anup Mishra), Jalkal, UP Jal Nigam",
+  "impact": "4 ft deep crater",
+  "sources": 1,
+  "sourceUrl": "https://amarujala.com/uttar-pradesh/kanpur/road-roller-sinks-on-mall-road-four-foot-deep-pothole-formed-kanpur-news-c-362-1-ka11006-157767-2026-10-01",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ },
+ {
+  "incidentId": "KI-062",
+  "type": "Water supply / pipe or sewer burst",
+  "date": "2026-09-29",
+  "place": "Gujaini water treatment plant; Ganga Barrage plant; leakage at Company Bagh chauraha; ~50 localities (north and south)",
+  "summary": "Rainwater submerges Gujaini WTP motor, then Barrage plant shut for Company Bagh leak repair; ~50 localities dry in morning",
+  "trigger": "Gujaini WTP motor submerged by rainwater (plant down 2 days); Barrage plant closed for leakage repair at Company Bagh",
+  "chain": [
+   "Gujaini plant offline ~2 days; ~20 localities without water",
+   "Barrage plant shut for leakage repair at Company Bagh",
+   "Outage expanded to ~50 localities; no morning supply"
+  ],
+  "systems": [
+   "drainage",
+   "water supply"
+  ],
+  "departments": "Jalkal (EE Praveen Yadav)",
+  "impact": "~50 localities (20 initially)",
+  "sources": 1,
+  "sourceUrl": "https://www.amarujala.com/uttar-pradesh/kanpur/after-gujaini-water-supply-from-the-barrage-also-halted-50-neighborhoods-left-desperate-for-water-this-morning-kanpur-news-c-362-1-ka11006-157685-2026-09-30",
+  "publisher": "Amar Ujala",
+  "evidence": "C1 (news only)"
+ }
+]

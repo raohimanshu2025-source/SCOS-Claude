@@ -2,7 +2,7 @@
 // Kanpur's city departments. Department names are real; every reading, record, boundary and position is
 // SYNTHETIC demo data (zone boundaries are a simple grid, places are approximate). Not an official system.
 // One exception: the past incident register is 52 real incidents summarised from public news reports
-// (src/data/kanpur-incidents-build.json, the thesis build set; the 10 held-back test incidents are not included).
+// (src/seed-data/kanpur-incidents-build.json, the thesis build set; the 10 held-back test incidents are not included).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -223,7 +223,7 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   const ALIAS = { SwaroopNagar: ['swaroop nagar', 'swarup nagar'], Central: ['kanpur central'], MallRoad: ['mall road'], BrahmNagar: ['brahm nagar'], Hallet: ['hallet', 'gsvm', 'lps institute'] };
   const placeOf = txt => { const t = String(txt).toLowerCase(); return Object.keys(NEAR).find(k => (ALIAS[k] || [k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()]).some(a => t.includes(a))); };
   const incId = res({ key: 'past-incidents-news', grp: 'incidents', name: 'Past incidents in Kanpur (from news reports)', desc: 'Floods, pipe bursts, fires, power outages and other incidents in Kanpur, 2021-2026, summarised from public news reports with a link to each source. Not checked by hand; open the source before relying on any detail.', tags: ['incidents', 'history', 'flood', 'fire', 'power', 'water'], rtype: 'table', label: 'public' });
-  const INC = JSON.parse(fs.readFileSync(new URL('./data/kanpur-incidents-build.json', import.meta.url), 'utf8'));
+  const INC = JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-incidents-build.json', import.meta.url), 'utf8'));
   ingest(incId, INC.map(o => { const k = placeOf(o.place); const row = { ...o, chain: o.chain.join(' → '), systems: o.systems.join(', '), departments: o.departments.replace(/\s*\([^)]*\)/g, '') /* department names only, no officials' names */, area: k ? k.replace(/([a-z])([A-Z])/g, '$1 $2') : '' }; if (k) row.location = geo(NEAR[k]); return row; }));
   // KCTSL buses
   const ROUTES = { 'R-1': ['Kalyanpur', 'Rawatpur', 'SwaroopNagar', 'Parade', 'Central', 'Jajmau'], 'R-7': ['Panki', 'Kakadeo', 'GovindNagar', 'KidwaiNagar', 'Naubasta'] };

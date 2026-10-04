@@ -227,6 +227,8 @@ export function makeResource(db, cfg, audit, catalogue, authz) {
       const tf = timeFieldOf(model);
       return rowsOf(it, model, srv).filter(r => !since || (tf && Date.parse(r[tf]) > since));
     },
+    // For MQTT (BIS 6.5): the same access check as a read, without reading.
+    canRead(p, id, token) { const { it, srv } = locate(id); authorize(p, it, srv, token, []); return it; },
     legacyCsv,
   };
   return api;

@@ -12,19 +12,19 @@ It was done on 29-30 September 2026. The check led to fixes in the server, 24 ne
 | | BIS | COS | Total |
 |---|---|---|---|
 | Points | 125 | 37 | 162 |
-| Working and tested | 108 | 30 | 138 |
-| Partly met | 8 | 4 | 12 |
+| Working and tested | 109 | 30 | 139 |
+| Partly met | 7 | 4 | 11 |
 | Not met | 1 | 0 | 1 |
 | Statement, no function | 5 | 3 | 8 |
 | Out of scope in the document | 3 | 0 | 3 |
 
 **Not met:** trusted execution environments for policy enforcement (BIS-111).
 
-**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model). Then the Figure 7 multimodal transit APIs (COS-37, COS-12): travel time by walking, bicycle, autorickshaw and car, metro and suburban rail arrivals, and bus, metro and rail occupancy, using rain and flood alerts; and bus versus metro financial performance (COS-15). The metro and suburban rail timetables and occupancy readings are synthetic data added for this. Then media playback (BIS-37): live and archived playback of camera pictures, pause and stop, and file download, under the normal token rules; the pictures are synthetic SVG images, not real video.
+**Closed on 4 October 2026:** operations on resource groups (BIS-124), the organisation certificate script (BIS-109), the DNS check of resource servers in Figure 2 step 8 (BIS-113, switched on with `DX_RS_DNS_CHECK=true`), and air quality forecast values and hotspots (COS-16, COS-23; a simple trend method, not a calibrated model). Then the Figure 7 multimodal transit APIs (COS-37, COS-12): travel time by walking, bicycle, autorickshaw and car, metro and suburban rail arrivals, and bus, metro and rail occupancy, using rain and flood alerts; and bus versus metro financial performance (COS-15). The metro and suburban rail timetables and occupancy readings are synthetic data added for this. Then media playback (BIS-37): live and archived playback of camera pictures, pause and stop, and file download, under the normal token rules; the pictures are synthetic SVG images, not real video. Then MQTT 5.0 over TLS for streams with AsyncAPI documents (BIS-92); AMQP is still not offered, so BIS-102 stays partly met.
 
-**Partly met:** BIS-55, 60, 78, 92, 102, 114, 118, 125 and COS-08, 31, 33, 34. Each row in the PDF says what is missing.
+**Partly met:** BIS-55, 60, 78, 102, 114, 118, 125 and COS-08, 31, 33, 34. Each row in the PDF says what is missing.
 
-So the software does **not** follow the two documents 100%. It follows the 138 tested points, and it says plainly where it falls short.
+So the software does **not** follow the two documents 100%. It follows the 139 tested points, and it says plainly where it falls short.
 
 ## What the check found and fixed
 
@@ -58,7 +58,7 @@ These are deliberate. Each is stated in the verification PDF.
 - **Figure 2 step 8.** The resource server is identified by its certificate name, not through DNS.
 - **Policies.** They are held as P = (C, A) in JSON, not as XACML or Aperture text. The Table 3 attributes have short API names (for example `authProtocol` for "Authorization protocol and policy"), and the printed names are published beside them.
 - **Names.** Resource types are spelled `messageStream` and `mediaStream`, where Table 8 prints "message Stream" and "media stream". Table 7 has no row for catalogueItem, so its mandatory list is ours.
-- **Streams.** They use server-sent events, not MQTT or AMQP.
+- **Streams.** They use server-sent events and MQTT 5.0 over TLS (port 8883). AMQP is not offered.
 - **Federation.** It calls the other city's CIL API. COS Figure 2 puts the data exchange layer in between.
 - **Air quality API.** The spatialForecast API averages a past time window and makes no forecast.
 - **CIL API paths.** COS names only two: `/environment/spatialForecast` and `/publictransit/eta`. The other 17 paths are our own names. The two waste "anomaly" analytics are one API.

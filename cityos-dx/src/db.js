@@ -26,6 +26,7 @@ const SCHEMA = [
      org TEXT, created_at TEXT NOT NULL, decided_at TEXT, decided_by TEXT)`,
   `CREATE TABLE IF NOT EXISTS consent_artefacts (id TEXT PRIMARY KEY, consent_id TEXT NOT NULL, consumer TEXT NOT NULL, item_id TEXT NOT NULL, valid_to INTEGER NOT NULL,
      artefact TEXT NOT NULL, token TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, revoked_at TEXT, uses INTEGER NOT NULL DEFAULT 0, last_use TEXT)`,
+  `CREATE TABLE IF NOT EXISTS provider_issuers (issuer TEXT PRIMARY KEY, owner_dn TEXT NOT NULL, owner TEXT, alg TEXT NOT NULL, key_pem TEXT NOT NULL, created_at TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS kv (k TEXT PRIMARY KEY, v TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS licences (item_id TEXT NOT NULL, app TEXT NOT NULL, developer TEXT NOT NULL, terms TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY(item_id, app))`,
   `CREATE TABLE IF NOT EXISTS watches (consumer TEXT NOT NULL, item_id TEXT NOT NULL, PRIMARY KEY(consumer, item_id))`,

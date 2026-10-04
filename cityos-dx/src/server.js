@@ -15,6 +15,7 @@ import { makeAuthz } from './dx/authz.js';
 import { makeConsentArtefacts } from './dx/consent-artefact.js';
 import { makeCentralPolicy } from './ops/central-policy.js';
 import { makeRegion } from './cil/region.js';
+import { makeProviderAuth } from './dx/provider-auth.js';
 import { makeResource } from './dx/resource.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
@@ -42,7 +43,8 @@ export function createApp(overrides = {}) {
   const artefacts = makeConsentArtefacts({ db, cfg, audit, catalogue, keyPem: fs.readFileSync(pki.consentKey, 'utf8') });
   const central = makeCentralPolicy({ db, cfg, audit });
   const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts, central);
-  const resource = makeResource(db, cfg, audit, catalogue, authz);
+  const providerAuth = makeProviderAuth({ db, audit, catalogue });
+  const resource = makeResource(db, cfg, audit, catalogue, authz, providerAuth);
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
@@ -133,6 +135,10 @@ export function createApp(overrides = {}) {
   R('GET', '/auth/v1/consent', c => { need(c.p.email, 401, 'identity required'); return authz.consents(c.p, c.query); });
   R('POST', '/auth/v1/consent/decide', c => authz.decideConsent(c.body.id, !!c.body.approve, c.p, { validDays: c.body.validDays ?? 90, access: c.body.access ?? 'VIEW' }));
   // Consent artefacts (BIS 4.1 principle 6, reference [b.2]): read one, check a signed artefact token, get the DX public key.
+  // A provider's own authorization server (BIS 4.5.2.3): register its key and switch items to it, or back to the DX.
+  R('GET', '/auth/v1/provider-auth-server', c => providerAuth.list(c.p));
+  R('POST', '/auth/v1/provider-auth-server', c => providerAuth.register(c.p, c.body));
+  R('POST', '/auth/v1/provider-auth-server/remove', c => providerAuth.unregister(c.p, c.body, cfg.authHost));
   R('GET', '/auth/v1/consent/artefact', c => artefacts.get(c.query.id, c.p));
   R('POST', '/auth/v1/consent/artefact/verify', c => { const v = artefacts.verify(c.body.token); return { valid: v.ok, status: v.status || null, reason: v.reason, artefact: v.artefact || null }; });
   R('GET', '/auth/v1/consent/artefact/public-key', () => ({ alg: 'EdDSA (Ed25519)', kid: artefacts.keyId, publicKeyPem: artefacts.publicKeyPem }));

@@ -2,6 +2,7 @@
 // Resource servers hosted in this process: every server item whose host has a class 1 certificate here.
 // A server marked legacy is not DX compliant: it only exports CSV with its own column names, and the DX Adapter
 // in front of it does the token checks and the translation to the data model.
+import { isJwt } from './provider-auth.js';
 import { q } from '../db.js';
 import { iso, fail, need, sha256 } from '../util.js';
 import { MODELS, modelOfRef, validatePacket } from './model.js';
@@ -14,7 +15,7 @@ export const timeFieldOf = model => Object.entries(MODELS[model]?.props || {}).f
 // The legacy system's own column names (what a non-compliant SCADA export might look like).
 const LEGACY_COLS = { drainLevel: { LVL_M: 'level', FLOW_CUMECS: 'flow', CAP_M: 'capacity', TS_UTC: 'observationDateTime' } };
 
-export function makeResource(db, cfg, audit, catalogue, authz) {
+export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = null) {
   const localServers = () => {
     const out = new Map();
     for (const s of catalogue.all('resourceServer')) {
@@ -41,6 +42,10 @@ export function makeResource(db, cfg, audit, catalogue, authz) {
     const S = (n, text, ok = true) => trace.push({ step: n, text, ok });
     S(6, `GET https://${srv.host}/resource/v1 id=${it.id}${token ? ' with token …' + String(token).slice(-8) : ' (no token)'}${srv.legacy ? ' via DX Adapter' : ''}`);
     if (it.policy.label === 'public') { S(6, 'public item: no token needed (BIS 4.1 transparency, 5.4.2 anonymous access)'); return null; }
+    const own = it.doc.authorizationServerInfo?.value?.authType === 'provider-own' ? it.doc.authorizationServerInfo.value.authServer : null;
+    if (!token && own) fail(401, `no access token; this provider runs its own authorization server: ask ${own} (BIS 4.5.2.3), or the DX at https://${cfg.authHost}/auth/v1/token`, { authServer: own, dxAuthServer: `https://${cfg.authHost}/auth/v1/token` });
+    // a signed JWT on an item whose provider runs its own authorization server is checked here (BIS 4.5.2.3)
+    if (own && providerAuth && isJwt(token)) return providerAuth.verify(p, it, srv, token, S);
     if (!token) {
       S(6, `no valid token: the ${srv.legacy ? 'DX Adapter' : 'resource server'} starts DX/UMA 2.0; ask https://${cfg.authHost}/auth/v1/token`, false);
       fail(401, 'no valid access token; request one from the authorization service (BIS 4.5.2.3)', { authServer: `https://${cfg.authHost}/auth/v1/token`, authorizationFlow: trace });

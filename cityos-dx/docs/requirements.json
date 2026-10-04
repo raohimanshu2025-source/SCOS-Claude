@@ -2254,10 +2254,12 @@
   "anchor": "prov-inbox",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "Consent requests go to the provider, who approves or rejects them (tested), but the consent artefact architecture of reference [b.2] is not implemented.",
+   "status": "working",
+   "how": "Consent requests go to the provider, who approves or rejects them. Approval writes a consent artefact in the layout of the MeitY Electronic Consent Framework [b.2] (ver, txnid, consentId, DataConsumer, DataProvider, Purpose, User, Data, Permission with date range and data life, ConsentUse), signed by the DX with Ed25519 as a JWS. Anyone can verify it with the published key; it expires or is revoked, and then access ends (tested). Field names follow [b.2] as we read it; not checked against a certified consent manager.",
    "tests": [
-    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token",
+    "[BIS-118] approving consent writes a signed consent artefact in the layout of the MeitY consent framework",
+    "[BIS-118][BIS-125] revoking access revokes the artefact"
    ]
   }
  },
@@ -2388,10 +2390,11 @@
   "anchor": "prov-inbox",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "Approving consent adds the consumer to the policy, and every token is logged (tested); the token itself is not what updates the policy.",
+   "status": "working",
+   "how": "After consent is approved, the signed consent token is verified and only then used to add the consumer to the access control policy; the update is logged with the artefact id and token tail. Tokens never outlive the consent, use is counted, and an expired or revoked artefact takes the consumer off the policy again, also logged (tested).",
    "tests": [
-    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
+    "[BIS-125] the consent token updates the access control policy and this is logged; tokens never outlive the consent",
+    "[BIS-118][BIS-125] revoking access revokes the artefact"
    ]
   }
  },

@@ -12,6 +12,7 @@ import { makeAccounts, ROLES } from './identity/accounts.js';
 import { makeNotify } from './dx/notify.js';
 import { makeCatalogue } from './dx/catalogue.js';
 import { makeAuthz } from './dx/authz.js';
+import { makeConsentArtefacts } from './dx/consent-artefact.js';
 import { makeResource } from './dx/resource.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
@@ -36,12 +37,13 @@ export function createApp(overrides = {}) {
   const accounts = makeAccounts(db, cfg, audit);
   const notify = makeNotify(db, audit);
   const catalogue = makeCatalogue(db, audit, notify);
-  const authz = makeAuthz(db, cfg, audit, catalogue, notify);
+  const artefacts = makeConsentArtefacts({ db, cfg, audit, catalogue, keyPem: fs.readFileSync(pki.consentKey, 'utf8') });
+  const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts);
   const resource = makeResource(db, cfg, audit, catalogue, authz);
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
-  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, resource, cil, ops };
+  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, resource, cil, ops };
   const helpers = makeConsoleHelpers(parts);
   const citizenAlerts = makeCitizenAlerts(db, audit);
   parts.citizenAlerts = citizenAlerts;
@@ -125,7 +127,11 @@ export function createApp(overrides = {}) {
   // Table 2 Manage: list and view information about consumers
   R('GET', '/auth/v1/consumers', c => authz.consumers(c.p, c.query.email));
   R('GET', '/auth/v1/consent', c => { need(c.p.email, 401, 'identity required'); return authz.consents(c.p, c.query); });
-  R('POST', '/auth/v1/consent/decide', c => authz.decideConsent(c.body.id, !!c.body.approve, c.p));
+  R('POST', '/auth/v1/consent/decide', c => authz.decideConsent(c.body.id, !!c.body.approve, c.p, { validDays: c.body.validDays ?? 90, access: c.body.access ?? 'VIEW' }));
+  // Consent artefacts (BIS 4.1 principle 6, reference [b.2]): read one, check a signed artefact token, get the DX public key.
+  R('GET', '/auth/v1/consent/artefact', c => artefacts.get(c.query.id, c.p));
+  R('POST', '/auth/v1/consent/artefact/verify', c => { const v = artefacts.verify(c.body.token); return { valid: v.ok, status: v.status || null, reason: v.reason, artefact: v.artefact || null }; });
+  R('GET', '/auth/v1/consent/artefact/public-key', () => ({ alg: 'EdDSA (Ed25519)', kid: artefacts.keyId, publicKeyPem: artefacts.publicKeyPem }));
   R('GET', '/auth/v1/flows', c => authz.flows(c.p));
   R('POST', '/auth/v1/licence', c => authz.addLicence(c.body.id, c.body, c.p));
   R('DELETE', '/auth/v1/licence', c => { authz.removeLicence(c.query.id, c.query.app, c.p); return { ok: true }; });

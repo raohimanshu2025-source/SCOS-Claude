@@ -5,7 +5,7 @@ import { iso, fail, need, randHex, sha256, str } from '../util.js';
 import { LABEL_CLASSES, checkPolicy, LABEL_DEFAULTS } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
-export function makeAuthz(db, cfg, audit, catalogue, notify) {
+export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null) {
   const cache = new Map(); // resource-server introspection cache: tokenHash|itemId -> expiry (BIS 4.5.2.2)
   const state = { up: true };
   const providerEmail = it => {
@@ -15,13 +15,14 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
 
   // Runs the provider's rules for one item. Returns { ok, via } or { ok:false, code, msg, consent }.
   function decide(p, it, purpose) {
+    const art = artefacts && it.policy && p.email ? artefacts.check(p.email, it) : null; // an expired consent takes the consumer off the policy
     const pol = it.policy;
     if (!pol) return { ok: false, code: 400, msg: `${it.id} is not a resource item` };
     if (!p.email) return { ok: false, code: 401, msg: 'identity required: anonymous consumers can read public items only (BIS 5.4.2)' };
     if (pol.label === 'public') return { ok: true, via: 'public item' };
     const need_ = LABEL_CLASSES[pol.label];
     if (!need_.includes(p.cls)) return { ok: false, code: 403, msg: `class ${p.cls} ${p.via === 'id-token' ? 'identity (ID token)' : 'certificate'} cannot access ${pol.label} data; needs class ${need_.join(' or ')} (BIS 5.4.2)` };
-    if (pol.C.includes(p.email)) return { ok: true, via: 'policy' };
+    if (pol.C.includes(p.email)) return art?.status === 'active' ? { ok: true, via: `policy (consent artefact ${art.id})`, until: art.validTo } : { ok: true, via: 'policy' };
     const lic = q.get(db, 'SELECT app FROM licences WHERE item_id=? AND developer=?', it.id, p.email);
     if (lic) return { ok: true, via: 'licence agreement for ' + lic.app };
     let cr = q.get(db, `SELECT id FROM consents WHERE consumer=? AND item_id=? AND status='pending'`, p.email, it.id);
@@ -52,14 +53,15 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
         fail(worst.d.code, worst.d.msg, { denied: bad.map(b => ({ id: b.it.id, reason: b.d.msg, consent: b.d.consent })) });
       }
       const token = `${cfg.authHost}/${p.email}/${randHex(32)}`; // BIS 5.2 token shape
-      const exp = Date.now() + cfg.tokenTtlSec * 1000;
+      const exp = Math.min(Date.now() + cfg.tokenTtlSec * 1000, ...decisions.map(x => x.d.until || Infinity)); // never outlives a consent artefact
       const duties = Object.fromEntries(items.map(it => [it.id, it.policy.A]));
       const policyRef = items.map(it => `${it.id}#v${it.policy.version}`).join(' ');
       q.run(db, 'INSERT INTO tokens (hash, consumer, cert_serial, items, cls, policy_ref, duties, via, issued_at, expires_at, tail) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
         sha256(token), p.email, p.serial, JSON.stringify(items.map(i => i.id)), p.cls, policyRef, JSON.stringify(duties),
         [...new Set(decisions.map(x => x.d.via))].join('; '), iso(Date.now()), exp, token.slice(-8));
       audit.log('Authorization', actorOf(p), 'Token granted', `${items.map(i => i.id).join(', ')} via ${decisions[0].d.via} token …${token.slice(-8)}`);
-      return { token, 'token-type': 'IUDX', 'expires-in': cfg.tokenTtlSec, expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })) };
+      artefacts?.used(p.email, decisions.filter(x => x.d.until).map(x => x.it.id));
+      return { token, 'token-type': 'IUDX', 'expires-in': Math.round((exp - Date.now()) / 1000), expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })) };
     },
     // POST /auth/v1/token/introspect  (Figure 2 steps 7-10); `rs` is the calling resource server principal
     introspect(rs, token, itemId, { useCache = true } = {}) {
@@ -126,6 +128,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
         q.run(db, 'UPDATE items SET policy=? WHERE id=?', JSON.stringify({ ...pol, C, version: pol.version + 1 }), it.id);
         q.run(db, `UPDATE consents SET status='revoked', decided_at=?, decided_by=? WHERE consumer=? AND item_id=? AND status='approved'`, now, actorOf(p), consumer, it.id);
       });
+      artefacts?.revoke(consumer, it.id, p);
       for (const r of rows) for (const k of cache.keys()) if (k.startsWith(r.hash)) cache.delete(k);
       audit.log('Authorization', actorOf(p), 'POST /auth/v1/token/revoke', `${consumer} on ${it.id}: ${rows.length} token(s), removed from policy`);
       notify.push(consumer, `Your access to ${it.doc.name?.value || it.id} was revoked by the provider`);
@@ -182,16 +185,20 @@ export function makeAuthz(db, cfg, audit, catalogue, notify) {
       const mine = role === 'consumer' || p.cls !== 3
         ? all.filter(c => c.consumer === p.email)
         : all.filter(c => { const it = catalogue.get(c.item_id) || q.get(db, 'SELECT owner_dn FROM items WHERE id=?', c.item_id); return it && it.owner_dn === p.dn; });
-      return mine.filter(c => !status || c.status === status);
+      const out = mine.filter(c => !status || c.status === status);
+      const arts = artefacts ? artefacts.forConsents(out.map(c => c.id)) : {};
+      return out.map(c => ({ ...c, artefact: arts[c.id] || null }));
     },
-    decideConsent(id, approve, p) {
+    decideConsent(id, approve, p, opts = {}) {
       const c = q.get(db, 'SELECT * FROM consents WHERE id=?', id); need(c, 404, 'no such consent request');
       const it = catalogue.get(c.item_id); need(it, 404, 'item no longer exists');
       catalogue.assertOwner(it, p, 'decide consent');
       need(c.status === 'pending', 409, 'already ' + c.status);
       tx(db, () => {
         q.run(db, 'UPDATE consents SET status=?, decided_at=?, decided_by=? WHERE id=?', approve ? 'approved' : 'rejected', iso(Date.now()), actorOf(p), id);
-        if (approve) { const pol = it.policy; if (!pol.C.includes(c.consumer)) q.run(db, 'UPDATE items SET policy=? WHERE id=?', JSON.stringify({ ...pol, C: [...pol.C, c.consumer], version: pol.version + 1 }), it.id); }
+        if (approve && !artefacts) { const pol = it.policy; if (!pol.C.includes(c.consumer)) q.run(db, 'UPDATE items SET policy=? WHERE id=?', JSON.stringify({ ...pol, C: [...pol.C, c.consumer], version: pol.version + 1 }), it.id); }
+        // with consent artefacts, the signed artefact token is what adds the consumer to the policy (BIS 4.3)
+        if (approve && artefacts) artefacts.create(c, it, p, opts);
       });
       audit.log('Consent', actorOf(p), approve ? 'Consent approved' : 'Consent rejected', `${id} ${c.consumer} -> ${c.item_id}`);
       notify.push(c.consumer, `Consent request ${id} for ${it.doc.name?.value || it.id} was ${approve ? 'approved. Request a token again.' : 'rejected.'}`);

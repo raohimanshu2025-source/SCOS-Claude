@@ -30,6 +30,22 @@ const lerp = (a, b, f) => [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f];
 function distToRoute(p, stops) { let best = Infinity; for (let k = 0; k < stops.length - 1; k++) for (let f = 0; f <= 1.0001; f += 0.05) best = Math.min(best, distKm(p, lerp(stops[k].loc, stops[k + 1].loc, f))); return best; }
 function nearestStopIdx(stops, loc) { let si = 0, bd = Infinity; stops.forEach((s, k) => { const d = distKm(s.loc, loc); if (d < bd) { bd = d; si = k; } }); return { si, d: bd }; }
 function segOf(stops, loc) { let best = 0, bd = Infinity; for (let k = 0; k < stops.length - 1; k++) for (let f = 0; f <= 1.0001; f += 0.05) { const d = distKm(loc, lerp(stops[k].loc, stops[k + 1].loc, f)); if (d < bd) { bd = d; best = k; } } return best; }
+// Hourly PM2.5 forecast for the part of [a, b] after the sensor's last reading: persistence plus half the
+// linear trend of the last 6 hours, never below 0. A simple demo method, not a calibrated air quality model.
+function forecastPm(rows, a, b) {
+  const pts = rows.map(r => [Date.parse(r.LASTUPDATEDATETIME), r.PM2_5]).filter(([t, v]) => Number.isFinite(t) && typeof v === 'number' && Number.isFinite(v) && v > -100).sort((x, y) => x[0] - y[0]);
+  if (pts.length < 2) return [];
+  const tLast = pts.at(-1)[0], vLast = pts.at(-1)[1];
+  if (b <= tLast) return [];
+  const rec = pts.filter(([t]) => t >= tLast - 6 * 3600e3);
+  const mt = mean(rec.map(p => p[0])), mv = mean(rec.map(p => p[1]));
+  const den = rec.reduce((z, [t]) => z + (t - mt) ** 2, 0);
+  const slope = den ? rec.reduce((z, [t, v]) => z + (t - mt) * (v - mv), 0) / den : 0; // per ms
+  const out = [];
+  for (let t = Math.max(a, tLast + 3600e3); t <= b; t += 3600e3) out.push(Math.max(0, vLast + 0.5 * slope * (t - tLast)));
+  if (!out.length) out.push(Math.max(0, vLast + 0.5 * slope * (b - tLast)));
+  return out;
+}
 const windowRows = (rows, tf, a, b) => rows.filter(r => { const t = Date.parse(r[tf]); return t >= a && t <= b; });
 const wasteByWard = snap => { const m = {}; for (const r of snap.waste) (m[r.ward] ||= []).push(r); for (const k in m) m[k].sort((a, b) => a.date.localeCompare(b.date)); return m; };
 
@@ -37,18 +53,27 @@ export const BUILTINS = [
   { id: 'aq-forecast', domain: 'Air Quality', name: 'Air quality spatio-temporal interpolation', path: '/environment/spatialForecast', provider: 'Pollution Control Cell (demo)',
     inputs: [inp('aqm', 'Time Series', 'RequiresDataSource', 'PM2_5'), inp('aqm', 'Hash Map', 'RequiresAdditionalDataSource', 'location')],
     out: 'MeshGrid', viz: 'Map Raster', period: 15, dataPeriodicity: '15 min', provenance: 'City OS paper Figure 9',
-    procedure: 'Inverse distance weighting of mean PM2.5 per sensor over the requested window onto a 20 x 20 grid; sensors above 90 ug/m3 raise an alert (demo threshold)',
+    procedure: 'Per sensor: mean PM2.5 of the readings inside the window; for the part of the window after the last reading, an hourly forecast from the last 6 hours (persistence plus half the linear trend, never below 0). Inverse distance weighting onto a 20 x 20 grid; grid cells above 90 ug/m3 are reported as hotspots and sensors above 90 ug/m3 raise an alert (demo threshold)',
     params: { spatialRange: 'array [west,south,east,north]', forecastStart: 'date-time', forecastEnd: 'date-time' },
     defaults: s => ({ spatialRange: s.bbox, forecastStart: iso(s.now - 2 * 3600e3), forecastEnd: iso(s.now) }),
     run(s, b) {
       const a = Date.parse(b.forecastStart), e = Date.parse(b.forecastEnd);
       if (isNaN(a) || isNaN(e) || e < a) throw new Error('forecastStart and forecastEnd must be date-times, start before end');
       if (!Array.isArray(b.spatialRange) || b.spatialRange.length !== 4 || !b.spatialRange.every(Number.isFinite)) throw new Error('spatialRange must be [west,south,east,north]');
-      const pts = s.aq.map(x => ({ id: x.id, loc: x.loc, v: mean(clean(windowRows(x.rows, 'LASTUPDATEDATETIME', a, e).map(r => r.PM2_5))) })).filter(p => Number.isFinite(p.v) && p.v > 0);
-      if (!pts.length) throw new Error('no readings between forecastStart and forecastEnd');
+      let observed = 0, forecast = 0;
+      const pts = s.aq.map(x => {
+        const vals = clean(windowRows(x.rows, 'LASTUPDATEDATETIME', a, e).map(r => r.PM2_5));
+        const fc = forecastPm(x.rows, a, e); observed += vals.length; forecast += fc.length;
+        return { id: x.id, loc: x.loc, v: mean([...vals, ...fc]), forecastValues: fc.length };
+      }).filter(p => Number.isFinite(p.v) && p.v > 0);
+      if (!pts.length) throw new Error('no readings between forecastStart and forecastEnd, and no recent readings to forecast from');
       const g = idwGrid(pts, 20, b.spatialRange);
       const alerts = pts.filter(p => p.v > 90).map(p => ({ sensor: p.id, ward: wardOf(s, p.loc), meanPM2_5: round(p.v) }));
-      return { output: { type: 'MeshGrid', unit: 'ug/m3', gridRows: 20, gridCols: 20, min: g.min, max: g.max, cells: g.cells, bbox: g.bbox, sensors: pts.map(p => ({ id: p.id, loc: p.loc, meanPM2_5: round(p.v) })), alerts },
+      const [w0, s0, e0, n0] = g.bbox, cw = (e0 - w0) / 20, ch = (n0 - s0) / 20;
+      const hotspots = g.cells.flatMap((row, j) => row.map((v, i) => ({ v, at: [round(w0 + (i + 0.5) * cw, 5), round(s0 + (j + 0.5) * ch, 5)] })))
+        .filter(c => c.v > 90).sort((x, y) => y.v - x.v).slice(0, 10).map(c => ({ centre: c.at, ward: wardOf(s, c.at), PM2_5: c.v }));
+      const mode = forecast && observed ? 'observed and forecast' : forecast ? 'forecast' : 'observed';
+      return { output: { type: 'MeshGrid', unit: 'ug/m3', mode, gridRows: 20, gridCols: 20, min: g.min, max: g.max, cells: g.cells, bbox: g.bbox, sensors: pts.map(p => ({ id: p.id, loc: p.loc, meanPM2_5: round(p.v), forecastValues: p.forecastValues })), hotspots, alerts },
         alerts: alerts.map(x => ({ ward: x.ward, msg: `PM2.5 ${x.meanPM2_5} ug/m3 at ${x.sensor}` })) };
     } },
   { id: 'eta', domain: 'Intelligent Transit', name: 'Estimated time of arrival', path: '/publictransit/eta', provider: 'City Transport Undertaking (demo)',

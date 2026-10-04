@@ -2084,9 +2084,11 @@
   "anchor": "trust-csr",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "Organisations decide their employees' requests through the API (POST /identity/v1/csr/decide); no separate script is shipped to organisations.",
-   "tests": []
+   "status": "working",
+   "how": "scripts/org-certificates.js lets an organisation list its employees' pending certificate requests and approve or reject them with its organisation certificate over mutual TLS (tested).",
+   "tests": [
+    "[BIS-109] an organisation lists and decides its employees' certificate requests with the DX script"
+   ]
   }
  },
  {
@@ -2157,9 +2159,11 @@
   "anchor": "con-steps",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "The resource server is identified by its class 1 certificate, whose CN must be the host in the catalogue entry of the resource server. No DNS lookup is made.",
-   "tests": []
+   "status": "working",
+   "how": "Steps 6 to 13 run as drawn. Step 8: the resource server is identified by its class 1 certificate, and with DX_RS_DNS_CHECK=true its host name must also resolve through DNS to the address of the introspection call (tested). The check is off by default because demo host names do not resolve.",
+   "tests": [
+    "[BIS-113] Figure 2 step 8: a resource server is verified through DNS when the check is on"
+   ]
   }
  },
  {
@@ -2361,9 +2365,11 @@
   "anchor": "con-steps",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "notmet",
-   "how": "Not implemented. Data and status are read per resource item, not per group.",
-   "tests": []
+   "status": "working",
+   "how": "Latest, status and count can be asked of a whole resource group (id = group id); each member item is checked on its own and refused items are listed with the reason (tested). Search and download stay per item.",
+   "tests": [
+    "[BIS-124] latest, status and count can be asked of a whole resource group"
+   ]
   }
  },
  {
@@ -2678,10 +2684,11 @@
   "anchor": "cil-explorer",
   "how": "The air quality API interpolates between demo sensors onto a grid, marks hotspots and raises alerts above a threshold.",
   "server": {
-   "status": "partial",
-   "how": "Interpolation to a grid and alerts above 90 µg/m³ work (tested). The time window is averaged, so no forecast values are produced, and hotspots are shown as grid cells above the alert level rather than a separate result.",
+   "status": "working",
+   "how": "Interpolation to a grid, alerts above 90 µg/m³ and hotspots (grid cells above 90 µg/m³ with their ward) are returned (tested). The forecast is a simple trend method, not a calibrated air quality model.",
    "tests": [
-    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator"
+    "[COS-16][COS-17][COS-18][COS-19][COS-20][COS-21][COS-26][COS-02][COS-03] all 19 domain APIs answer for an authorised operator",
+    "[COS-16][COS-23] the air quality API forecasts future windows and reports hotspots"
    ]
   }
  },
@@ -2812,10 +2819,11 @@
   "anchor": "cil-explorer",
   "how": "The same path, body fields, input types and MeshGrid output are used. A demo UAC address replaces the one in the figure.",
   "server": {
-   "status": "partial",
-   "how": "The path and request fields match Figure 9 and the output is a MeshGrid heat map (tested). forecastStart and forecastEnd select a past window that is averaged; no forecast is made.",
+   "status": "working",
+   "how": "The path and request fields match Figure 9 and the output is a MeshGrid heat map (tested). A past window is averaged from readings; a future window is forecast hourly per sensor from the last 6 hours (persistence plus half the trend), and the output says which (mode). Demo method, not a calibrated model.",
    "tests": [
-    "[COS-23] air quality API takes spatialRange, forecastStart, forecastEnd and returns a MeshGrid"
+    "[COS-23] air quality API takes spatialRange, forecastStart, forecastEnd and returns a MeshGrid",
+    "[COS-16][COS-23] the air quality API forecasts future windows and reports hotspots"
    ]
   }
  },

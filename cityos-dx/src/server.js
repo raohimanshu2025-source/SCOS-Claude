@@ -13,6 +13,8 @@ import { makeNotify } from './dx/notify.js';
 import { makeCatalogue } from './dx/catalogue.js';
 import { makeAuthz } from './dx/authz.js';
 import { makeConsentArtefacts } from './dx/consent-artefact.js';
+import { makeCentralPolicy } from './ops/central-policy.js';
+import { makeRegion } from './cil/region.js';
 import { makeResource } from './dx/resource.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
@@ -38,12 +40,14 @@ export function createApp(overrides = {}) {
   const notify = makeNotify(db, audit);
   const catalogue = makeCatalogue(db, audit, notify);
   const artefacts = makeConsentArtefacts({ db, cfg, audit, catalogue, keyPem: fs.readFileSync(pki.consentKey, 'utf8') });
-  const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts);
+  const central = makeCentralPolicy({ db, cfg, audit });
+  const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts, central);
   const resource = makeResource(db, cfg, audit, catalogue, authz);
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
-  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, resource, cil, ops };
+  const region = makeRegion({ db, cfg, audit, catalogue, cil });
+  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, central, region, resource, cil, ops };
   const helpers = makeConsoleHelpers(parts);
   const citizenAlerts = makeCitizenAlerts(db, audit);
   parts.citizenAlerts = citizenAlerts;
@@ -180,6 +184,9 @@ export function createApp(overrides = {}) {
   R('POST', '/cil/v1/olap', c => cil.olap(c.p, c.body));
   R('POST', '/cil/v1/ask', c => cil.ask(c.p, c.body.question));
   R('GET', '/cil/v1/report', c => { role(c.p, 'operator', 'admin', 'auditor'); return cil.report(c.p, c.query.month); });
+  // State-level and sector-wise reports (City OS Sections 1 and 4); the same output at city, state and national level.
+  R('GET', '/cil/v1/reports/region', c => region.report(c.p));
+  R('POST', '/cil/v1/reports/city-figures', c => { role(c.p, 'operator', 'admin'); return region.computeCity(actorOf(c.p)); });
   R('POST', '/cil/v1/federate', c => cil.federate(c.p, c.body.path, c.body.body));
   // Citizen alerts with officer approval (our addition): drafted by an officer, approved by a different control room officer.
   R('GET', '/cil/v1/citizen-alerts', () => citizenAlerts.publicList());
@@ -231,6 +238,10 @@ export function createApp(overrides = {}) {
     if (c.query.actor) { where.push('actor=?'); args.push(c.query.actor); }
     return q.all(db, `SELECT * FROM audit ${where.length ? 'WHERE ' + where.join(' AND ') : ''} ORDER BY seq DESC LIMIT ?`, ...args, lim);
   });
+  // Central access rules set at state or national level (City OS Section 1); they can only narrow access.
+  R('GET', '/ops/v1/central-policy', () => ({ tier: cfg.tier, published: central.published(), applied: central.effective(), source: cfg.centralPolicyUrl || null }));
+  R('PUT', '/ops/v1/central-policy', c => central.publish(c.p, c.body));
+  R('POST', '/ops/v1/central-policy/pull', c => { role(c.p, 'admin'); return central.pull(); });
   R('GET', '/ops/v1/audit/verify', c => { role(c.p, 'admin', 'auditor'); return audit.verify(); });
   R('GET', '/ops/v1/audit/public-key', () => ({ alg: 'Ed25519', publicKeyPem: audit.publicKeyPem }));
   R('POST', '/ops/v1/backup', c => { role(c.p, 'admin'); const b = backupDb(db, cfg.backupDir, c.body.label || 'manual'); audit.log('Operations', actorOf(c.p), 'Backup taken', path.basename(b.file)); return { ...b, file: path.basename(b.file) }; });
@@ -337,13 +348,13 @@ export function createApp(overrides = {}) {
     ...parts, server, routes, mqtt, mqttAddress: null,
     listen(port = cfg.port, host = cfg.host) {
       return new Promise(r => server.listen(port, host, async () => {
-        ops.start(); cil.start();
+        ops.start(); cil.start(); central.start(); region.start();
         if (mqtt) app.mqttAddress = await mqtt.listen(cfg.mqttPort, host);
         if (cfg.simulator) { simTimer = setInterval(() => { try { simulateTick(parts); } catch (e) { console.error('simulator', e.message); } }, cfg.simulatorMs); simTimer.unref(); }
         r(server.address());
       }));
     },
-    async close() { ops.stop(); cil.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
+    async close() { ops.stop(); cil.stop(); central.stop(); region.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
   };
   return app;
 }

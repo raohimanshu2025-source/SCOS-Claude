@@ -61,7 +61,7 @@ test('[BIS-78] backup while running: consistent copy, integrity check, can be re
   const b = await admin.as('POST', '/ops/v1/backup', { body: { label: 'nightly' } });
   assert.equal(b.status, 200);
   assert.equal(b.body.check.integrity, 'ok');
-  assert.equal(b.body.check.counts.items, 56);
+  assert.equal(b.body.check.counts.items, 58);
   const list = await admin.as('GET', '/ops/v1/backups');
   assert.ok(list.body.some(x => x.file === b.body.file));
   const file = path.join(c.app.cfg.backupDir, b.body.file);

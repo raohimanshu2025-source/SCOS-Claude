@@ -185,6 +185,9 @@ export function seed(app, { password, adminPassword, now = Date.now() } = {}) {
   seedTransit({ group, res, ingest, times, rnd, round, provider: 'tr', busRoutes: Object.keys(ROUTES), lineNames: { metro: 'Metro Line 1', suburban: 'Suburban Line S1' },
     metro: [[.1, .62], [.25, .6], [.4, .57], [.55, .55], [.7, .53], [.85, .5]].map((f, i) => [`Metro station ${i + 1}`, pt(...f)]),
     suburban: [[.02, .2], [.3, .25], [.6, .3], [.95, .35]].map((f, i) => [`Rail station ${i + 1}`, pt(...f)]) });
+  // State-level and sector-wise reports: the CIL publishes this city's figures here every hour (aggregates only).
+  group('perf', 'City performance figures', 'mc', 'rs1', 'cityPerformance', 'openAPI');
+  res({ key: 'city-performance', grp: 'perf', name: 'City performance figures', desc: 'Sector-wise figures computed every hour by the City Intelligence Layer for state-level reports (aggregates only, demo data).', tags: ['city-performance', 'performance', 'report', 'state-level'], rtype: 'messageStream', label: 'public' });
   // starting policies: who is already on C
   const addC = (id, emails) => { const it = catalogue.get(id); authz.setPolicy(id, { C: [...it.policy.C, ...emails] }, items[id].officer); };
   addC(wasteId, ['planner@mc.demo-city.example', 'control@mc.demo-city.example', 'cil@mc.demo-city.example']);

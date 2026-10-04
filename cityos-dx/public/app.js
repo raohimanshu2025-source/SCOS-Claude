@@ -47,6 +47,7 @@ const SCREENS = [
   ['cil', 'City intelligence', 'all'],
   ['iccc', 'ICCC dashboard', 'operator admin auditor'],
   ['calerts', 'Citizen alerts', 'provider operator admin auditor'],
+  ['region', 'Sector reports', 'all'],
   ['trust', 'Certificates and trust', 'admin auditor'],
   ['ops', 'Operations and audit', 'admin auditor'],
   ['status', 'Status page', 'all'],
@@ -278,6 +279,20 @@ const VIEWS = {
   },
 
   // BIS 4.5.2.1: live and archived playback of media streams, pause and stop, and download of media files.
+  // State-level and sector-wise reports (City OS Sections 1 and 4) and the central access rules.
+  async region(m) {
+    const [r, cp] = await Promise.all([api('GET', '/cil/v1/reports/region'), api('GET', '/ops/v1/central-policy')]);
+    if (!r.ok) { m.innerHTML = `<p class="err">${esc(r.body.error || 'not available')}</p>`; return; }
+    const d = r.body, multi = d.members.length > 1 || d.level !== 'city';
+    const fmt = v => (v === null || v === undefined ? '–' : esc(String(v)));
+    const sector = s => card(s.sector, `<div class="tbl-wrap"><table><tr><th>Figure</th><th>${multi ? esc(d.name) + ' (' + (s.kpis[0]?.combine === 'sum' ? 'total' : 'combined') + ')' : 'Value'}</th>${multi ? d.members.filter(x => x.ok).map(x => `<th>${esc(x.name)}</th>`).join('') : ''}<th>Better</th></tr>${s.kpis.map(k => `<tr><td>${esc(k.kpi)} <span class="hint">${esc(k.unit)}${multi ? ', ' + esc(k.combine) : ''}</span></td><td><b>${fmt(k.value)}</b></td>${multi ? k.perMember.map(x => `<td>${fmt(x.value)}${x.name === k.best ? ' ' + pill('best', 'ok') : x.name === k.worst ? ' ' + pill('lowest', 'bad') : ''}</td>`).join('') : ''}<td>${esc(k.better)}</td></tr>`).join('')}</table></div>`);
+    const members = d.members.map(x => `<li>${pill(x.ok ? 'answered' : 'no answer', x.ok ? 'ok' : 'bad')} <b>${esc(x.name)}</b> ${esc(x.level || '')} <span class="hint">${esc(x.ok ? x.via + ', ' + (x.observed || '') : x.error)}</span></li>`).join('');
+    const rules = cp.ok && (cp.body.applied || cp.body.published);
+    m.innerHTML = `<div class="view"><div class="view-head"><h2>Sector reports: ${esc(d.name)} (${esc(d.level)} level)</h2><p>Sector-wise performance figures computed by each city's City Intelligence Layer from its own data exchange. A state node reads each city's figures through that city's data exchange; a national node reads the state reports. ${esc(d.note)}</p></div>
+      ${card('Who is in this report', `<ul class="plain">${members}</ul>`, 'COS-08')}
+      <div class="grid2">${d.sectors.map(sector).join('')}</div>
+      ${card('Central access rules', rules ? `<pre class="json">${esc(JSON.stringify(rules, null, 1))}</pre><p class="hint">Set at state or national level; they can only narrow access in a city.</p>` : '<p class="hint">No state or national rules apply to this node.</p>', 'COS-08')}</div>`;
+  },
   async media(m) {
     const cat = await api('GET', '/catalogue/v1/search?limit=500');
     const cams = (cat.body.results || []).filter(d => d.resourceType?.value === 'mediaStream');

@@ -198,6 +198,7 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
       return { month: m, city: cfg.cityName, apiUse: calls.map(c => ({ ...c, ms: round(c.ms) })), alertsByDomain: alerts, uptime: beats.map(b => ({ service: b.service, checks: b.n, uptimePercent: round(100 * b.up / b.n, 2) })), generatedAt: iso(Date.now()) };
     },
 
+    serviceSelf: () => serviceSelf(),
     // Federation (City OS Section 1, Figure 2): the same API asked of every city, then aggregated.
     async federate(p, path, body = {}) {
       const a = byPath(path); need(a, 404, 'no CIL API at ' + path);

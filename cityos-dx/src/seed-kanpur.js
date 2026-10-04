@@ -256,6 +256,9 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   seedTransit({ group, res, ingest, times, rnd, round, provider: 'iccc', busRoutes: Object.keys(ROUTES), lineNames: { metro: 'Kanpur Metro Line 1 (demo)', suburban: 'Kanpur suburban line (demo)' },
     metro: [['IIT Kanpur', [80.233, 26.511]], ['Kalyanpur', [80.268, 26.508]], ['SPM Hospital', [80.28, 26.5]], ['Gurudev Chauraha', [80.295, 26.492]], ['Rawatpur', [80.305, 26.487]], ['Moti Jheel', [80.325, 26.483]], ['Bada Chauraha', [80.343, 26.468]], ['Nayaganj', [80.35, 26.462]], ['Kanpur Central', [80.352, 26.455]]],
     suburban: [['Bhaupur', [80.22, 26.47]], ['Panki Dham', [80.252, 26.47]], ['Govindpuri', [80.29, 26.445]], ['Kanpur Central', [80.352, 26.455]], ['Chakeri', [80.39, 26.415]]] });
+  // State-level and sector-wise reports: the CIL publishes this city's figures here every hour (aggregates only).
+  group('perf', 'City performance figures', 'iccc', 'rs1', 'cityPerformance', 'openAPI');
+  res({ key: 'city-performance', grp: 'perf', name: 'City performance figures', desc: 'Sector-wise figures computed every hour by the City Intelligence Layer for state-level reports (aggregates only, demo data).', tags: ['city-performance', 'performance', 'report', 'state-level'], rtype: 'messageStream', label: 'public' });
   // ---- starting policies: who already has access (C), and one open request to show the consent flow ----
   const addC = (id, emails) => { const it = catalogue.get(id); authz.setPolicy(id, { C: [...it.policy.C, ...emails] }, items[id].officer); };
   const ctl = [`control@${dom('iccc')}`, cfg.cilServiceEmail];

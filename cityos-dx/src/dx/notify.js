@@ -1,10 +1,10 @@
 // Notification service (BIS 4.3 change notices, 5.6 "notify later"). Notices are stored first and
 // delivered when the recipient reads their inbox; while the service is paused they stay queued.
-import { q } from '../db.js';
+import { q, sharedSwitch } from '../db.js';
 import { iso } from '../util.js';
 
 export function makeNotify(db, audit) {
-  const state = { up: true };
+  const state = sharedSwitch(db, 'notification');
   return {
     state,
     push(recipient, msg) {

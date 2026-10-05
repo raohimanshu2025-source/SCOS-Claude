@@ -68,3 +68,17 @@ export function tx(db, fn) {
   db.exec('BEGIN IMMEDIATE');
   try { const r = fn(); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; }
 }
+
+// Small settings kept in the database (kv table), so every worker process and a standby server see the same value.
+export const kv = {
+  get: (db, k, d = null) => { const r = q.get(db, 'SELECT v FROM kv WHERE k=?', k); return r ? JSON.parse(r.v) : d; },
+  set: (db, k, v) => q.run(db, 'INSERT OR REPLACE INTO kv (k, v) VALUES (?,?)', k, JSON.stringify(v)),
+};
+// A service pause switch (BIS 5.6 failure testing) stored in kv: `state.up` reads and writes it.
+export function sharedSwitch(db, name, state = {}) {
+  return Object.defineProperty(state, 'up', {
+    enumerable: true,
+    get: () => kv.get(db, 'switch:' + name, true) !== false,
+    set: v => kv.set(db, 'switch:' + name, !!v),
+  });
+}

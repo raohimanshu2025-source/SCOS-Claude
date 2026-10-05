@@ -170,7 +170,7 @@ Every point of both documents is listed in `docs/requirements.json` (138 points)
 
 ## 10. Known limits
 
-- One process and one SQLite file. No clustering or high availability (the BIS 5.6 "distributed architecture for vertical and horizontal scale" is not covered).
+- One SQLite file. Several worker processes can share it on one machine (`src/cluster.js`), and a standby server copies it and takes over on failure (`src/ha/standby.js`, `deploy/ha-frontdoor.js`). There is one writer at a time and the standby can lose the last pull interval of changes, so the BIS 5.6 "distributed architecture for vertical and horizontal scale" is only partly covered.
 - The demo CA is not a licensed certifying authority. Licensed CAs can be configured (section 2), but none are configured in the demo.
 - Trusted execution environments for policy enforcement at the time of data use (BIS 4.5.2.1, "shall support") are not implemented.
 - Streams use server-sent events; MQTT and AMQP with AsyncAPI are not implemented.

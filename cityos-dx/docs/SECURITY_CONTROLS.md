@@ -23,7 +23,7 @@ Status values: **In software** (the code does it, with a test where one is named
 | 8.11 Data masking | In software | Views that drop personal fields; grievance data served as counts | `04-resource.test.js` |
 | 8.12 Data leakage prevention | In software | Every read is authorized per item; errors do not return data; strict response headers | `04-resource.test.js`, `10-authorization.test.js` |
 | 8.13 Information backup | In software | Online backups with integrity check; restore checks the audit chain; daily schedule in `deploy/` | `06-operations.test.js` |
-| 8.14 Redundancy | Operator | Single process. A second site or hot standby is needed for high availability | none |
+| 8.14 Redundancy | Operator | Worker processes restart on failure; a standby server copies the database every few seconds and takes over through the front door (OPERATIONS.md section 8). The operator must run them on separate machines | test/21-high-availability.test.js |
 | 8.15 Logging | In software | Every decision written to the audit log with actor, interface, action and result | `06-operations.test.js`, `07-scenarios.test.js` |
 | 8.16 Monitoring activities | In software | Heartbeats, status page, per-interface statistics, external uptime probe | `06-operations.test.js` |
 | 8.17 Clock synchronisation | Operator | Run NTP on the host (audit times and token expiry depend on it) | none |

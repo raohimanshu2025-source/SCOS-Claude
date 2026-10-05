@@ -3,7 +3,7 @@
 // questions, monthly reports and federation between cities.
 import https from 'node:https';
 import fs from 'node:fs';
-import { q } from '../db.js';
+import { q, sharedSwitch } from '../db.js';
 import { iso, round, fail, need, str } from '../util.js';
 import { ONT, checkSpec, checkBehaviour } from './ontology.js';
 import { BUILTINS, GENERIC, PLUG_OPS, runPlugged, wardOf } from './analytics.js';
@@ -11,7 +11,7 @@ import { MODELS, modelOfRef } from '../dx/model.js';
 import { actorOf } from '../identity/identity.js';
 
 export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
-  const state = { up: true, timer: null };
+  const state = sharedSwitch(db, 'cil', { timer: null });
   const groupId = key => `urn:demo-cat:group/${key}`;
   const itemsOfGroup = key => catalogue.all('resourceItem').filter(i => i.doc.resourceServerGroup?.value === groupId(key));
 

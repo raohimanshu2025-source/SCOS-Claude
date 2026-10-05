@@ -37,7 +37,7 @@ Put other settings in `/etc/cityos-dx.env` (see TECHNICAL.md section 7). The uni
 ## 3. First steps after install
 
 1. Log in as `admin` with the initial password and choose a new one. Do the same for every account, then delete `initial-passwords.txt`.
-2. Give browsers the root certificate `pki/root/root.crt` (or use a certificate from a public CA, section 8).
+2. Give browsers the root certificate `pki/root/root.crt` (or use a certificate from a public CA, see HOSTING.md).
 3. Check `https://<server>:8443/status/v1/heartbeat` shows every service up.
 4. Check **Operations and audit** says the audit chain verifies.
 
@@ -85,6 +85,19 @@ Put other settings in `/etc/cityos-dx.env` (see TECHNICAL.md section 7). The uni
 
 The admin can pause a service (catalogue, authorization, resource server, notification) from the console to rehearse the failure cases of BIS 5.6, then resume it. Resume every service after a drill; the status page records the downtime.
 
+## 8. More workers, standby server and front door (BIS 5.6)
+
+- **More workers on one machine:** `DX_WORKERS=4 npm run start:cluster` (or `DX_WORKERS=auto`, one per CPU). All workers share the port and the database. Worker 1 runs the timers, the simulator and the MQTT and AMQP brokers. A worker that stops is started again. Each answer carries an `X-DX-Instance` header naming the worker. The rate limit counts per worker.
+- **Standby server on a second machine:**
+  1. On the primary set `DX_REPLICATION_KEY` to a long random secret and restart. Keep the secret out of documents and chats.
+  2. Copy the primary's `pki/` folder to the standby once (it holds the CA and signing keys; copy it over SSH, never by e-mail).
+  3. On the standby: `DX_PRIMARY_URL=https://<primary>:8443 DX_REPLICATION_KEY=<same secret> npm run standby`. Add `DX_PRIMARY_NAME` if the primary's certificate name differs from `DX_PUBLIC_NAME`.
+  4. The standby pulls a checked copy every `DX_PULL_MS` (default 10 s). After `DX_FAILOVER_AFTER` (default 3) failed pulls in a row it starts the full DX on the latest copy and writes "Standby promoted to primary" in the audit log.
+  - `GET /ops/v1/replica` (admin, auditor) shows when the last copy was taken.
+- **Front door:** on the machine with the public address: `DX_FRONTDOOR_TARGETS="<primary>,<standby>" npm run frontdoor`. It passes connections through unchanged (client certificates still reach the DX), checks the heartbeat every `DX_HEALTH_MS` (default 5 s) and moves to the standby after `DX_FAILOVER_AFTER` misses. Ports are set with `DX_FRONTDOOR_PORTS` (default `443:8443,8883:8883,5671:5671`).
+- **After a takeover:** the standby is now the primary. Do not start the old primary as it is: its data is older. Make it the new standby (copy `pki/`, run `npm run standby` pointing at the new primary), then restart the front door with the two addresses swapped.
+- **Limits:** changes made in the last pull interval before a failure are lost; only one server writes at a time, so the standby does not share the load; the front door is one machine. Full distributed scaling needs a replicated database such as PostgreSQL and two front doors behind a shared address.
+
 ## Before real use
 
 The software is tested, but a city cannot use it for real data until these steps are done. None of them can be done by the software team alone.
@@ -96,7 +109,7 @@ The software is tested, but a city cannot use it for real data until these steps
 | Independent security audit, vulnerability assessment and penetration test (for example by a CERT-In empanelled auditor) | City, auditor | Required before a government system goes live |
 | Data protection review under the Digital Personal Data Protection Act, 2023, and a data sharing policy | City legal | Consent, retention and purpose rules for personal data |
 | Agreements with each department for live data feeds, and turning off the simulator (`DX_SIMULATOR=false`) and demo data | Departments | The demo city data is synthetic |
-| High availability (second instance, database replication) if the service must stay up during failures | City IT | This build is a single process |
+| High availability: run the standby and front door (section 8) on separate machines, or move to a replicated database for full distributed scaling | City IT | The standby can lose the last few seconds of changes; one database writer |
 | Formal approval by the competent authority | City | Only the city can approve the system |
 
 Until then the system must be described as a research reference implementation with demo data.

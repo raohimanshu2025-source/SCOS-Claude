@@ -108,6 +108,46 @@ export function validatePacket(modelName, pkt) {
 export const W3C_DT = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
 
 // Section 6.1-6.4 and Tables 6-8 checks on one catalogue item. `exists(id)` resolves references.
+// Table 6: DX common attributes with their core type and value type. The value type of every row is checked;
+// attributes outside Table 6 (e.g. accessPolicyLabel, license) are allowed and checked only for a core type.
+// IRI values are absolute URIs, URNs, or the "<catalogue-link>/..." form the document uses in its examples.
+export const TABLE6 = {
+  id: ['Property', 'string'], resourceId: ['Property', 'string'], name: ['Property', 'string'],
+  createdAt: ['TimeProperty', 'string'], modifiedAt: ['TimeProperty', 'string'], deprecatedAt: ['TimeProperty', 'string'],
+  tags: ['Property', 'array'], resourceType: ['Property', 'string'], uriLink: ['Property', 'uri'], itemStatus: ['Property', 'string'],
+  refBaseSchema: ['Relationship', 'IRI'], resourceServer: ['Relationship', 'IRI'], resourceServerGroup: ['Relationship', 'IRI or IRIs'],
+  itemDescription: ['Property', 'string'], itemType: ['Property', 'string'], refDataModel: ['Relationship', 'IRI'], provider: ['Relationship', 'IRI'],
+  statusSchema: ['Property', 'active|deprecated'], location: ['GeoProperty', 'object'], coverageRegion: ['GeoProperty', 'object'],
+  organizationInfo: ['Property', 'object'], authorizationServerInfo: ['Property', 'object'], deviceModelInfo: ['Property', 'object'],
+  accessObjectType: ['Property', 'string'], accessObjectURL: ['Property', 'uri'], accessObject: ['Relationship', 'IRI'],
+  accessObjectVariables: ['Property', 'object'], accessInformation: ['Property', 'array'], dataAttributeList: ['Property', 'object or array'],
+  // Table 7 names two attributes after the Table 6 row whose format they use
+  resourceServerHTTPAccessURL: ['Property', 'uri'], resourceServerOrg: ['Property', 'object'],
+};
+const IRI = v => typeof v === 'string' && /^(urn:[a-z0-9][a-z0-9-]{0,31}:\S+|https?:\/\/\S+|<catalogue-link>\/\S*)$/i.test(v);
+const URI = v => typeof v === 'string' && /^[a-z][a-z0-9+.-]*:\S+$/i.test(v);
+const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+function table6Errors(k, v) {
+  const row = TABLE6[k]; if (!row) return [];
+  const [core, vt] = row, val = v.value, e = [];
+  if (k === 'id') return e; // the item id is checked as a URN above
+  if (v.type !== core) e.push(`"${k}" must be a ${core} (Table 6), not ${v.type}`);
+  const ok = {
+    string: () => typeof val === 'string' && val.length > 0,
+    array: () => Array.isArray(val),
+    object: () => isObj(val),
+    uri: () => URI(val),
+    IRI: () => IRI(val),
+    'IRI or IRIs': () => IRI(val) || (Array.isArray(val) && val.length > 0 && val.every(IRI)),
+    'active|deprecated': () => val === 'active' || val === 'deprecated',
+    'object or array': () => isObj(val) || Array.isArray(val),
+  }[vt]();
+  if (!ok) e.push(`"${k}" value must be ${vt === 'active|deprecated' ? "'active' or 'deprecated'" : vt === 'uri' ? 'a URI' : vt === 'IRI or IRIs' ? 'an IRI or a list of IRIs' : 'a' + (/^[aeiouI]/.test(vt) ? 'n ' : ' ') + vt} (Table 6)`);
+  if (k === 'tags' && Array.isArray(val) && !val.every(t => typeof t === 'string')) e.push('"tags" must be a list of keywords (Table 6)');
+  if (k === 'accessInformation' && Array.isArray(val) && !val.every(isObj)) e.push('"accessInformation" must be a list of access mechanisms (Table 6)');
+  return e;
+}
+
 export function validateItem(it, exists = () => true) {
   const errs = [];
   if (!it || typeof it !== 'object' || Array.isArray(it)) return ['item must be a JSON object'];
@@ -117,7 +157,7 @@ export function validateItem(it, exists = () => true) {
   if (!MANDATORY[t]) errs.push(`itemType "${t}" is not one of Table 5`);
   else for (const m of MANDATORY[t]) if (!(m in it)) errs.push(`mandatory attribute "${m}" missing (Table 7)`);
   for (const [k, v] of Object.entries(it)) {
-    if (k === '@context' || k === 'id' || k === 'accessInformation') continue;
+    if (k === '@context' || k === 'id') continue;
     if (k.startsWith('_')) { errs.push(`"${k}": attribute names may not start with _`); continue; }
     if (!v || typeof v !== 'object' || !('type' in v)) { errs.push(`"${k}" has no core attribute type`); continue; }
     if (!CORE.includes(v.type)) { errs.push(`"${k}" type "${v.type}" is not a core attribute type (6.2)`); continue; }
@@ -125,6 +165,7 @@ export function validateItem(it, exists = () => true) {
     if (v.type === 'Relationship' && !(typeof v.value === 'string' || Array.isArray(v.value))) errs.push(`"${k}" Relationship value must be a URI string`);
     if (v.type === 'TimeProperty' && !W3C_DT.test(v.value)) errs.push(`"${k}" is not a W3C date-time`);
     if (v.type === 'GeoProperty' && !(v.value?.geometry?.type || typeof v.value?.address === 'string')) errs.push(`"${k}" GeoProperty needs geometry or address`);
+    errs.push(...table6Errors(k, v));
     if (k === 'location' && v.value?.geometry?.type !== 'Point') errs.push('"location" must be a GeoJSON Point (Table 6)');
     if (k === 'coverageRegion' && v.value?.geometry?.type !== 'Polygon') errs.push('"coverageRegion" must be a GeoJSON Polygon (Table 6)');
     // 6.2: "number or array of numbers"; "A numeric quantity represented as a string is acceptable"

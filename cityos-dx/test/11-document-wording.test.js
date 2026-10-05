@@ -134,7 +134,7 @@ test('[BIS-120][BIS-121][BIS-87] base schemas and contexts are served (not as ca
   const list = await c.req('GET', '/catalogue/v1/list');
   assert.ok(!list.body.some(id => /schema|context/.test(id)));
   const { validateItem } = await import('../src/dx/model.js');
-  const q = v => validateItem({ '@context': ['x'], id: 'urn:demo-cat:t/q', itemType: { type: 'Property', value: 'catalogueItem' }, name: { type: 'Property', value: 'n' }, tags: { type: 'Property', value: [] }, refBaseSchema: { type: 'Relationship', value: 'x' }, itemDescription: { type: 'Property', value: 'd' }, capacity: { type: 'QuantitativeProperty', value: v } });
+  const q = v => validateItem({ '@context': ['x'], id: 'urn:demo-cat:t/q', itemType: { type: 'Property', value: 'catalogueItem' }, name: { type: 'Property', value: 'n' }, tags: { type: 'Property', value: [] }, refBaseSchema: { type: 'Relationship', value: '<catalogue-link>/catalogueItem_schema.json' }, itemDescription: { type: 'Property', value: 'd' }, capacity: { type: 'QuantitativeProperty', value: v } });
   assert.deepEqual(q(12), []); assert.deepEqual(q('12.5'), []); assert.deepEqual(q([1, '2']), []);
   assert.equal(q('12 kg').length, 1, 'non-numeric characters are not accepted');
 });

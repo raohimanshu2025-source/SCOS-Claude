@@ -16,6 +16,7 @@ export function loadConfig(overrides = {}) {
     host: env('DX_HOST', '0.0.0.0'),
     port: num('DX_PORT', 8443),
     mqttPort: num('DX_MQTT_PORT', 8883), // MQTT 5.0 over TLS for streams (BIS 6.5 AsyncAPI access); -1 switches it off
+    amqpPort: num('DX_AMQP_PORT', 5671), // AMQP 1.0 over TLS for streams (BIS 6.5; ISO/IEC 19464); -1 switches it off
     publicName: env('DX_PUBLIC_NAME', 'dx.demo-city.example'),
     authHost: env('DX_AUTH_HOST', kanpur ? 'auth.kanpur-demo.example' : 'auth.demo-city.example'),
     uacUrl: env('DX_UAC_URL', 'https://uac.demo-city.example'),
@@ -37,6 +38,9 @@ export function loadConfig(overrides = {}) {
     centralPolicyUrl: env('DX_CENTRAL_POLICY_URL', ''), // state or national node whose central access rules this city applies
     federationPeers: env('DX_FEDERATION_PEERS', '').split(',').map(s => s.trim()).filter(Boolean),
     cilServiceEmail: env('DX_CIL_SERVICE_EMAIL', kanpur ? 'cil@iccc.kanpur-demo.example' : 'cil@mc.demo-city.example'),
+    // CIL source layer (City OS Figure 11): folder for CSV/JSON file sources, and object store hosts (host:port) it may fetch from.
+    cilSourceDir: env('DX_CIL_SOURCE_DIR', ''),
+    cilObjectHosts: env('DX_CIL_OBJECT_HOSTS', '').split(',').map(s => s.trim()).filter(Boolean),
     federationCaFile: env('DX_FEDERATION_CA_FILE', ''),
     oidcIssuersFile: env('DX_OIDC_ISSUERS_FILE', ''),
     // BIS 5.4.2: certificates from licensed CAs in India (certified by the CCA). PEM bundle of their CA certificates,

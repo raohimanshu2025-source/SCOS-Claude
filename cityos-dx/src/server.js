@@ -15,6 +15,8 @@ import { makeAuthz } from './dx/authz.js';
 import { makeConsentArtefacts } from './dx/consent-artefact.js';
 import { makeCentralPolicy } from './ops/central-policy.js';
 import { makeRegion } from './cil/region.js';
+import { makeSources } from './cil/sources.js';
+import { makeProviderAuth } from './dx/provider-auth.js';
 import { makeResource } from './dx/resource.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
@@ -25,6 +27,7 @@ import { makeConsoleHelpers } from './console-helpers.js';
 import { makeCitizenAlerts } from './citizen-alerts.js';
 import { checkRsDns } from './identity/dns-check.js';
 import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
+import { makeAmqp } from './dx/amqp.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -42,12 +45,14 @@ export function createApp(overrides = {}) {
   const artefacts = makeConsentArtefacts({ db, cfg, audit, catalogue, keyPem: fs.readFileSync(pki.consentKey, 'utf8') });
   const central = makeCentralPolicy({ db, cfg, audit });
   const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts, central);
-  const resource = makeResource(db, cfg, audit, catalogue, authz);
+  const providerAuth = makeProviderAuth({ db, audit, catalogue });
+  const resource = makeResource(db, cfg, audit, catalogue, authz, providerAuth);
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
+  const sources = makeSources({ db, cfg, audit, catalogue, authz, resource });
   const region = makeRegion({ db, cfg, audit, catalogue, cil });
-  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, central, region, resource, cil, ops };
+  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, central, region, resource, cil, sources, ops };
   const helpers = makeConsoleHelpers(parts);
   const citizenAlerts = makeCitizenAlerts(db, audit);
   parts.citizenAlerts = citizenAlerts;
@@ -133,6 +138,10 @@ export function createApp(overrides = {}) {
   R('GET', '/auth/v1/consent', c => { need(c.p.email, 401, 'identity required'); return authz.consents(c.p, c.query); });
   R('POST', '/auth/v1/consent/decide', c => authz.decideConsent(c.body.id, !!c.body.approve, c.p, { validDays: c.body.validDays ?? 90, access: c.body.access ?? 'VIEW' }));
   // Consent artefacts (BIS 4.1 principle 6, reference [b.2]): read one, check a signed artefact token, get the DX public key.
+  // A provider's own authorization server (BIS 4.5.2.3): register its key and switch items to it, or back to the DX.
+  R('GET', '/auth/v1/provider-auth-server', c => providerAuth.list(c.p));
+  R('POST', '/auth/v1/provider-auth-server', c => providerAuth.register(c.p, c.body));
+  R('POST', '/auth/v1/provider-auth-server/remove', c => providerAuth.unregister(c.p, c.body, cfg.authHost));
   R('GET', '/auth/v1/consent/artefact', c => artefacts.get(c.query.id, c.p));
   R('POST', '/auth/v1/consent/artefact/verify', c => { const v = artefacts.verify(c.body.token); return { valid: v.ok, status: v.status || null, reason: v.reason, artefact: v.artefact || null }; });
   R('GET', '/auth/v1/consent/artefact/public-key', () => ({ alg: 'EdDSA (Ed25519)', kid: artefacts.keyId, publicKeyPem: artefacts.publicKeyPem }));
@@ -181,7 +190,12 @@ export function createApp(overrides = {}) {
   R('POST', '/cil/v1/analytics', c => pub(cil.register(c.p, c.body)));
   R('DELETE', '/cil/v1/analytics', c => { cil.unregister(c.p, c.query.id); return { ok: true }; });
   R('GET', '/cil/v1/alerts', c => cil.alerts(c.query.limit));
-  R('POST', '/cil/v1/olap', c => cil.olap(c.p, c.body));
+  R('POST', '/cil/v1/olap', c => (c.body.source ? sources.olap(c.p, c.body) : cil.olap(c.p, c.body)));
+  R('GET', '/cil/v1/sources', c => sources.list(c.p));
+  R('POST', '/cil/v1/sources', c => { role(c.p, 'operator', 'admin'); return sources.register(c.p, c.body); });
+  R('POST', '/cil/v1/sources/load', c => { role(c.p, 'operator', 'admin'); return sources.load(c.p, c.body.id); });
+  R('POST', '/cil/v1/sources/remove', c => { role(c.p, 'operator', 'admin'); return sources.remove(c.p, c.body.id); });
+  R('GET', '/cil/v1/warehouse', c => sources.rows(c.p, c.query.source, c.query.limit));
   R('POST', '/cil/v1/ask', c => cil.ask(c.p, c.body.question));
   R('GET', '/cil/v1/report', c => { role(c.p, 'operator', 'admin', 'auditor'); return cil.report(c.p, c.query.month); });
   // State-level and sector-wise reports (City OS Sections 1 and 4); the same output at city, state and national level.
@@ -342,19 +356,22 @@ export function createApp(overrides = {}) {
 
   // MQTT 5.0 over TLS for streams (BIS 6.5); the same certificates and tokens as HTTPS.
   const mqtt = cfg.mqttPort === -1 ? null : makeMqtt({ db, cfg, identity, resource, catalogue, audit, tlsOptions });
+  // AMQP 1.0 over TLS for streams (BIS 6.5 and ISO/IEC 19464); the same certificates and tokens.
+  const amqp = cfg.amqpPort === -1 ? null : makeAmqp({ db, cfg, identity, resource, catalogue, audit, tlsOptions });
 
   let simTimer = null;
   const app = {
-    ...parts, server, routes, mqtt, mqttAddress: null,
+    ...parts, server, routes, mqtt, mqttAddress: null, amqp, amqpAddress: null,
     listen(port = cfg.port, host = cfg.host) {
       return new Promise(r => server.listen(port, host, async () => {
         ops.start(); cil.start(); central.start(); region.start();
         if (mqtt) app.mqttAddress = await mqtt.listen(cfg.mqttPort, host);
+        if (amqp) app.amqpAddress = await amqp.listen(cfg.amqpPort, host);
         if (cfg.simulator) { simTimer = setInterval(() => { try { simulateTick(parts); } catch (e) { console.error('simulator', e.message); } }, cfg.simulatorMs); simTimer.unref(); }
         r(server.address());
       }));
     },
-    async close() { ops.stop(); cil.stop(); central.stop(); region.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
+    async close() { ops.stop(); cil.stop(); central.stop(); region.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); if (amqp) await amqp.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
   };
   return app;
 }
@@ -365,6 +382,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = await app.listen();
   console.log(`City OS DX reference implementation for ${app.cfg.cityName} on https://${a.address}:${a.port} (demo data)`);
   if (app.mqttAddress) console.log(`MQTT 5.0 over TLS on mqtts://${a.address}:${app.mqttAddress.port}`);
+  if (app.amqpAddress) console.log(`AMQP 1.0 over TLS on amqps://${a.address}:${app.amqpAddress.port}`);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, async () => { await app.close(); process.exit(0); });
 }
 export { pkiPaths };

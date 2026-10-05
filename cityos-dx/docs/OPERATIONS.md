@@ -5,7 +5,7 @@ For the people who install and run the server. All data in the demo city is synt
 ## 1. Requirements
 
 - Linux server with Node.js 22.13 or later and OpenSSL 3, or Docker.
-- One open TCP port (default 8443), and port 8883 if MQTT streams are wanted (`DX_MQTT_PORT`; `-1` switches MQTT off).
+- One open TCP port (default 8443), port 8883 if MQTT streams are wanted (`DX_MQTT_PORT`; `-1` switches MQTT off) and port 5671 for AMQP 1.0 streams (`DX_AMQP_PORT`; `-1` switches AMQP off).
 - A DNS name for the server. Set `DX_PUBLIC_NAME` to it before creating the PKI.
 
 ## 2. Install
@@ -75,6 +75,9 @@ Put other settings in `/etc/cityos-dx.env` (see TECHNICAL.md section 7). The uni
 - **Consent artefacts (BIS 4.1, 4.3):** approved consents are signed with the key `pki/audit/consent-ed25519.key` (made on first start). Keep it with the other keys in backups; if it is lost, old artefacts can no longer be verified. The public key is at `GET /auth/v1/consent/artefact/public-key`.
 - **State and national tiers (City OS Section 1):** a city node publishes its sector figures every hour (with the scheduler on). For a state node set `DX_TIER=state`, `DX_REGION_NAME` and `DX_FEDERATION_PEERS` to its cities (`Name=https://host:8443`, comma separated) and `DX_FEDERATION_CA_FILE` to the CA bundle that signed their web certificates; a national node uses `DX_TIER=national` with state nodes as peers. `GET /cil/v1/reports/region` gives the report at every level. Central access rules are set by the administrator of a state or national node with `PUT /ops/v1/central-policy`; a city follows them with `DX_CENTRAL_POLICY_URL=https://state-node:8443` and keeps the last rules if the state node is down.
 - **MQTT streams (BIS 6.5):** the server also listens for MQTT 5.0 over TLS on `DX_MQTT_PORT` (default 8883). Clients use their DX certificate and give a DX access token as the MQTT password for protected items; topics are resource item ids. `GET /catalogue/v1/asyncapi?id=<item or group>` gives the AsyncAPI document. If the port is busy the DX still starts and logs that MQTT is off.
+- **AMQP 1.0 streams (BIS 6.5, ISO/IEC 19464):** the server also listens for AMQP 1.0 over TLS on `DX_AMQP_PORT` (default 5671). Clients connect with their DX certificate; for protected items they use SASL PLAIN with any user name and the DX access token as the password. Addresses are resource item ids or group ids: a receiving link gets new data packets, a sending link to an item id adds data packets (its provider only) and each message is answered accepted or rejected.
+- **Provider authorization servers (BIS 4.5.2.3):** a data provider posts `{issuer, publicKeyPem, items}` to `/auth/v1/provider-auth-server` (https issuer; Ed25519, P-256 or RSA 2048+ key). Those items then also accept signed JWTs from that issuer with `sub` = the consumer's certificate e-mail, `items` (or `scope`) listing the item, and a life of at most 24 hours. `/auth/v1/provider-auth-server/remove` switches items back to the DX authorization server.
+- **CIL sources and warehouse (COS Figure 11):** the control room or administrator registers sources at `/cil/v1/sources`: `file` (CSV or JSON in `DX_CIL_SOURCE_DIR`, default `<data>/cil-sources`), `object` (an HTTP(S) URL on a host listed in `DX_CIL_OBJECT_HOSTS`) or `dx` (a resource item, read under DX rules). `/cil/v1/sources/load` copies the rows into the warehouse; `/cil/v1/olap` with `source` pivots them; `/cil/v1/warehouse?source=` lists rows.
 - **DNS check of resource servers (Figure 2 step 8):** once resource servers have real host names, set `DX_RS_DNS_CHECK=true`. An introspection call from a resource server is then refused unless its certificate's host name resolves to the caller's address.
 
 ## 7. Service drills

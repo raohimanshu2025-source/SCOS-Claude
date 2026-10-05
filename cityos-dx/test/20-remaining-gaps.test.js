@@ -79,3 +79,50 @@ test('[BIS-55] a resource server also accepts tokens from the provider\'s own au
   assert.equal(rm.status, 200); assert.equal(rm.body.issuerRemoved, true);
   assert.equal((await c.req('GET', '/resource/v1/latest?id=' + FARE, { as: WHO, token: jwt(good) })).status, 403);
 });
+
+test('[COS-31] CIL sources: a file, an object store object and a data exchange copy load into the warehouse for OLAP', async () => {
+  const fs = await import('node:fs'), path = await import('node:path'), http = await import('node:http');
+  const control = await c.login('control'), admin = await c.login('admin');
+  // a CSV file in the CIL source folder (quoted field with a comma inside)
+  fs.writeFileSync(path.join(c.app.sources.dir, 'tankers.csv'), 'ward,day,litres,note\nW1,2026-10-01,12000,"pipe burst, Barra"\nW1,2026-10-02,8000,\nW2,2026-10-01,5000,\n');
+  assert.equal((await c.req('POST', '/cil/v1/sources', { as: 'analyst@lab.example', body: { id: 'tankers', kind: 'file', path: 'tankers.csv' } })).status, 403, 'only the control room or admin registers sources');
+  assert.equal((await control.as('POST', '/cil/v1/sources', { body: { id: 'bad', kind: 'file', path: '../dx.sqlite' } })).status, 400, 'no files outside the folder');
+  const reg = await control.as('POST', '/cil/v1/sources', { body: { id: 'tankers', name: 'Water tanker trips', kind: 'file', path: 'tankers.csv' } });
+  assert.equal(reg.status, 200, JSON.stringify(reg.body)); assert.equal(reg.body.config.format, 'csv');
+  assert.equal((await control.as('POST', '/cil/v1/olap', { body: { source: 'tankers', measure: 'litres', rows: 'ward', cols: 'day' } })).status, 409, 'not loaded yet');
+  const ld = await control.as('POST', '/cil/v1/sources/load', { body: { id: 'tankers' } });
+  assert.equal(ld.status, 200, JSON.stringify(ld.body)); assert.equal(ld.body.rows, 3); assert.deepEqual(ld.body.columns, ['ward', 'day', 'litres', 'note']);
+  const wh = await control.as('GET', '/cil/v1/warehouse?source=tankers');
+  assert.equal(wh.body.rows[0].note, 'pipe burst, Barra'); assert.equal(wh.body.rows[0].litres, 12000);
+  const cube = (await control.as('POST', '/cil/v1/olap', { body: { source: 'tankers', measure: 'litres', rows: 'ward', cols: 'day' } })).body;
+  assert.deepEqual(cube.rows, ['W1', 'W2']); assert.deepEqual(cube.cols, ['2026-10-01', '2026-10-02']); assert.deepEqual(cube.cells, [[12000, 8000], [5000, 0]]);
+  assert.equal((await c.req('GET', '/cil/v1/warehouse?source=tankers')).status, 401, 'restricted source needs a login');
+  assert.equal((await c.req('GET', '/cil/v1/warehouse?source=tankers', { as: 'analyst@lab.example' })).status, 200, 'analysts may read');
+
+  // an object in an S3-style object store; only hosts the administrator allowed
+  const store = http.createServer((q, s) => { if (q.url === '/city-bucket/pumps.json') { s.setHeader('content-type', 'application/json'); s.end(JSON.stringify([{ pump: 'P1', zone: 'Z6', hours: 5 }, { pump: 'P2', zone: 'Z6', hours: 3 }, { pump: 'P3', zone: 'Z2', hours: 7 }])); } else { s.statusCode = 404; s.end(); } });
+  await new Promise(r => store.listen(0, '127.0.0.1', r));
+  const host = `127.0.0.1:${store.address().port}`;
+  const url = `http://${host}/city-bucket/pumps.json`;
+  assert.equal((await admin.as('POST', '/cil/v1/sources', { body: { id: 'pumps', kind: 'object', url } })).status, 403, 'host not allowed yet');
+  c.app.cfg.cilObjectHosts.push(host);
+  assert.equal((await admin.as('POST', '/cil/v1/sources', { body: { id: 'pumps', kind: 'object', url, label: 'public' } })).status, 200);
+  assert.equal((await admin.as('POST', '/cil/v1/sources/load', { body: { id: 'pumps' } })).body.rows, 3);
+  const pc = (await c.req('POST', '/cil/v1/olap', { body: { source: 'pumps', measure: 'hours', rows: 'zone', cols: 'pump', agg: 'sum' } })).body;
+  assert.deepEqual(pc.rows, ['Z2', 'Z6']); assert.deepEqual(pc.cells, [[0, 0, 7], [5, 3, 0]]);
+  assert.equal((await admin.as('POST', '/cil/v1/sources', { body: { id: 'gone', kind: 'object', url: `http://${host}/city-bucket/none.json` } })).status, 200);
+  assert.equal((await admin.as('POST', '/cil/v1/sources/load', { body: { id: 'gone' } })).status, 502);
+  store.close();
+
+  // a data exchange item copied into the warehouse (data warehouse snapshot)
+  const dx = await control.as('POST', '/cil/v1/sources', { body: { id: 'aq-copy', kind: 'dx', item: 'urn:demo-cat:aqm/aqm-1' } });
+  assert.equal(dx.status, 200, JSON.stringify(dx.body));
+  const dl = await control.as('POST', '/cil/v1/sources/load', { body: { id: 'aq-copy' } });
+  assert.equal(dl.status, 200, JSON.stringify(dl.body)); assert.ok(dl.body.rows > 0 && dl.body.columns.includes('PM2_5'));
+  const list = (await control.as('GET', '/cil/v1/sources')).body.map(s => s.id);
+  assert.deepEqual(list.sort(), ['aq-copy', 'gone', 'pumps', 'tankers']);
+  assert.deepEqual((await c.req('GET', '/cil/v1/sources')).body.map(s => s.id), ['pumps'], 'anonymous sees only public sources');
+  const log = (await admin.as('GET', '/ops/v1/audit?limit=300')).body;
+  assert.ok(log.some(e => e.action === 'CIL source loaded into warehouse' && e.detail.startsWith('tankers: 3 rows')));
+  assert.equal((await control.as('POST', '/cil/v1/sources/remove', { body: { id: 'gone' } })).status, 200);
+});

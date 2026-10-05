@@ -15,6 +15,7 @@ import { makeAuthz } from './dx/authz.js';
 import { makeConsentArtefacts } from './dx/consent-artefact.js';
 import { makeCentralPolicy } from './ops/central-policy.js';
 import { makeRegion } from './cil/region.js';
+import { makeSources } from './cil/sources.js';
 import { makeProviderAuth } from './dx/provider-auth.js';
 import { makeResource } from './dx/resource.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
@@ -48,8 +49,9 @@ export function createApp(overrides = {}) {
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
+  const sources = makeSources({ db, cfg, audit, catalogue, authz, resource });
   const region = makeRegion({ db, cfg, audit, catalogue, cil });
-  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, central, region, resource, cil, ops };
+  const parts = { cfg, db, audit, identity, accounts, notify, catalogue, authz, artefacts, central, region, resource, cil, sources, ops };
   const helpers = makeConsoleHelpers(parts);
   const citizenAlerts = makeCitizenAlerts(db, audit);
   parts.citizenAlerts = citizenAlerts;
@@ -187,7 +189,12 @@ export function createApp(overrides = {}) {
   R('POST', '/cil/v1/analytics', c => pub(cil.register(c.p, c.body)));
   R('DELETE', '/cil/v1/analytics', c => { cil.unregister(c.p, c.query.id); return { ok: true }; });
   R('GET', '/cil/v1/alerts', c => cil.alerts(c.query.limit));
-  R('POST', '/cil/v1/olap', c => cil.olap(c.p, c.body));
+  R('POST', '/cil/v1/olap', c => (c.body.source ? sources.olap(c.p, c.body) : cil.olap(c.p, c.body)));
+  R('GET', '/cil/v1/sources', c => sources.list(c.p));
+  R('POST', '/cil/v1/sources', c => { role(c.p, 'operator', 'admin'); return sources.register(c.p, c.body); });
+  R('POST', '/cil/v1/sources/load', c => { role(c.p, 'operator', 'admin'); return sources.load(c.p, c.body.id); });
+  R('POST', '/cil/v1/sources/remove', c => { role(c.p, 'operator', 'admin'); return sources.remove(c.p, c.body.id); });
+  R('GET', '/cil/v1/warehouse', c => sources.rows(c.p, c.query.source, c.query.limit));
   R('POST', '/cil/v1/ask', c => cil.ask(c.p, c.body.question));
   R('GET', '/cil/v1/report', c => { role(c.p, 'operator', 'admin', 'auditor'); return cil.report(c.p, c.query.month); });
   // State-level and sector-wise reports (City OS Sections 1 and 4); the same output at city, state and national level.

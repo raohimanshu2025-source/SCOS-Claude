@@ -26,6 +26,7 @@ export const VIZ_ALL = Object.values(ONT.viz).flat();
 export function checkSpec(s) {
   const e = [];
   if (!/^\/[a-z]+\/[A-Za-z]+$/.test(s.path || '')) e.push('path must look like /domain/apiName');
+  if (/^\/(analytics|sources|reports)\//.test(s.path || '')) e.push('paths under /analytics, /sources and /reports are used by the CIL itself');
   if (!ONT.domains.includes(s.domain)) e.push('domain must be one of ' + ONT.domains.join(', '));
   if (!s.name) e.push('name required');
   if (!Array.isArray(s.inputs) || !s.inputs.length) e.push('at least one input (RequiresDataSource) is required');
@@ -42,4 +43,22 @@ export function checkSpec(s) {
   if (!(Number(s.period) >= 1)) e.push('ProcessPeriodicity (period, minutes) must be at least 1');
   if (!s.dataPeriodicity) e.push('RequiresDataPeriodicity required');
   return e;
+}
+
+// Behaviour specification (City OS Figure 13, customisation service): when an analytic runs, what it does when
+// inputs are missing, and the rule that turns its output into alerts. Returns [normalised behaviour, problems].
+export const TRIGGERS = ['schedule', 'onRequest'];
+export function checkBehaviour(b = {}) {
+  const e = [];
+  if (b === null || typeof b !== 'object' || Array.isArray(b)) return [null, ['behaviour must be an object']];
+  const out = { trigger: b.trigger ?? 'schedule', onMissingInput: b.onMissingInput ?? 'skip', minInputs: b.minInputs == null ? 1 : Number(b.minInputs) };
+  if (!TRIGGERS.includes(out.trigger)) e.push('behaviour.trigger must be schedule or onRequest');
+  if (!['skip', 'fail'].includes(out.onMissingInput)) e.push('behaviour.onMissingInput must be skip or fail');
+  if (!Number.isInteger(out.minInputs) || out.minInputs < 1 || out.minInputs > 100) e.push('behaviour.minInputs must be a whole number from 1 to 100');
+  if (b.alert != null) {
+    const a = b.alert;
+    if (!a || !['above', 'below'].includes(a.when) || !Number.isFinite(Number(a.value))) e.push('behaviour.alert needs when (above or below) and a number value');
+    else out.alert = { when: a.when, value: Number(a.value) };
+  }
+  return [out, e];
 }

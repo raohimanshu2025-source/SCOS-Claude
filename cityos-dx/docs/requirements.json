@@ -3029,10 +3029,11 @@
   "anchor": "an-register",
   "how": "The register form asks for all five parts and runs schema matching against the data exchange items before accepting.",
   "server": {
-   "status": "partial",
-   "how": "Specifications with input schema, procedure, output schema, provenance and visualisation are checked by schema matching and run (tested). There is no behaviour specification and no separate domain-specific versus generic repository.",
+   "status": "working",
+   "how": "Specifications with input schema, procedure, output schema, provenance and visualisation are checked by schema matching and run (tested). Each analytic also has a behaviour specification (runs on a schedule or on request, what to do when inputs are missing, an alert rule). The repository has a domain-specific shelf and a generic shelf, searchable by shelf, domain, input or output type and words; the customisation service binds a generic analytic to a domain's data after schema matching, with its own visualisation and behaviour (tested).",
    "tests": [
-    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled"
+    "[COS-32][COS-33][COS-28][COS-14] plugging an analytic: ontology and schema matching refuse bad specs; a good one is live and scheduled",
+    "[COS-33] analytics repository: domain and generic analytics are searchable; a generic one is customised with schema matching and a behaviour specification"
    ]
   }
  },

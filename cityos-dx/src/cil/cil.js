@@ -5,8 +5,8 @@ import https from 'node:https';
 import fs from 'node:fs';
 import { q } from '../db.js';
 import { iso, round, fail, need, str } from '../util.js';
-import { ONT, checkSpec } from './ontology.js';
-import { BUILTINS, PLUG_OPS, runPlugged, wardOf } from './analytics.js';
+import { ONT, checkSpec, checkBehaviour } from './ontology.js';
+import { BUILTINS, GENERIC, PLUG_OPS, runPlugged, wardOf } from './analytics.js';
 import { MODELS, modelOfRef } from '../dx/model.js';
 import { actorOf } from '../identity/identity.js';
 
@@ -22,7 +22,9 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
     const stats = Object.fromEntries(q.all(db, 'SELECT id, runs, last_run FROM analytics').map(r => [r.id, r]));
     // the provider shown is the department that publishes the analytic's main input group in this city's catalogue
     const providerOf = a => { try { const g = catalogue.get(groupId(a.inputs[0].group)); return catalogue.get(g.doc.provider.value).doc.name.value; } catch { return a.provider; } };
-    return [...BUILTINS.map(a => ({ ...a, provider: providerOf(a), runs: stats[a.id]?.runs ?? 0, lastRun: stats[a.id]?.last_run ?? null })), ...plugged()];
+    const BUILTIN_BEHAVIOUR = { trigger: 'schedule', onMissingInput: 'skip', minInputs: 1 };
+    return [...BUILTINS.map(a => ({ ...a, repository: 'domain', behaviour: BUILTIN_BEHAVIOUR, provider: providerOf(a), runs: stats[a.id]?.runs ?? 0, lastRun: stats[a.id]?.last_run ?? null })),
+      ...plugged().map(a => ({ repository: 'domain', behaviour: BUILTIN_BEHAVIOUR, ...a }))];
   }
   const byPath = path => list().find(a => a.path === path);
 
@@ -117,8 +119,10 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
       need(['analytics_provider', 'provider', 'admin'].includes(p.role) || p.cls === 3, 403, 'analytics providers and data officers only');
       const s = { id: str(spec.id, 40), domain: spec.domain, name: str(spec.name, 120), path: str(spec.path, 80), provider: str(spec.provider, 120) || actorOf(p), inputs: spec.inputs,
         out: spec.out, viz: spec.viz, period: Number(spec.period), dataPeriodicity: str(spec.dataPeriodicity, 40), procedure: str(spec.procedure, 500), provenance: str(spec.provenance, 300),
-        operation: spec.operation, threshold: spec.threshold != null ? Number(spec.threshold) : undefined, alertAbove: spec.alertAbove != null ? Number(spec.alertAbove) : undefined };
+        operation: spec.operation, threshold: spec.threshold != null ? Number(spec.threshold) : undefined, alertAbove: spec.alertAbove != null ? Number(spec.alertAbove) : undefined,
+        repository: 'domain', template: spec.template ? str(spec.template, 60) : undefined };
       const errs = checkSpec(s);
+      const [bh, bhErrs] = checkBehaviour(spec.behaviour ?? {}); s.behaviour = bh; errs.push(...bhErrs);
       need(/^[a-z0-9-]{3,40}$/.test(s.id), 400, 'id must be 3-40 lowercase letters, digits or -');
       if (!PLUG_OPS[s.operation]) errs.push('operation must be one of ' + Object.keys(PLUG_OPS).join(', '));
       for (const i of s.inputs || []) {
@@ -131,8 +135,30 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
       if (q.get(db, 'SELECT 1 FROM analytics WHERE id=?', s.id)) errs.push('an analytic already uses id ' + s.id);
       if (errs.length) { audit.log('CIL', actorOf(p), 'Analytic refused', errs[0], false); fail(400, 'analytic specification refused', { errors: errs }); }
       q.run(db, 'INSERT INTO analytics (id, spec, builtin, created_at) VALUES (?,?,0,?)', s.id, JSON.stringify({ ...s, owner: actorOf(p) }), iso(Date.now()));
-      audit.log('CIL', actorOf(p), 'Analytic registered and scheduled', `${s.id} ${s.path} every ${s.period} min`);
+      audit.log('CIL', actorOf(p), s.behaviour.trigger === 'schedule' ? 'Analytic registered and scheduled' : 'Analytic registered (runs on request)', `${s.id} ${s.path}${s.behaviour.trigger === 'schedule' ? ` every ${s.period} min` : ''}${s.template ? ` from generic ${s.template}` : ''}`);
       return byPath(s.path);
+    },
+
+    // Analytics repository (City OS Figure 13): domain-specific analytics (bound to a domain's data) and generic
+    // procedures, searchable by repository, domain, ingress or egress type and words.
+    templates: () => GENERIC.map(g => ({ ...g, repository: 'generic' })),
+    search({ repository, domain, ingress, egress, q: words } = {}) {
+      const dom = list().map(a => ({ id: a.id, repository: 'domain', name: a.name, domain: a.domain, path: a.path, ingress: [...new Set(a.inputs.map(i => i.type))], out: a.out, viz: [a.viz], procedure: a.procedure, provider: a.provider, behaviour: a.behaviour, template: a.template }));
+      const gen = api.templates().map(g => ({ id: g.id, repository: 'generic', name: g.name, domain: null, path: null, ingress: g.ingress, out: g.out, viz: g.viz, procedure: g.procedure, provider: g.provenance }));
+      const w = String(words || '').toLowerCase().split(/\s+/).filter(Boolean);
+      return [...dom, ...gen].filter(a => (!repository || a.repository === repository) && (!domain || a.domain === domain) && (!ingress || a.ingress.includes(ingress)) && (!egress || a.out === egress)
+        && w.every(x => `${a.name} ${a.procedure} ${a.domain || ''} ${a.path || ''}`.toLowerCase().includes(x)));
+    },
+    // Customisation service (Figure 13): binds a generic procedure to a domain's data after schema matching, with its
+    // own visualisation and behaviour. The result is registered as a domain-specific analytic.
+    customize(p, b = {}) {
+      const g = GENERIC.find(x => x.id === b.template); need(g, 404, 'no generic analytic ' + b.template + '; see /cil/v1/analytics/search?repository=generic');
+      const inputs = (Array.isArray(b.inputs) ? b.inputs : []).map(i => ({ group: i.group, attr: i.attr, type: i.type || g.ingress[0], role: i.role || 'RequiresDataSource' }));
+      const errs = inputs.filter(i => !g.ingress.includes(i.type)).map(i => `input type "${i.type}" does not fit ${g.name} (needs ${g.ingress.join(' or ')})`);
+      const viz = b.viz || g.viz[0]; if (!g.viz.includes(viz)) errs.push(`visualisation "${viz}" does not fit ${g.name} (allowed: ${g.viz.join(', ')})`);
+      if (errs.length) { audit.log('CIL', actorOf(p), 'Analytic refused', errs[0], false); fail(400, 'customisation refused', { errors: errs }); }
+      return api.register(p, { ...b, inputs, viz, out: g.out, operation: g.operation, template: g.id,
+        procedure: `${g.procedure} (generic ${g.id}, customised for ${b.domain || 'a domain'})`, provenance: b.provenance || g.provenance });
     },
     unregister(p, id) {
       const r = q.get(db, 'SELECT * FROM analytics WHERE id=? AND builtin=0', id); need(r, 404, 'no such plugged analytic');
@@ -145,6 +171,7 @@ export function makeCil(db, cfg, audit, catalogue, authz, resource, identity) {
       if (!state.up) return 0;
       const svc = serviceSelf(); if (!svc) return 0; let n = 0;
       for (const a of list()) {
+        if (a.behaviour?.trigger === 'onRequest') continue;
         const due = !a.lastRun || now - Date.parse(a.lastRun) >= a.period * cfg.schedulerMinuteMs;
         if (!due) continue;
         try { api.call(svc, a.path, {}); n++; } catch (e) { q.run(db, 'UPDATE analytics SET last_run=? WHERE id=?', iso(now), a.id); }

@@ -5,7 +5,7 @@ This puts the server on the internet so officials can open a link in their brows
 ## What you need
 
 - A small cloud machine running Ubuntu 22.04 or 24.04, with 1 GB of memory and a public IP address. Any provider works.
-- Ports 80 and 443 open to the internet. Port 80 is only used to get and renew the web certificate. Port 8883 too if MQTT streams are wanted.
+- Ports 80 and 443 open to the internet. Port 80 is only used to get and renew the web certificate. Ports 8883 (MQTT) and 5671 (AMQP) too if data streams are wanted.
 - Optional: your own domain name pointing at the machine. Without one, the script uses a free `<ip>.sslip.io` name.
 
 ## Set it up (one command)
@@ -37,11 +37,11 @@ Oracle's "Always Free" machines keep running without a bill. Sign-up asks for a 
    - Networking: let it **create a new virtual cloud network** with a **public subnet**, and keep **Assign a public IPv4 address** on.
    - SSH keys: **Generate a key pair for me**, and download the private key. Keep it safe.
    - Click **Create** and wait until the state is **Running**. Copy the **Public IP address**.
-3. Open the ports in Oracle's own firewall. On the instance page, open the **Subnet**, then its **Security List**, then **Add Ingress Rules**. Add three rules, each with source `0.0.0.0/0`, IP protocol **TCP**, and destination port **80**, **443** and **8883**.
+3. Open the ports in Oracle's own firewall. On the instance page, open the **Subnet**, then its **Security List**, then **Add Ingress Rules**. Add four rules, each with source `0.0.0.0/0`, IP protocol **TCP**, and destination port **80**, **443**, **8883** and **5671**.
 4. Connect to the machine. Click **Cloud Shell** (the `>_` icon), upload the private key with the menu (gear icon > Upload), then run:
    `chmod 600 <key file>` and `ssh -i <key file> ubuntu@<public IP>`
    From your own computer you can use PowerShell or Terminal with the same `ssh` command.
-5. Run the one command above. It already has `sudo`, and it also opens ports 80, 443 and 8883 inside the machine, which Oracle's Ubuntu image blocks by default. It sets up the Kanpur departments (synthetic data); add `DX_CITY_PROFILE=demo` after `sudo` for the made-up Demo City instead.
+5. Run the one command above. It already has `sudo`, and it also opens ports 80, 443, 8883 and 5671 inside the machine, which Oracle's Ubuntu image blocks by default. It sets up the Kanpur departments (synthetic data); add `DX_CITY_PROFILE=demo` after `sudo` for the made-up Demo City instead.
 6. Copy the printed link and logins. Give officials only the demo password, never the administrator one.
 
 Oracle may reclaim Always Free machines that stay almost idle for about a week (check its current Always Free rules). Opening the site now and then keeps it in use.

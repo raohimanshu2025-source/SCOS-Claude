@@ -3,7 +3,7 @@
 # The server answers on port 443 itself, so client certificates (mutual TLS, BIS 5.1) keep working.
 services:
   dx:
-    ports: ["443:8443", "8883:8883"]  # 8883: MQTT streams (BIS 6.5)
+    ports: ["443:8443", "8883:8883", "5671:5671"]  # 8883: MQTT, 5671: AMQP 1.0 streams (BIS 6.5)
     environment:
       DX_PUBLIC_NAME: ${DX_DOMAIN}
       # Kanpur departments with synthetic demo data by default; DX_CITY_PROFILE=demo gives the made-up Demo City

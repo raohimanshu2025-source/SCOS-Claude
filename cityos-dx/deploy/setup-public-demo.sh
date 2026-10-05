@@ -18,9 +18,9 @@ if [ "$(awk '/MemTotal/ {print $2}' /proc/meminfo)" -lt 2000000 ] && ! swapon --
   fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile >/dev/null && swapon /swapfile && echo '/swapfile none swap sw 0 0' >> /etc/fstab
 fi
 # Oracle Cloud Ubuntu images block every port except 22 inside the machine as well: open 80 (certificate check),
-# 443 (the site) and 8883 (MQTT) and keep the rules after a restart. The cloud's own security list must allow them too.
+# 443 (the site), 8883 (MQTT) and 5671 (AMQP) and keep the rules after a restart. The cloud's own security list must allow them too.
 if iptables -S INPUT 2>/dev/null | grep -q -- '-j REJECT'; then
-  for p in 80 443 8883; do
+  for p in 80 443 8883 5671; do
     iptables -C INPUT -p tcp -m state --state NEW --dport $p -j ACCEPT 2>/dev/null && continue
     n=$(iptables -L INPUT --line-numbers -n | awk '/REJECT/ {print $1; exit}')  # just before the reject-all rule
     iptables -I INPUT "${n:-1}" -p tcp -m state --state NEW --dport $p -j ACCEPT
@@ -42,7 +42,7 @@ chown 1000:1000 $DIR/tls/*.pem; chmod 600 $DIR/tls/privkey.pem
 HOOK
 chmod +x /etc/letsencrypt-copy.sh
 certbot certonly --standalone --non-interactive --agree-tos --register-unsafely-without-email -d "$DX_DOMAIN" --deploy-hook /etc/letsencrypt-copy.sh \
-  || { echo "Could not get the web certificate. Check that ports 80 and 443 are open to the internet (on Oracle Cloud: Networking > Virtual cloud networks > your network > Security lists > add ingress rules for TCP 80, 443 and 8883 from 0.0.0.0/0; on Azure: VM > Networking > inbound port rules), then run this again."; exit 1; }
+  || { echo "Could not get the web certificate. Check that ports 80 and 443 are open to the internet (on Oracle Cloud: Networking > Virtual cloud networks > your network > Security lists > add ingress rules for TCP 80, 443, 8883 and 5671 from 0.0.0.0/0; on Azure: VM > Networking > inbound port rules), then run this again."; exit 1; }
 /etc/letsencrypt-copy.sh
 
 # Demo logins: one shared password for the demo accounts, a separate one for the administrator.

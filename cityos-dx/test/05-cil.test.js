@@ -134,3 +134,48 @@ test('[COS-09] a data collecting system (grievance aggregator) connects directly
   assert.equal(it.resourceServer.value, 'urn:demo-cat:rs/rs1');
   assert.equal(it.accessPolicyLabel.value, 'confidential');
 });
+
+test('[COS-33] analytics repository: domain and generic analytics are searchable; a generic one is customised with schema matching and a behaviour specification', async () => {
+  const an = await c.login('analyst'); // a login session: the federation test above replaced the shared client certificate files
+  const post = (u, body) => an.as('POST', u, { body });
+  const all = (await c.req('GET', '/cil/v1/analytics/search')).body;
+  assert.ok(all.some(a => a.repository === 'domain') && all.some(a => a.repository === 'generic'), 'both repositories');
+  const gen = (await c.req('GET', '/cil/v1/analytics/search?repository=generic')).body;
+  assert.ok(gen.length >= 4 && gen.every(a => a.repository === 'generic' && a.domain === null && !a.path));
+  const air = (await c.req('GET', '/cil/v1/analytics/search?repository=domain&domain=Air%20Quality')).body;
+  assert.ok(air.length >= 1 && air.every(a => a.domain === 'Air Quality'));
+  assert.ok((await c.req('GET', '/cil/v1/analytics/search?q=ward%20maximum')).body.some(a => a.id === 'generic-max-by-ward'), 'word search');
+  assert.ok((await c.req('GET', '/cil/v1/analytics/search?egress=Single%20Stat')).body.every(a => a.out === 'Single Stat'));
+  // customise a generic analytic for air quality sensors: schema matching and the fit of input type and visualisation are checked
+  const base = { template: 'generic-max-by-ward', id: 'pm-max', domain: 'Air Quality', name: 'Highest PM2.5 by ward', path: '/environment/pmMaxByWard', inputs: [{ group: 'aqm', attr: 'PM2_5' }], period: 10, dataPeriodicity: '10 min' };
+  const badAttr = await post('/cil/v1/analytics/customize', { ...base, inputs: [{ group: 'aqm', attr: 'NOT_A_FIELD' }] });
+  assert.equal(badAttr.status, 400); assert.match(badAttr.body.errors.join(), /schema matching/);
+  const badViz = await post('/cil/v1/analytics/customize', { ...base, viz: 'Pie' });
+  assert.match(badViz.body.errors.join(), /visualisation "Pie" does not fit/);
+  const badType = await post('/cil/v1/analytics/customize', { ...base, inputs: [{ group: 'aqm', attr: 'PM2_5', type: 'Categorical' }] });
+  assert.match(badType.body.errors.join(), /does not fit/);
+  const badBh = await post('/cil/v1/analytics/customize', { ...base, behaviour: { trigger: 'sometimes', alert: { when: 'sideways' } } });
+  assert.match(badBh.body.errors.join(), /behaviour.trigger.*behaviour.alert/);
+  assert.equal((await post('/cil/v1/analytics/customize', { ...base, template: 'nope' })).status, 404);
+  const ok = await post('/cil/v1/analytics/customize', { ...base, behaviour: { trigger: 'onRequest', onMissingInput: 'skip', minInputs: 1, alert: { when: 'above', value: 0 } } });
+  assert.equal(ok.status, 200, JSON.stringify(ok.body));
+  assert.equal(ok.body.template, 'generic-max-by-ward'); assert.equal(ok.body.repository, 'domain'); assert.equal(ok.body.behaviour.trigger, 'onRequest');
+  const run = await c.req('POST', '/cil/v1/environment/pmMaxByWard', { body: {} });
+  assert.equal(run.status, 200, JSON.stringify(run.body)); assert.ok(run.body.output.rows.length >= 1);
+  assert.ok(run.body.alertsRaised >= 1, 'the behaviour alert rule raises alerts');
+  // onRequest analytics are not run by the scheduler
+  const before = (await c.req('GET', '/cil/v1/apis')).body.find(a => a.id === 'pm-max').runs;
+  c.app.cil.tick(Date.now() + 3600e3 * 96);
+  assert.equal((await c.req('GET', '/cil/v1/apis')).body.find(a => a.id === 'pm-max').runs, before);
+  // a behaviour that fails when a ward has too few sensors
+  const strict = await post('/cil/v1/analytics/customize', { ...base, id: 'pm-max-strict', path: '/environment/pmMaxStrict', behaviour: { onMissingInput: 'fail', minInputs: 50 } });
+  assert.equal(strict.status, 200, JSON.stringify(strict.body));
+  const sr = await c.req('POST', '/cil/v1/environment/pmMaxStrict', { body: {} });
+  assert.equal(sr.status, 400); assert.match(sr.body.error, /fewer than 50 sensor/);
+  const skip = await post('/cil/v1/analytics/customize', { ...base, id: 'pm-max-skip', path: '/environment/pmMaxSkip', behaviour: { onMissingInput: 'skip', minInputs: 50 } });
+  assert.equal(skip.status, 200);
+  const sk = (await c.req('POST', '/cil/v1/environment/pmMaxSkip', { body: {} })).body.output;
+  assert.equal(sk.rows.length, 0); assert.ok(sk.leftOut.length >= 1, 'wards with too few sensors are left out and named');
+  assert.ok((await c.req('GET', '/cil/v1/analytics/search?repository=domain&domain=Air%20Quality')).body.some(a => a.id === 'pm-max' && a.template === 'generic-max-by-ward'));
+  assert.equal((await post('/cil/v1/analytics', { ...base, id: 'clash', path: '/analytics/search', operation: 'maxByWard', inputs: [{ group: 'aqm', attr: 'PM2_5', type: 'Time Series', role: 'RequiresDataSource' }], out: 'Table', viz: 'Bar', procedure: 'x', provenance: 'y' })).status, 400, 'CIL paths are reserved');
+});

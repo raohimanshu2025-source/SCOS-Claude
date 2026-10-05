@@ -188,6 +188,8 @@ export function createApp(overrides = {}) {
   R('GET', '/cil/v1/openapi', c => { const a = cil.list().find(x => x.path === c.query.path); need(a, 404, 'no such API'); return cil.openapi(a); });
   R('GET', '/cil/v1/ontology', () => cil.ontology());
   R('POST', '/cil/v1/analytics', c => pub(cil.register(c.p, c.body)));
+  R('GET', '/cil/v1/analytics/search', c => cil.search(c.query));
+  R('POST', '/cil/v1/analytics/customize', c => pub(cil.customize(c.p, c.body)));
   R('DELETE', '/cil/v1/analytics', c => { cil.unregister(c.p, c.query.id); return { ok: true }; });
   R('GET', '/cil/v1/alerts', c => cil.alerts(c.query.limit));
   R('POST', '/cil/v1/olap', c => (c.body.source ? sources.olap(c.p, c.body) : cil.olap(c.p, c.body)));

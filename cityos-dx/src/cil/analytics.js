@@ -294,6 +294,15 @@ export const PLUG_OPS = {
   minByWard: vals => round(Math.min(...vals)),
   countAboveByWard: (vals, th) => vals.filter(v => v > th).length,
 };
+// The generic analytics repository (City OS Figure 13): procedures that are not tied to a domain or a data source.
+// A customisation step binds one to a domain's data (schema matching), a visualisation and a behaviour.
+export const GENERIC = [
+  { id: 'generic-mean-by-ward', name: 'Mean by ward', operation: 'meanByWard', ingress: ['Time Series', 'Series'], out: 'Table', viz: ['Bar', 'Table', 'Map Vectors'], procedure: 'Mean of the latest value of each sensor, grouped by ward', provenance: 'City Intelligence Layer generic repository (demo)' },
+  { id: 'generic-max-by-ward', name: 'Maximum by ward', operation: 'maxByWard', ingress: ['Time Series', 'Series'], out: 'Table', viz: ['Bar', 'Table', 'Map Vectors'], procedure: 'Highest latest value of the sensors in each ward', provenance: 'City Intelligence Layer generic repository (demo)' },
+  { id: 'generic-min-by-ward', name: 'Minimum by ward', operation: 'minByWard', ingress: ['Time Series', 'Series'], out: 'Table', viz: ['Bar', 'Table', 'Map Vectors'], procedure: 'Lowest latest value of the sensors in each ward', provenance: 'City Intelligence Layer generic repository (demo)' },
+  { id: 'generic-count-above', name: 'Count above a threshold by ward', operation: 'countAboveByWard', ingress: ['Time Series', 'Series'], out: 'Table', viz: ['Bar', 'Table', 'Calendar Heatmap'], procedure: 'Number of sensors in each ward whose latest value is above the threshold', provenance: 'City Intelligence Layer generic repository (demo)' },
+];
+
 export function runPlugged(spec, s, body) {
   const src = spec.inputs.find(i => i.role === 'RequiresDataSource');
   const series = { aqm: s.aq, weather: s.wx, drains: s.drains }[src.group];
@@ -301,7 +310,14 @@ export function runPlugged(spec, s, body) {
   const op = PLUG_OPS[spec.operation]; const th = Number(body.threshold ?? spec.threshold ?? 0);
   const by = {};
   for (const x of series) { const v = x.rows.at(-1)?.[src.attr]; if (Number.isFinite(v)) (by[wardOf(s, x.loc)] ||= []).push(v); }
+  // behaviour (Figure 13): too few sensors with data either fails the run or leaves those wards out
+  const bh = spec.behaviour || { onMissingInput: 'skip', minInputs: 1 };
+  const short = Object.entries(by).filter(([, v]) => v.length < bh.minInputs).map(([w]) => w);
+  if (short.length && bh.onMissingInput === 'fail') throw new Error(`behaviour: fewer than ${bh.minInputs} sensor(s) with data in ${short.join(', ')}`);
+  for (const w of short) delete by[w];
   const rows = Object.entries(by).map(([ward, vals]) => ({ ward, value: op(vals, th), sensors: vals.length })).sort((a, b) => a.ward.localeCompare(b.ward));
-  const alerts = spec.alertAbove != null ? rows.filter(r => r.value > spec.alertAbove).map(r => ({ ward: r.ward, msg: `${spec.name}: ${r.value} in ${r.ward} (above ${spec.alertAbove})` })) : [];
-  return { output: { type: 'Table', attribute: src.attr, operation: spec.operation, rows }, alerts };
+  const rule = bh.alert || (spec.alertAbove != null ? { when: 'above', value: spec.alertAbove } : null);
+  const hit = r => (rule.when === 'above' ? r.value > rule.value : r.value < rule.value);
+  const alerts = rule ? rows.filter(hit).map(r => ({ ward: r.ward, msg: `${spec.name}: ${r.value} in ${r.ward} (${rule.when} ${rule.value})` })) : [];
+  return { output: { type: 'Table', attribute: src.attr, operation: spec.operation, rows, ...(short.length ? { leftOut: short } : {}) }, alerts };
 }

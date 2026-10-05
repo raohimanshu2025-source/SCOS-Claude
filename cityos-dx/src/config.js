@@ -16,6 +16,7 @@ export function loadConfig(overrides = {}) {
     host: env('DX_HOST', '0.0.0.0'),
     port: num('DX_PORT', 8443),
     mqttPort: num('DX_MQTT_PORT', 8883), // MQTT 5.0 over TLS for streams (BIS 6.5 AsyncAPI access); -1 switches it off
+    amqpPort: num('DX_AMQP_PORT', 5671), // AMQP 1.0 over TLS for streams (BIS 6.5; ISO/IEC 19464); -1 switches it off
     publicName: env('DX_PUBLIC_NAME', 'dx.demo-city.example'),
     authHost: env('DX_AUTH_HOST', kanpur ? 'auth.kanpur-demo.example' : 'auth.demo-city.example'),
     uacUrl: env('DX_UAC_URL', 'https://uac.demo-city.example'),

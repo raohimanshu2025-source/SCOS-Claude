@@ -27,6 +27,7 @@ import { makeConsoleHelpers } from './console-helpers.js';
 import { makeCitizenAlerts } from './citizen-alerts.js';
 import { checkRsDns } from './identity/dns-check.js';
 import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
+import { makeAmqp } from './dx/amqp.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -355,19 +356,22 @@ export function createApp(overrides = {}) {
 
   // MQTT 5.0 over TLS for streams (BIS 6.5); the same certificates and tokens as HTTPS.
   const mqtt = cfg.mqttPort === -1 ? null : makeMqtt({ db, cfg, identity, resource, catalogue, audit, tlsOptions });
+  // AMQP 1.0 over TLS for streams (BIS 6.5 and ISO/IEC 19464); the same certificates and tokens.
+  const amqp = cfg.amqpPort === -1 ? null : makeAmqp({ db, cfg, identity, resource, catalogue, audit, tlsOptions });
 
   let simTimer = null;
   const app = {
-    ...parts, server, routes, mqtt, mqttAddress: null,
+    ...parts, server, routes, mqtt, mqttAddress: null, amqp, amqpAddress: null,
     listen(port = cfg.port, host = cfg.host) {
       return new Promise(r => server.listen(port, host, async () => {
         ops.start(); cil.start(); central.start(); region.start();
         if (mqtt) app.mqttAddress = await mqtt.listen(cfg.mqttPort, host);
+        if (amqp) app.amqpAddress = await amqp.listen(cfg.amqpPort, host);
         if (cfg.simulator) { simTimer = setInterval(() => { try { simulateTick(parts); } catch (e) { console.error('simulator', e.message); } }, cfg.simulatorMs); simTimer.unref(); }
         r(server.address());
       }));
     },
-    async close() { ops.stop(); cil.stop(); central.stop(); region.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
+    async close() { ops.stop(); cil.stop(); central.stop(); region.stop(); clearInterval(simTimer); if (mqtt) await mqtt.close(); if (amqp) await amqp.close(); server.closeAllConnections?.(); return new Promise(r => server.close(() => { db.close(); r(); })); },
   };
   return app;
 }
@@ -378,6 +382,7 @@ if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   const a = await app.listen();
   console.log(`City OS DX reference implementation for ${app.cfg.cityName} on https://${a.address}:${a.port} (demo data)`);
   if (app.mqttAddress) console.log(`MQTT 5.0 over TLS on mqtts://${a.address}:${app.mqttAddress.port}`);
+  if (app.amqpAddress) console.log(`AMQP 1.0 over TLS on amqps://${a.address}:${app.amqpAddress.port}`);
   for (const sig of ['SIGINT', 'SIGTERM']) process.on(sig, async () => { await app.close(); process.exit(0); });
 }
 export { pkiPaths };

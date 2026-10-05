@@ -4,7 +4,7 @@ services:
     build: { context: .., dockerfile: deploy/Dockerfile }
     image: cityos-dx:1.0.0
     restart: unless-stopped
-    ports: ["8443:8443", "8883:8883"]
+    ports: ["8443:8443", "8883:8883", "5671:5671"]
     environment:
       DX_PUBLIC_NAME: dx.demo-city.example
       DX_CITY_NAME: Demo City

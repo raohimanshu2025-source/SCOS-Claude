@@ -1036,10 +1036,11 @@
   "anchor": "con-steps",
   "how": "Calling a protected item with no token returns a refusal that points the consumer to the authorization service, and the flow starts.",
   "server": {
-   "status": "partial",
-   "how": "The resource servers validate tokens of the DX authorization server by introspection and answer 401 with the authorization server address when no token is sent (tested). Tokens of a provider's own authorization server are not supported.",
+   "status": "working",
+   "how": "The resource servers validate tokens of the DX authorization server by introspection (tested). A provider can also register its own authorization server (https issuer and an Ed25519, P-256 or RSA public key) and switch its items to it; those items then accept signed JWT access tokens from that server, checked for signature, issuer, owner, expiry, 24-hour maximum life, consumer and item list. Without a token the 401 answer names the provider's server (tested).",
    "tests": [
-    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace"
+    "[BIS-58][BIS-99][BIS-55][BIS-22] full Figure 2 flow: 401 without token, token, data, introspection trace",
+    "[BIS-55] a resource server also accepts tokens from the provider's own authorization server"
    ]
   }
  },
@@ -1952,10 +1953,12 @@
   "anchor": "ov-scope",
   "how": "JSON, GeoJSON, ISO 8601 times and UN/CEFACT unit codes are used in the demo data. TLS, OAuth, MQTT and AMQP are shown by name only.",
   "server": {
-   "status": "partial",
-   "how": "TLS 1.2+, HTTP/1.1, JSON, GeoJSON and ISO 8601 are used and tested. MQTT 5.0 over TLS is now used for streams (tested under BIS-92). AMQP is not implemented.",
+   "status": "working",
+   "how": "TLS 1.2+, HTTP/1.1, JSON, GeoJSON and ISO 8601 are used and tested. Streams use MQTT 5.0 over TLS (port 8883) and AMQP 1.0 (ISO/IEC 19464) over TLS (port 5671): SASL PLAIN with the DX token as password, receive links on items or groups, send links for providers with accepted or rejected answers (tested; also tried by hand with the rhea AMQP 1.0 client). AMQP transactions and link recovery are not implemented.",
    "tests": [
-    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times"
+    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times",
+    "[BIS-102] AMQP 1.0 codec: performatives and messages encode and decode to the bytes of ISO/IEC 19464",
+    "[BIS-102] AMQP 1.0 over TLS: receive a public group, send data as its provider, protected items need a DX token"
    ]
   }
  },
@@ -2182,9 +2185,11 @@
   "anchor": "cat-validate",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "partial",
-   "how": "The demo items use the Table 6 attributes with their core types, and location and coverageRegion formats are checked (tested). The value format of every other Table 6 row is not checked.",
-   "tests": []
+   "status": "working",
+   "how": "Every Table 6 attribute (and the two Table 7 aliases) is checked when an item is added or changed: its core type (Property, TimeProperty, Relationship, GeoProperty) and its value format (string, list, object, URI, IRI or list of IRIs, 'active' or 'deprecated', access mechanisms as objects). Items that break a format are refused (tested).",
+   "tests": [
+    "[BIS-114] every Table 6 attribute is checked for its core type and value format"
+   ]
   }
  },
  {
@@ -2984,11 +2989,12 @@
   "anchor": "cil-sources",
   "how": "Figure 11 is redrawn; each box is linked to where it works in the demo. NGSI-LD output is shown as a formatted entity; the chatbot is the question box.",
   "server": {
-   "status": "partial",
-   "how": "OLAP, analytic executor, rules and alerts, scheduler, questions, pluggable analytics, CIL APIs, reports and NGSI-LD output exist (tested). File, object-store and data-warehouse sources are not.",
+   "status": "working",
+   "how": "OLAP, analytic executor, rules and alerts, scheduler, questions, pluggable analytics, CIL APIs, reports and NGSI-LD output exist (tested). The source layer also takes CSV or JSON files from the CIL source folder, objects from allowed object store hosts over HTTP(S), and copies of data exchange items; loading puts the rows in the CIL data warehouse, where OLAP pivots any column (tested). There is no GIS file format such as shapefile; GIS data comes through the data exchange as GeoJSON.",
    "tests": [
     "[COS-31] OLAP access pivots a measure over two dimensions under DX rules",
-    "[COS-31] outputs are also available as NGSI-LD entities"
+    "[COS-31] outputs are also available as NGSI-LD entities",
+    "[COS-31] CIL sources: a file, an object store object and a data exchange copy load into the warehouse for OLAP"
    ]
   }
  },

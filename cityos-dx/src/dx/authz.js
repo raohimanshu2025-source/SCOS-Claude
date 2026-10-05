@@ -1,13 +1,16 @@
 // Authorization service (BIS 4.5.2, 5.2-5.4, 7.4-7.6): policies P = (C, A), consent, licences, tokens,
 // introspection and revocation. Tokens are opaque: only their SHA-256 hash is stored.
-import { q, tx } from '../db.js';
+import { q, tx, kv, sharedSwitch } from '../db.js';
 import { iso, fail, need, randHex, sha256, str } from '../util.js';
 import { LABEL_CLASSES, checkPolicy, LABEL_DEFAULTS } from './model.js';
 import { actorOf } from '../identity/identity.js';
 
 export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, central = null) {
   const cache = new Map(); // resource-server introspection cache: tokenHash|itemId -> expiry (BIS 4.5.2.2)
-  const state = { up: true };
+  // Policy changes clear the cache in every worker process: each one compares its generation with the shared one.
+  let gen = kv.get(db, 'authz:cache-gen', 0);
+  const clearCache = () => { cache.clear(); gen = kv.get(db, 'authz:cache-gen', 0) + 1; kv.set(db, 'authz:cache-gen', gen); };
+  const state = sharedSwitch(db, 'authorization');
   const providerEmail = it => {
     const prov = it.doc.provider && catalogue.doc(it.doc.provider.value);
     return prov?.organizationInfo?.value?.email || null;
@@ -71,6 +74,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
       const h = sha256(String(token || ''));
       const key = h + '|' + itemId;
       const t = q.get(db, 'SELECT * FROM tokens WHERE hash=?', h);
+      const g = kv.get(db, 'authz:cache-gen', 0); if (g !== gen) { cache.clear(); gen = g; }
       if (useCache && cache.get(key) > Date.now() && t && !t.revoked_at) return { ok: true, cached: true, rec: t };
       if (!t) return { ok: false, reason: 'unknown token' };
       if (t.revoked_at) return { ok: false, reason: 'token revoked' };
@@ -153,7 +157,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
         const dropped = it.policy.C.filter(c => !pol.C.includes(c));
         for (const c of dropped) for (const r of q.all(db, 'SELECT hash, items FROM tokens WHERE consumer=? AND revoked_at IS NULL', c)) if (JSON.parse(r.items).includes(id)) q.run(db, 'UPDATE tokens SET revoked_at=? WHERE hash=?', iso(Date.now()), r.hash);
       });
-      cache.clear();
+      clearCache();
       audit.log('Manage', actorOf(p), 'Policy set', `${id} v${pol.version}: ${policyText(pol)}`);
       if (label !== it.policy.label) notify.changed(id, `changed label to ${label}`);
       return { id, ...pol, text: policyText(pol) };
@@ -228,7 +232,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
       const lic = q.get(db, 'SELECT developer FROM licences WHERE item_id=? AND app=?', id, app); need(lic, 404, 'no such licence');
       q.run(db, 'DELETE FROM licences WHERE item_id=? AND app=?', id, app);
       q.run(db, `UPDATE tokens SET revoked_at=? WHERE consumer=? AND revoked_at IS NULL AND via LIKE 'licence%' AND items LIKE ?`, iso(Date.now()), lic.developer, `%"${id}"%`);
-      cache.clear();
+      clearCache();
       audit.log('Consent', actorOf(p), 'Licence agreement ended', `${id} app ${app}`);
     },
     licences: id => q.all(db, 'SELECT * FROM licences WHERE item_id=?', id),

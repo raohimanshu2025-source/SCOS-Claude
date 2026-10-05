@@ -37,7 +37,7 @@ export function makeOps(db, cfg, audit, parts) {
     start() { if (!timer) { api.beat(); timer = setInterval(api.beat, cfg.heartbeatMs); timer.unref(); } },
     stop() { clearInterval(timer); timer = null; },
     heartbeat() {
-      return { ts: iso(Date.now()), city: cfg.cityName, uptimeSec: Math.round((Date.now() - started) / 1000), services: Object.fromEntries(Object.keys(SERVICES).map(s => [s, isUp(s) ? 'up' : 'down'])) };
+      return { ts: iso(Date.now()), city: cfg.cityName, instance: cfg.instance, role: cfg.haRole, uptimeSec: Math.round((Date.now() - started) / 1000), services: Object.fromEntries(Object.keys(SERVICES).map(s => [s, isUp(s) ? 'up' : 'down'])) };
     },
     // Public API status page: uptime, average response time and latency per interface (BIS 5.6).
     status(hours = 24) {

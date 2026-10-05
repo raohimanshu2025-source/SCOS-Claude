@@ -1482,9 +1482,11 @@
   "how": "Not covered. The demo runs in one browser page and cannot show real availability or scaling.",
   "server": {
    "status": "partial",
-   "how": "Backups, restore, health checks and automatic restart work and are tested. There is no distributed high availability or scaling: one process, one database.",
+   "how": "Several worker processes on one machine share one port and one database, so the load is spread and a stopped worker is restarted (DX_WORKERS). A standby server on a second machine copies the database every few seconds and takes over when the primary stops; a front door moves clients to it. Backups, restore and health checks also work. All of this is tested. Still missing: changes in the last few seconds before a failure are lost, there is one database writer (SQLite) so the second server does not share the load, the front door itself is a single machine, and switching back is a manual step. Full distributed scaling needs a replicated database (for example PostgreSQL) and two front doors.",
    "tests": [
-    "[BIS-78] backup while running: consistent copy, integrity check, can be restored and served"
+    "[BIS-78] backup while running: consistent copy, integrity check, can be restored and served",
+    "[BIS-78] scaling: several worker processes share one port; sessions, pause switches and the audit chain work across them",
+    "[BIS-78] high availability: the standby copies the database, takes over when the primary stops, and the front door moves clients to it"
    ]
   }
  },

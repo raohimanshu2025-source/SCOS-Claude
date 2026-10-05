@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { loadConfig } from './config.js';
-import { openDb, q } from './db.js';
+import { openDb, q, kv } from './db.js';
 import { makeAudit } from './audit.js';
 import { initPki, pkiPaths } from './identity/ca.js';
 import { makeIdentity, actorOf, externalCas } from './identity/identity.js';
@@ -28,6 +28,7 @@ import { makeCitizenAlerts } from './citizen-alerts.js';
 import { checkRsDns } from './identity/dns-check.js';
 import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
 import { makeAmqp } from './dx/amqp.js';
+import { checkReplicaAuth } from './ha/replica.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -262,6 +263,23 @@ export function createApp(overrides = {}) {
   R('GET', '/ops/v1/audit/public-key', () => ({ alg: 'Ed25519', publicKeyPem: audit.publicKeyPem }));
   R('POST', '/ops/v1/backup', c => { role(c.p, 'admin'); const b = backupDb(db, cfg.backupDir, c.body.label || 'manual'); audit.log('Operations', actorOf(c.p), 'Backup taken', path.basename(b.file)); return { ...b, file: path.basename(b.file) }; });
   R('GET', '/ops/v1/backups', c => { role(c.p, 'admin'); return listBackups(cfg.backupDir); });
+  // BIS 5.6 high availability: a standby server pulls a consistent copy of the database (VACUUM INTO) every few
+  // seconds. Off unless DX_REPLICATION_KEY is set; the standby signs the current time with that key (HMAC-SHA256).
+  R('GET', '/ops/v1/replica/snapshot', c => {
+    need(cfg.replicationKey, 404, 'replication is switched off on this DX (set DX_REPLICATION_KEY)');
+    need(checkReplicaAuth(cfg.replicationKey, c.req.headers['x-dx-replica']), 401, 'missing or wrong replication signature');
+    const file = path.join(cfg.dataDir, `replica-${process.pid}-${Date.now()}.sqlite`);
+    db.prepare('VACUUM INTO ?').run(file);
+    const now = Date.now(), last = kv.get(db, 'replica:audited', 0);
+    kv.set(db, 'replica:last', { at: iso(now), from: c.ip });
+    if (now - last > 3600e3) { kv.set(db, 'replica:audited', now); audit.log('Operations', 'standby ' + c.ip, 'Database snapshot sent to standby', `${fs.statSync(file).size} bytes (logged once an hour)`); }
+    c.stream = true;
+    c.res.writeHead(200, { 'content-type': 'application/vnd.sqlite3', 'content-length': fs.statSync(file).size, 'cache-control': 'no-store' });
+    const rs = fs.createReadStream(file); rs.pipe(c.res);
+    const done = () => fs.rm(file, { force: true }, () => {});
+    rs.on('close', done); rs.on('error', () => { done(); c.res.destroy(); });
+  });
+  R('GET', '/ops/v1/replica', c => { role(c.p, 'admin', 'auditor'); return { enabled: !!cfg.replicationKey, role: cfg.haRole, instance: cfg.instance, lastSnapshot: kv.get(db, 'replica:last') }; });
   R('POST', '/ops/v1/service', c => {
     role(c.p, 'admin'); const { service, up } = c.body;
     if (service === 'authorization') authz.setUp(up, actorOf(c.p));
@@ -301,6 +319,7 @@ export function createApp(overrides = {}) {
     const ip = req.socket.remoteAddress;
     const c = { req, res, url, ip, query: Object.fromEntries(url.searchParams), body: {} };
     securityHeaders(res);
+    res.setHeader('X-DX-Instance', cfg.instance); // which worker or server answered (BIS 5.6 scaling and failover)
     let status = 200;
     try {
       limit(ip);
@@ -366,6 +385,8 @@ export function createApp(overrides = {}) {
     ...parts, server, routes, mqtt, mqttAddress: null, amqp, amqpAddress: null,
     listen(port = cfg.port, host = cfg.host) {
       return new Promise(r => server.listen(port, host, async () => {
+        // With several worker processes only the leader runs the timers, the simulator and the stream brokers.
+        if (!cfg.leader) return r(server.address());
         ops.start(); cil.start(); central.start(); region.start();
         if (mqtt) app.mqttAddress = await mqtt.listen(cfg.mqttPort, host);
         if (amqp) app.amqpAddress = await amqp.listen(cfg.amqpPort, host);

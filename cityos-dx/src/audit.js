@@ -11,7 +11,13 @@ export function makeAudit(db, keyPem) {
   const pub = crypto.createPublicKey(priv);
   const pubPem = pub.export({ type: 'spki', format: 'pem' });
   const insert = db.prepare('INSERT INTO audit (seq, ts, iface, actor, action, detail, ok, prev, hash, sig) VALUES (?,?,?,?,?,?,?,?,?,?)');
-  function log(iface, actor, action, detail = '', ok = true) {
+  // Several worker processes share the database: the write lock makes each entry chain to the true last one.
+  function log(...a) {
+    if (db.isTransaction) return append(...a);
+    db.exec('BEGIN IMMEDIATE');
+    try { const r = append(...a); db.exec('COMMIT'); return r; } catch (e) { db.exec('ROLLBACK'); throw e; }
+  }
+  function append(iface, actor, action, detail = '', ok = true) {
     if (!IFACES.includes(iface)) throw new Error('unknown interface ' + iface);
     const last = q.get(db, 'SELECT seq, hash FROM audit ORDER BY seq DESC LIMIT 1');
     const e = { seq: (last?.seq ?? 0) + 1, ts: new Date().toISOString(), iface, actor: String(actor ?? 'unknown'), action: String(action), detail: String(detail ?? '').slice(0, 2000), ok: !!ok };

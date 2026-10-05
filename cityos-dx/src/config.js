@@ -1,5 +1,6 @@
 // All settings come from environment variables so the same build runs in test, staging and a pilot.
 import path from 'node:path';
+import os from 'node:os';
 
 const env = (k, d) => (process.env[k] === undefined || process.env[k] === '' ? d : process.env[k]);
 const num = (k, d) => Number(env(k, d));
@@ -57,6 +58,12 @@ export function loadConfig(overrides = {}) {
     demoData: bool('DX_DEMO_DATA', 'true'),
     logRequests: bool('DX_LOG_REQUESTS', 'false'),
     rsDnsCheck: bool('DX_RS_DNS_CHECK', 'false'), // Figure 2 step 8: resource server host must resolve to the caller's address
+    // BIS 5.6 reliability: several worker processes on one machine (src/cluster.js) and a standby server (src/ha/standby.js).
+    workers: num('DX_WORKERS', 1),
+    leader: bool('DX_LEADER', 'true'), // only the leader runs timers, the simulator, MQTT and AMQP
+    instance: env('DX_INSTANCE', `${os.hostname()}-${process.pid}`),
+    haRole: env('DX_HA_ROLE', 'primary'), // 'primary', or 'standby (promoted)' after a failover
+    replicationKey: env('DX_REPLICATION_KEY', ''), // shared secret a standby uses to pull database snapshots; empty = off
   };
   return { ...cfg, ...overrides, dbFile: overrides.dbFile ?? cfg.dbFile };
 }

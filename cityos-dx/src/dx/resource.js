@@ -3,7 +3,7 @@
 // A server marked legacy is not DX compliant: it only exports CSV with its own column names, and the DX Adapter
 // in front of it does the token checks and the translation to the data model.
 import { isJwt } from './provider-auth.js';
-import { q } from '../db.js';
+import { q, kv } from '../db.js';
 import { iso, fail, need, sha256 } from '../util.js';
 import { MODELS, modelOfRef, validatePacket } from './model.js';
 import { actorOf } from '../identity/identity.js';
@@ -25,7 +25,8 @@ export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = nu
     }
     return out;
   };
-  const up = new Map(); // server id -> false when paused (BIS 5.6 failure testing)
+  // server id -> false when paused (BIS 5.6 failure testing); kept in the database so every worker process agrees
+  const up = { get: id => kv.get(db, 'switch:rs:' + id, true), set: (id, v) => kv.set(db, 'switch:rs:' + id, v) };
 
   function locate(id) {
     const it = catalogue.get(String(id || ''));

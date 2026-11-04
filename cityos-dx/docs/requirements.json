@@ -168,7 +168,9 @@
    "status": "working",
    "how": "Every interface is HTTPS with JSON bodies. The tests call it with plain Node.js HTTPS and the README shows curl, so any language can use it.",
    "tests": [
-    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times"
+    "[BIS-102] referenced standards in use: TLS 1.2+, HTTP/1.1, JSON, GeoJSON, ISO 8601 date-times",
+    "[BIS-102] AMQP 1.0 codec: performatives and messages encode and decode to the bytes of ISO/IEC 19464",
+    "[BIS-102] AMQP 1.0 over TLS: receive a public group, send data as its provider, protected items need a DX token"
    ]
   }
  },
@@ -1758,6 +1760,7 @@
    "how": "REST items carry OpenAPI access information that refers to the data model. Streams are also offered over MQTT 5.0 (and 3.1.1) over TLS on port 8883, with the DX certificate and a DX token as the MQTT password; topics are item ids and each subscription is checked like a read. GET /catalogue/v1/asyncapi?id= gives an AsyncAPI 2.6 document per item or group that points to the MQTT server and the data model (tested). AMQP is not offered.",
    "tests": [
     "[BIS-43][BIS-90][BIS-101][BIS-45][BIS-92] data models with units and ranges; access information on items",
+    "[BIS-92] topic filters follow the MQTT rules",
     "[BIS-92] MQTT 5.0 over TLS: a public group streams its latest and new packets",
     "[BIS-92] protected items need a DX token as the MQTT password; MQTT 3.1.1 also works",
     "[BIS-92] AsyncAPI 2.6 document for a group points to the MQTT server and the data model"
@@ -2264,9 +2267,9 @@
    "status": "working",
    "how": "Consent requests go to the provider, who approves or rejects them. Approval writes a consent artefact in the layout of the MeitY Electronic Consent Framework [b.2] (ver, txnid, consentId, DataConsumer, DataProvider, Purpose, User, Data, Permission with date range and data life, ConsentUse), signed by the DX with Ed25519 as a JWS. Anyone can verify it with the published key; it expires or is revoked, and then access ends (tested). Field names follow [b.2] as we read it; not checked against a certified consent manager.",
    "tests": [
-    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token",
     "[BIS-118] approving consent writes a signed consent artefact in the layout of the MeitY consent framework",
-    "[BIS-118][BIS-125] revoking access revokes the artefact"
+    "[BIS-118][BIS-125] revoking access revokes the artefact",
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
    ]
   }
  },
@@ -2401,7 +2404,8 @@
    "how": "After consent is approved, the signed consent token is verified and only then used to add the consumer to the access control policy; the update is logged with the artefact id and token tail. Tokens never outlive the consent, use is counted, and an expired or revoked artefact takes the consumer off the policy again, also logged (tested).",
    "tests": [
     "[BIS-125] the consent token updates the access control policy and this is logged; tokens never outlive the consent",
-    "[BIS-118][BIS-125] revoking access revokes the artefact"
+    "[BIS-118][BIS-125] revoking access revokes the artefact",
+    "[BIS-14][BIS-30][BIS-8][BIS-18][BIS-81] consent: request, provider notified, approve, then token"
    ]
   }
  },
@@ -3054,9 +3058,9 @@
    "status": "working",
    "how": "Sector-wise performance reports (transport, solid waste, flood and drainage, environment, citizen services; ten figures) are computed hourly by each city's CIL from protected data and published as aggregates only. State-level and national reports combine them (totals or averages, with best and lowest city), via GET /cil/v1/reports/region, and the console shows them under Sector reports (tested). The figures are a fixed demo set, not an agreed national indicator list.",
    "tests": [
+    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated",
     "[COS-34] a city publishes sector-wise performance figures as a public item in its own data exchange",
-    "[COS-08][COS-34] a state node reads each city through its data exchange; a national node reads the state; same output at every level",
-    "[COS-08][COS-15][COS-34] federation: the same API asked of two cities with different data, then aggregated"
+    "[COS-08][COS-34] a state node reads each city through its data exchange; a national node reads the state; same output at every level"
    ]
   }
  },

@@ -15,7 +15,9 @@
     const wx = ['sun', 'rain', 'clear'].includes(forcedWx) ? forcedWx : rainMm > 0 ? 'rain' : sky === 'night' ? 'clear' : 'sun';
     root.dataset.sky = sky; root.dataset.wx = wx;
     // High contrast keeps its own fixed light colours, so the night look is only used without it.
-    if (root.dataset.contrast) delete root.dataset.theme; else root.dataset.theme = sky === 'night' ? 'dark' : 'light';
+    // A look the visitor picked with the light/dark button (stored in their own browser) wins over the clock.
+    let pick = ''; try { pick = localStorage.getItem('portal-theme') || ''; } catch { /* storage blocked */ }
+    if (root.dataset.contrast) delete root.dataset.theme; else root.dataset.theme = ['light', 'dark'].includes(pick) ? pick : sky === 'night' ? 'dark' : 'light';
   }
 
   // Rain comes from the same public weather data the portal shows, read without a login.
@@ -31,7 +33,7 @@
   }
 
   // The portal already loads the weather, so it hands the reading over instead of fetching it twice.
-  window.citySky = { setRain(mm) { rainMm = mm; apply(); } };
+  window.citySky = { setRain(mm) { rainMm = mm; apply(); }, refresh: apply };
   apply();
   new MutationObserver(apply).observe(root, { attributes: true, attributeFilter: ['data-contrast'] });
   document.addEventListener('DOMContentLoaded', () => {

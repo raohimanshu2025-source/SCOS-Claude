@@ -224,6 +224,7 @@ function renderGreeting(city) {
   }
   $('#skyline').innerHTML = skyline(sky); fitSkyline();
 }
+const LM_KEY = { iit: 'lmIIT', greenpark: 'lmGreenPark', ghantaghar: 'lmGhantaghar', jk: 'lmJK', barrage: 'lmBarrage' };
 // Simple drawings of well-known Kanpur places (drawn here, not copied from photos or logos).
 function skyline(sky) {
   const night = sky === 'night', C = { night: '#0c1d30', dawn: '#2c2440', day: '#1d3f63', dusk: '#26193a' }[sky];
@@ -268,7 +269,9 @@ function skyline(sky) {
   g += `<rect x="-1400" y="200" width="4200" height="44" fill="${C}"/>`;
   // low blocks beyond both ends fill the sides on wide screens
   for (let x = -1380; x < 2800; x += 70) if (x < -10 || x > 1400) g += `<rect x="${x}" y="${200 - 30 - ((x / 70) % 4 + 4) % 4 * 14}" width="${34 + (((x / 70) % 3) + 3) % 3 * 8}" height="${30 + ((x / 70) % 4 + 4) % 4 * 14}" fill="${C}" opacity=".55"/>`;
-  return `<svg viewBox="0 -18 1400 262" preserveAspectRatio="xMidYMax slice" role="presentation">${g}</svg>`;
+  // tap areas: each drawn landmark opens a card with where it is (see smart.js)
+  for (const [k, x, y, w, h] of [['iit', 88, 40, 204, 160], ['greenpark', 330, 50, 240, 150], ['ghantaghar', 608, -6, 74, 206], ['jk', 686, -8, 248, 208], ['barrage', 958, 124, 442, 76]]) g += `<g class="sk-hit" data-lm="${k}" tabindex="0" role="button" aria-label="${esc(t(LM_KEY[k]))}: ${esc(t('lmWhere'))}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/></g>`;
+  return `<svg viewBox="0 -18 1400 262" preserveAspectRatio="xMidYMax slice">${g}</svg>`;
 }
 // Never crop the top of the landmarks: on screens wider than the drawing, fit it by height and let the side blocks fill in.
 function fitSkyline() {
@@ -322,7 +325,8 @@ function openQuick(k) {
   if (k === 'report') {
     const zones = D.zones.map(z => z.wardId).filter(Boolean);
     body.innerHTML = `<p class="warn-box"><b>${esc(t('demoTag'))}:</b> ${esc(t('reportWarn'))}</p><form id="rf" class="rf"><label>${esc(t('rCat'))}<select name="cat" required>${t('rCats').map(c => `<option>${esc(c)}</option>`).join('')}</select></label><label>${esc(t('zone'))}<select name="zone">${zones.map(z => `<option>${esc(z)}</option>`).join('')}</select></label><label>${esc(t('rWhere'))}<input name="where" placeholder="${esc(t('rWhereEg'))}"></label><label>${esc(t('rWhat'))}<textarea name="what" rows="3" required></textarea></label><button class="cta-sm primary">${esc(t('rSend'))}</button></form><div id="rdone"></div>`;
-    $('#rf').onsubmit = e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); e.target.hidden = true; $('#rdone').innerHTML = `<div class="alert ok"><div><b>${esc(t('rDoneTitle'))}</b>${esc(t('rDone', { c: f.cat, z: f.zone }))}</div></div>`; };
+    $('#rf').onsubmit = e => { e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); e.target.hidden = true; $('#rdone').innerHTML = `<div class="alert ok"><div><b>${esc(t('rDoneTitle'))}</b>${esc(t('rDone', { c: f.cat, z: f.zone }))}</div></div>`; window.smartReportSent?.(f); };
+    window.smartReport?.(body);
   }
   paint(body);
   const d = $('#qd'); if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
@@ -451,6 +455,7 @@ function renderMap() {
   if (ON.has('traffic')) for (const j of D.junc) if (loc(j)) svg += dot(loc(j), 7, { ok: '#1f9d55', warn: '#f08a24', bad: '#d93a2b' }[speedCls(j.avgSpeed)], `${j.name}: ${r1(j.avgSpeed)} ${t('kmh')}, ${j.vehicleCount} ${t('vehicles')}`, '', 's', 16, -12);
   if (ON.has('aq')) for (const a of D.aq) if (loc(a)) svg += dot(loc(a), 10, QCOL[band(a.PM2_5)], `${a.NAME}: PM2.5 ${r1(a.PM2_5)}`, `${Math.round(a.PM2_5)}`);
   if (ON.has('bus')) for (const b of D.bus) if (loc(b)) svg += dot(loc(b), 6, '#8e44ad', `${b.busId} (${b.routeId}): ${r1(b.speed)} ${t('kmh')}, ${t('delay')} ${b.delayMinutes} ${t('minutes')}`, '');
+  svg += window.smartPins ? window.smartPins(X, Y) : ''; // photo pins and a picked landmark (smart.js)
   svg += '</svg>';
   $('#mapsvg').innerHTML = svg + `<p class="map-tip" id="maptip" aria-live="polite">${esc(t('tapHint'))}</p>`;
   $('#mapsvg').querySelectorAll('.pt').forEach(el => { el.onclick = () => { $('#maptip').textContent = el.querySelector('title')?.textContent || ''; }; });
@@ -567,10 +572,13 @@ function renderFilters() {
 }
 function renderData() {
   const q = $('#q').value.trim().toLowerCase(), d = $('#fdept').value, a = $('#facc').value;
-  const rows = D.items.filter(i => (!d || i.provider === d) && (!a || i.label === a) && (!q || `${i.name} ${i.desc} ${i.providerName} ${i.model}`.toLowerCase().includes(q)));
+  let rows = D.items.filter(i => (!d || i.provider === d) && (!a || i.label === a) && (!q || `${i.name} ${i.desc} ${i.providerName} ${i.model}`.toLowerCase().includes(q)));
   const cls = { public: 'ok', protected: 'info', private: 'warn', confidential: 'bad' };
-  $('#datatable').innerHTML = `<div class="tbl-wrap"><table class="tbl"><tr><th>${esc(t('dataset'))}</th><th>${esc(t('department'))}</th><th>${esc(t('access'))}</th><th>${esc(t('get'))}</th></tr>${rows.map(i => `<tr><td><b>${esc(i.name)}</b><br><span class="muted small">${esc(i.desc || '')}${i.model ? ' · ' + esc(i.model) : ''}</span></td><td>${esc(i.providerName)}</td><td><span class="badge ${cls[i.label] || 'info'}" title="${esc(t('accessHelp')[i.label] || '')}">${esc(t('accessName')[i.label] || i.label)}</span><br><span class="muted small">${esc(t('accessHelp')[i.label] || '')}</span></td><td class="dl">${i.label === 'public' ? `<a href="/resource/v1/search?id=${encodeURIComponent(i.id)}" target="_blank" rel="noopener">${esc(t('download'))}</a>` : `<span class="muted small">${esc(t('loginToAsk'))}</span>`}</td></tr>`).join('')}</table></div><p class="muted small">${rows.length} ${esc(t('items'))}</p>`;
+  const all = rows; rows = DATA_ALL || q || d || a ? all : all.slice(0, 10); // a short list first; the button or any filter shows the rest
+  $('#datatable').innerHTML = `<div class="tbl-wrap"><table class="tbl"><tr><th>${esc(t('dataset'))}</th><th>${esc(t('department'))}</th><th>${esc(t('access'))}</th><th>${esc(t('get'))}</th></tr>${rows.map(i => `<tr><td><b>${esc(i.name)}</b><br><span class="muted small">${esc(i.desc || '')}${i.model ? ' · ' + esc(i.model) : ''}</span></td><td>${esc(i.providerName)}</td><td><span class="badge ${cls[i.label] || 'info'}" title="${esc(t('accessHelp')[i.label] || '')}">${esc(t('accessName')[i.label] || i.label)}</span><br><span class="muted small">${esc(t('accessHelp')[i.label] || '')}</span></td><td class="dl">${i.label === 'public' ? `<a href="/resource/v1/search?id=${encodeURIComponent(i.id)}" target="_blank" rel="noopener">${esc(t('download'))}</a>` : `<span class="muted small">${esc(t('loginToAsk'))}</span>`}</td></tr>`).join('')}</table></div><p class="muted small">${all.length} ${esc(t('items'))}${rows.length < all.length ? ` · <button type="button" class="cta-sm" id="data-all">${esc(t('showAllN', { n: all.length }))}</button>` : ''}</p>`;
+  if ($('#data-all')) $('#data-all').onclick = () => { DATA_ALL = true; renderData(); };
 }
+let DATA_ALL = false;
 function renderStatus() {
   const s = D.status?.services || [];
   $('#services').innerHTML = s.map(x => `<div class="svc"><div><b>${esc(x.name || x.service)}</b><small>${x.uptimePercent != null ? esc(x.uptimePercent + '% ' + t('uptime')) : ''}</small></div><span class="badge ${x.status === 'up' ? 'ok' : 'bad'}">${esc(x.status === 'up' ? t('up') : t('down'))}</span></div>`).join('') || `<p class="muted">${esc(t('noData'))}</p>`;
@@ -583,6 +591,7 @@ function renderAll() {
   document.title = `${city} ${t('portalName')} (demo)`;
   $('#updated').textContent = fmtTime(D.at);
   renderGreeting(city); renderQuick(); renderPulse(); renderTiles(); renderCityAlerts(); renderAlerts(); renderMap(); renderHistory(); renderDash(); renderDepts(); renderFilters(); renderData(); renderStatus(); renderOpen();
+  window.renderSmart?.();
   paint(document);
 }
 

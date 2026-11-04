@@ -349,8 +349,8 @@ const VIEWS = {
   },
 
   async ops(m) {
-    const [au, ver, st, bk] = await Promise.all([api('GET', '/ops/v1/audit?limit=100'), api('GET', '/ops/v1/audit/verify'), api('GET', '/ops/v1/stats'), api('GET', '/ops/v1/backups')]);
-    const admin = ME.role === 'admin';
+    const admin = ME.role === 'admin'; // only the administrator may list backups (GET /ops/v1/backups answers 403 to others)
+    const [au, ver, st, bk] = await Promise.all([api('GET', '/ops/v1/audit?limit=100'), api('GET', '/ops/v1/audit/verify'), api('GET', '/ops/v1/stats'), admin ? api('GET', '/ops/v1/backups') : null]);
     m.innerHTML = `<div class="view"><div class="view-head"><h2>Operations and audit</h2><p>Signed audit log, statistics, backups and service drills (BIS 5.5, 5.6).</p></div>
       ${card('Audit log', `<p>${ver.body.ok ? pill('chain verified', 'ok') + ` ${ver.body.checked} entries, hash chain and Ed25519 signatures intact` : pill('broken', 'bad') + ' at entry ' + esc(ver.body.brokenAt) + ': ' + esc(ver.body.reason)}</p>${table(au.body.map(a => ({ seq: a.seq, time: a.ts, interface: a.iface, actor: a.actor, action: a.action, detail: a.detail, ok: a.ok ? 'yes' : 'refused' })))}`, 'BIS-11 BIS-77')}
       ${card('Statistics by interface', table(st.body.audit), 'BIS-77')}

@@ -28,6 +28,9 @@ Object.assign(T.en, {
   phSentNote: 'Your photo is now on the city map on this page only. It disappears when you reload or close the page.',
   phSample: 'Sample: drawn picture, made-up place', phYours: 'Your photo (on this device only)', phShow: 'Show on map', phNoLoc: 'No location',
   phS1: 'Waterlogging', phS2: 'Streetlight not working', phS3: 'Garbage not collected',
+  exTitle: 'Explore the city', exMap: 'Air, traffic, hospitals, buses and photos on one map.', exDash: 'Water, air, beds, traffic and roads in charts.', exHist: '52 real Kanpur incidents and how each one spread.', exData: 'Departments, datasets, service status and transparency.', exAbout: 'What this demo is, and how officials use it.',
+  offline: 'You are offline. Showing the copy saved on this device; numbers may be old.', backHome: '← City today',
+  sealTitle: 'Past incident register', sealOk: 'Checked: none of the {n} incidents has been changed since they were sealed on {d}.', sealBad: 'Check failed: incidents changed since sealing: {ids}', sealHow: 'Each incident row has a SHA-256 fingerprint; together they make one digest that is written into the signed audit log.',
 });
 Object.assign(T.hi, {
   findBtn: 'खोजें', kpPh: 'भाग, डेटासेट, विभाग, पिछली घटनाएँ खोजें…', kpFoot: '↑ ↓ चुनें · Enter खोलें · Esc बंद करें', kpNone: 'कुछ नहीं मिला।',
@@ -51,7 +54,27 @@ Object.assign(T.hi, {
   phSentNote: 'आपकी फ़ोटो अब सिर्फ़ इस पेज पर शहर के नक्शे पर है। पेज रीलोड या बंद करने पर हट जाएगी।',
   phSample: 'नमूना: बनाया गया चित्र, काल्पनिक स्थान', phYours: 'आपकी फ़ोटो (सिर्फ़ इस डिवाइस पर)', phShow: 'नक्शे पर दिखाएँ', phNoLoc: 'स्थान नहीं',
   phS1: 'जलभराव', phS2: 'स्ट्रीटलाइट खराब', phS3: 'कचरा नहीं उठा',
+  exTitle: 'शहर को देखें', exMap: 'वायु, यातायात, अस्पताल, बसें और फ़ोटो एक नक्शे पर।', exDash: 'पानी, वायु, बिस्तर, यातायात और सड़कें चार्ट में।', exHist: 'कानपुर की 52 असली घटनाएँ और हर एक कैसे फैली।', exData: 'विभाग, डेटासेट, सेवा स्थिति और पारदर्शिता।', exAbout: 'यह डेमो क्या है और अधिकारी इसका उपयोग कैसे करते हैं।',
+  offline: 'आप ऑफ़लाइन हैं। इस डिवाइस पर सहेजी गई कॉपी दिख रही है; आँकड़े पुराने हो सकते हैं।', backHome: '← आज का शहर',
+  sealTitle: 'पिछली घटनाओं का रजिस्टर', sealOk: 'जाँचा गया: {d} को सील होने के बाद {n} घटनाओं में से कोई नहीं बदली।', sealBad: 'जाँच विफल: सील होने के बाद ये घटनाएँ बदलीं: {ids}', sealHow: 'हर घटना की पंक्ति का SHA-256 फ़िंगरप्रिंट है; सब मिलकर एक डाइजेस्ट बनाते हैं जो हस्ताक्षरित ऑडिट लॉग में लिखा जाता है।',
 });
+
+// ---------- pages: the long page is shown one part at a time (all on this one address, by #section) ----------
+const PAGE_OF = { '': 'home', content: 'home', hero: 'home', glance: 'home', explore: 'home', map: 'map', dash: 'dash', history: 'history', depts: 'data', data: 'data', status: 'data', open: 'data', about: 'about' };
+const PAGE_PARTS = { home: ['#hero', '.quick-sec', '#glance', '#explore'], map: ['#map'], dash: ['#dash'], history: ['#history'], data: ['#depts', '#data', '#status', '#open'], about: ['#about'] };
+let PAGE = '';
+function showPage(scroll = true) {
+  const id = decodeURIComponent(location.hash.slice(1)), pg = PAGE_OF[id] ?? (PAGE || 'home');
+  const changed = pg !== PAGE; PAGE = pg; document.body.dataset.page = pg;
+  for (const [k, sels] of Object.entries(PAGE_PARTS)) for (const sel of sels) document.querySelector(sel)?.classList.toggle('pg-off', k !== pg);
+  document.querySelectorAll('#menu a[href^="#"], .botnav a').forEach(a => { const h = a.getAttribute('href').slice(1); a.classList.toggle('on', (PAGE_OF[h] ?? '') === pg && (pg !== 'data' || h === id || (!PAGE_OF[id] && h === 'depts'))); });
+  if (!scroll) return;
+  const el = id && document.getElementById(id);
+  if (pg === 'home' && (!id || id === 'hero' || id === 'content')) scrollTo({ top: 0 });
+  else if (el && !el.classList.contains('pg-off')) requestAnimationFrame(() => el.scrollIntoView({ block: 'start', behavior: changed ? 'auto' : 'smooth' }));
+  if (changed && pg === 'map') renderMap?.();
+}
+const goTo = id => { if (location.hash === '#' + id) showPage(); else location.hash = id; };
 
 // ---------- landmarks (approximate real places of the drawings in the skyline) ----------
 const LANDMARKS = {
@@ -194,7 +217,7 @@ function openPhoto(i) {
 }
 function focusMap(at, label) {
   FOCUS = { at, label }; $('#qd').close?.(); renderMap();
-  $('#map').scrollIntoView({ behavior: 'smooth' }); const tip = $('#maptip'); if (tip) tip.textContent = `${label} · ${t('lmApprox')}`;
+  goTo('map'); const tip = $('#maptip'); if (tip) tip.textContent = `${label} · ${t('lmApprox')}`;
 }
 window.smartPins = (X, Y) => {
   let s = '';
@@ -214,12 +237,12 @@ const showDlg = d => { if (d.open) return; if (typeof d.showModal === 'function'
 // ---------- quick search ----------
 let KP = [], KI = 0;
 function kpItems() {
-  const sec = [...document.querySelectorAll('#menu a')].map(a => ({ k: t('kSec'), name: a.textContent, go: () => { location.href = a.getAttribute('href'); } }));
+  const sec = [...document.querySelectorAll('#menu a')].map(a => ({ k: t('kSec'), name: a.textContent, go: () => { const h = a.getAttribute('href'); h.startsWith('#') ? goTo(h.slice(1)) : (location.href = h); } }));
   if (!D) return sec;
   const lms = Object.keys(LANDMARKS).map(k => ({ k: t('kPlace'), name: t(LM_KEY[k]), go: () => openLandmark(k) }));
-  const data = D.items.map(i => ({ k: t('kData'), name: i.name, sub: i.providerName, go: () => { $('#q').value = i.name; renderData(); $('#data').scrollIntoView({ behavior: 'smooth' }); } }));
-  const depts = [...D.providers].map(([id, n]) => ({ k: t('kDept'), name: n, go: () => { $('#fdept').value = id; renderData(); $('#data').scrollIntoView({ behavior: 'smooth' }); } }));
-  const inc = (D.incidents || []).map(x => ({ k: t('kInc'), name: x.summary, sub: `${x.date} · ${String(x.place).split(/[;(]/)[0]}`, go: () => { HF.open = x.incidentId; HF.all = true; HF.type = ''; HF.year = ''; renderHistory(); document.getElementById('inc-' + x.incidentId)?.scrollIntoView({ behavior: 'smooth', block: 'center' }); } }));
+  const data = D.items.map(i => ({ k: t('kData'), name: i.name, sub: i.providerName, go: () => { $('#q').value = i.name; renderData(); goTo('data'); } }));
+  const depts = [...D.providers].map(([id, n]) => ({ k: t('kDept'), name: n, go: () => { $('#fdept').value = id; renderData(); goTo('data'); } }));
+  const inc = (D.incidents || []).map(x => ({ k: t('kInc'), name: x.summary, sub: `${x.date} · ${String(x.place).split(/[;(]/)[0]}`, go: () => { HF.open = x.incidentId; HF.all = true; HF.type = ''; HF.year = ''; renderHistory(); goTo('history'); setTimeout(() => document.getElementById('inc-' + x.incidentId)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60); } }));
   return [...sec, ...lms, ...depts, ...data, ...inc];
 }
 function kpDraw() {
@@ -240,6 +263,11 @@ function themeLabel() { let v = ''; try { v = localStorage.getItem('portal-theme
 let DASH_ALL = false;
 window.renderSmart = () => {
   renderPhotos(); themeLabel();
+  const off = $('#offline'); off.hidden = !OFFLINE; off.textContent = t('offline');
+  // the incident register seal, checked by the server on every request
+  const reg = D.open?.incidentRegister, ob = $('#openbody');
+  if (reg && ob) ob.insertAdjacentHTML('beforeend', `<section class="panel seal"><div class="panel-h"><h3>${esc(t('sealTitle'))}</h3></div><div class="alert ${reg.unchanged ? 'ok' : 'bad'}"><span aria-hidden="true">${reg.unchanged ? '✓' : '⚠'}</span><div>${esc(reg.unchanged ? t('sealOk', { n: reg.rows, d: fmtWhen(reg.sealedAt) }) : t('sealBad', { ids: [...reg.changed, ...reg.added, ...reg.removed].join(', ') || '–' }))}</div></div><p class="muted small">${esc(t('sealHow'))} <code>${esc(reg.digest.slice(0, 16))}…</code></p></section>`);
+  if (!PAGE) showPage(!!location.hash);
   const g = $('#dashgrid'), n = g.children.length;
   g.classList.toggle('short', !DASH_ALL && n > 6);
   let b = $('#dash-more');
@@ -277,6 +305,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const io = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) { links.forEach(a => a.classList.remove('on')); links.get(e.target.id)?.classList.add('on'); } }, { rootMargin: '-45% 0px -50% 0px' });
     links.forEach((_, id) => { const s = document.getElementById(id); if (s) io.observe(s); });
   }
+  // pages
+  addEventListener('hashchange', () => showPage());
+  showPage(!!location.hash);
+  // offline helper: keeps the last public data on this device (see sw.js)
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('/sw.js').catch(() => {});
   // the menu gets a frosted look once the page scrolls
   const menu = $('.menu'); const onScroll = () => menu.classList.toggle('stuck', scrollY > 120); addEventListener('scroll', onScroll, { passive: true }); onScroll();
 });

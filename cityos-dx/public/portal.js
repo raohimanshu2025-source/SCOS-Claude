@@ -133,8 +133,10 @@ function setContrast(on) { if (on) document.documentElement.dataset.contrast = '
 
 // ---------- data ----------
 // Every call is anonymous (no cookie), so the page shows exactly what a member of the public may see.
-async function get(url) { const r = await fetch(url, { credentials: 'omit' }); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }
-async function post(url, body = {}) { const r = await fetch(url, { method: 'POST', credentials: 'omit', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }
+let OFFLINE = false; // set when the offline helper (sw.js) answered from its last saved copy
+const seen = r => { if (r.headers.get('x-offline-copy')) OFFLINE = true; return r; };
+async function get(url) { const r = seen(await fetch(url, { credentials: 'omit' })); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }
+async function post(url, body = {}) { const r = seen(await fetch(url, { method: 'POST', credentials: 'omit', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) })); if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); }
 const soft = p => p.catch(() => null);
 const V = d => d?.value;
 const gkey = g => String(g || '').split('/').pop();
@@ -596,6 +598,7 @@ function renderAll() {
 }
 
 async function refresh() {
+  OFFLINE = false;
   try { await load(); renderAll(); } catch (e) { console.error(e); if (!D) $('#tiles').innerHTML = `<p class="muted">${esc(t('noData'))}</p>`; }
 }
 
@@ -607,5 +610,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('#q').oninput = () => D && renderData(); $('#fdept').onchange = () => D && renderData(); $('#facc').onchange = () => D && renderData();
   $('#qd-x').onclick = () => $('#qd').close?.() ?? $('#qd').removeAttribute('open');
   $('#qd').onclick = e => { if (e.target === $('#qd')) $('#qd').close(); };
-  refresh(); setInterval(refresh, 60e3);
+  refresh(); setInterval(() => { if (!document.hidden) refresh(); }, 60e3); // no reloading while the tab is in the background
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && D && Date.now() - D.at > 60e3) refresh(); });
 });

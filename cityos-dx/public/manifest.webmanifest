@@ -1,0 +1,17 @@
+{
+  "name": "Kanpur City Data Portal (demo)",
+  "short_name": "City Data (demo)",
+  "description": "Independent research prototype with synthetic demo data. Not an official government website and not a live city system.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#071a2e",
+  "theme_color": "#071a2e",
+  "lang": "en",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/portal-mark.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -29,10 +29,11 @@ import { checkRsDns } from './identity/dns-check.js';
 import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
 import { makeAmqp } from './dx/amqp.js';
 import { checkReplicaAuth } from './ha/replica.js';
+import { checkIncidents } from './ops/register-seal.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.pdf': 'application/pdf', '.webmanifest': 'application/manifest+json' };
 
 export function createApp(overrides = {}) {
   const cfg = loadConfig(overrides);
@@ -244,6 +245,7 @@ export function createApp(overrides = {}) {
       tokens: { issued: n('SELECT COUNT(*) n FROM tokens'), revoked: n('SELECT COUNT(*) n FROM tokens WHERE revoked_at IS NOT NULL') },
       audit: { events: n('SELECT COUNT(*) n FROM audit'), refused: n('SELECT COUNT(*) n FROM audit WHERE ok=0'), lastEvent: last?.ts ?? null, chainIntact: chain.v.ok, checkedAt: iso(chain.at), publicKey: '/ops/v1/audit/public-key' },
       citizenAlerts: citizenAlerts.counts(),
+      incidentRegister: checkIncidents(db), // past incidents: unchanged since they were sealed? (null when there is no register)
     };
   });
   R('GET', '/ops/v1/stats', c => { role(c.p, 'admin', 'auditor'); return ops.stats(); });

@@ -135,3 +135,20 @@ body{background:radial-gradient(900px 500px at 100% 900px,color-mix(in srgb,#636
 :root[data-contrast="high"] .tile::after,:root[data-contrast="high"] .sec h2::before{display:none}
 :root[data-contrast="high"] .open-n{background:none;color:var(--navy)}
 @media print{.botnav,.find-btn,.photos-sec{display:none}}
+
+/* pages: one part of the portal at a time (smart.js sets .pg-off) */
+.pg-off{display:none!important}
+body:not([data-page="home"]) main{min-height:70vh}
+body:not([data-page="home"]) main > .sec:first-of-type,body:not([data-page="home"]) .sec:not(.pg-off){padding-top:40px}
+.explore{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:14px}
+.ex{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:var(--r2);background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 75%,transparent);box-shadow:var(--lift);text-decoration:none;color:var(--ink);transition:transform .18s,box-shadow .18s;position:relative;overflow:hidden}
+.ex::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:var(--grad)}
+.ex:hover{transform:translateY(-3px);box-shadow:var(--lift-2)}
+.ex b{font-size:1.1rem}
+.ex b::after{content:" →";color:var(--info)}
+.ex span{font-size:.88rem;color:var(--muted)}
+@media (max-width:1000px){.explore{grid-template-columns:1fr 1fr}}
+.offline{margin:0;background:var(--warn-soft);color:var(--ink);border-bottom:1px solid var(--line);padding:10px 16px;text-align:center;font-weight:600}
+.seal{margin-top:12px}
+.seal code{font-family:var(--mono);font-size:.8rem}
+@media print{.pg-off{display:block!important}}

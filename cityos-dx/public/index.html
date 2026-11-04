@@ -6,6 +6,9 @@
 <title>City Data Portal (demo)</title>
 <meta name="description" content="Public city data portal with dashboards. Independent research prototype with synthetic demo data; not an official government website.">
 <link rel="icon" href="/portal-mark.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="theme-color" content="#071a2e">
 <link rel="stylesheet" href="/portal.css">
 <link rel="stylesheet" href="/sky.css">
 <link rel="stylesheet" href="/modern.css">
@@ -60,6 +63,7 @@
 </nav>
 
 <main id="content">
+  <p class="offline" id="offline" role="status" hidden></p>
   <section class="hero" id="hero" data-sky="night">
     <div class="sky-orb" aria-hidden="true"></div>
     <div class="wrap hero-in">
@@ -76,7 +80,7 @@
       </div>
       <div class="pulse" id="pulse" aria-label="City pulse"></div>
     </div>
-    <div class="hero-art" id="skyline" aria-hidden="true"></div>
+    <div class="hero-art" id="skyline" role="group" aria-label="Kanpur landmarks (drawings): tap one to see where it is"></div>
   </section>
 
   <section class="quick-sec" aria-labelledby="quick-h">
@@ -97,6 +101,19 @@
       <div id="calerts" class="alerts"></div>
       <h3 class="sub-h" data-i18n="autoTitle">Automatic alerts from sensors</h3>
       <div id="alerts" class="alerts"></div>
+    </div>
+  </section>
+
+  <section id="explore" class="sec alt" aria-labelledby="ex-h">
+    <div class="wrap">
+      <h2 id="ex-h" data-i18n="exTitle">Explore the city</h2>
+      <div class="explore">
+        <a class="ex" href="#map"><b data-i18n="navMap">Map</b><span data-i18n="exMap">Air, traffic, hospitals, buses and photos on one map.</span></a>
+        <a class="ex" href="#dash"><b data-i18n="navDash">Dashboards</b><span data-i18n="exDash">Water, air, beds, traffic and roads in charts.</span></a>
+        <a class="ex" href="#history"><b data-i18n="navHist">Past incidents</b><span data-i18n="exHist">52 real Kanpur incidents and how each one spread.</span></a>
+        <a class="ex" href="#data"><b data-i18n="navData">Open data</b><span data-i18n="exData">Departments, datasets, service status and transparency.</span></a>
+        <a class="ex" href="#about"><b data-i18n="navAbout">About</b><span data-i18n="exAbout">What this demo is, and how officials use it.</span></a>
+      </div>
     </div>
   </section>
 

@@ -18,6 +18,7 @@ Working software that implements two documents, and nothing else:
 | Resource access (BIS Table 2) | Latest, search, status, count, subscribe/update/unsubscribe (server-sent events), GeoJSON download, provider ingestion checked against the data model, views without personal data, a DX Adapter in front of a legacy (non-compliant) server |
 | City Intelligence Layer (City OS 3-4) | 23 domain APIs across the six domains (including the Figure 7 multimodal transit APIs), OpenAPI descriptions with the Figure 12 ontology, pluggable analytics with schema matching, scheduler, alerts, OLAP, keyword questions, monthly ICCC report, NGSI-LD output, federation between cities |
 | Operations (BIS 5.5-5.6) | Public status page and heartbeat, per-interface statistics, hash-chained Ed25519-signed audit log, online backups with integrity check, restore, uptime probe, service drills |
+| SCOS research layer (our addition, not in the two documents) | Dependency links between city services coded from the 52 past Kanpur incidents (all evidence level C1), an explorer, a cascade trace with "who acts next" suggestions, and officer decisions in the signed audit log. See [docs/TECHNICAL.md](docs/TECHNICAL.md#10-scos-research-layer-our-addition) |
 | Console | A web console for officers (admin, data officer, consumer, ICCC operator, auditor, analytics provider) that calls the same API |
 
 No npm packages are used: only Node.js 22 built-ins (`node:sqlite`, `node:crypto`, `node:https`, `node:test`) and the `openssl` command line tool.
@@ -50,7 +51,7 @@ With Docker: `docker compose -f deploy/docker-compose.yml up -d --build`.
 ## Tests
 
 ```sh
-npm test             # 123 tests; each starts a fresh city and talks to it over HTTPS with client certificates
+npm test             # 129 tests; each starts a fresh city and talks to it over HTTPS with client certificates
 npm run test:report  # also writes docs/TEST_REPORT.md with coverage and requirement traceability
 npm run trace        # then updates the "server" status of every point in docs/requirements.json
 ```

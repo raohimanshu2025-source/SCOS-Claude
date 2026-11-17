@@ -2,9 +2,9 @@
 // always shows fresh data and a copy is kept; when it does not (a power or network cut), the last copy is shown.
 // Only public things are kept: the portal's own files and API reads made WITHOUT a login cookie
 // (the portal fetches with credentials 'omit'). The officer console and anything sent with a cookie are never kept.
-const CACHE = 'portal-v1';
-const SHELL = ['/', '/portal.css', '/sky.css', '/modern.css', '/sky-theme.js', '/portal.js', '/smart.js', '/portal-mark.svg', '/info.html', '/info.js', '/manifest.webmanifest', '/icon-192.png'];
-const PUBLIC_API = /^\/(catalogue\/v1\/search|resource\/v1\/(latest|search)|cil\/v1\/(alerts|citizen-alerts|publictransit\/fleetPerformance)|status\/v1|ops\/v1\/transparency|api)(\/|$|\?)/;
+const CACHE = 'portal-v2';
+const SHELL = ['/', '/portal.css', '/sky.css', '/modern.css', '/sky-theme.js', '/portal.js', '/smart.js', '/scos.js', '/scos.css', '/portal-mark.svg', '/info.html', '/info.js', '/manifest.webmanifest', '/icon-192.png'];
+const PUBLIC_API = /^\/(catalogue\/v1\/search|resource\/v1\/(latest|search)|cil\/v1\/(alerts|citizen-alerts|publictransit\/fleetPerformance)|status\/v1|ops\/v1\/transparency|scos\/v1(\/(services|explore|scenarios))?|api)(\/|$|\?)/;
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

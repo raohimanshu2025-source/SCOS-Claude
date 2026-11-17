@@ -60,8 +60,8 @@ Object.assign(T.hi, {
 });
 
 // ---------- pages: the long page is shown one part at a time (all on this one address, by #section) ----------
-const PAGE_OF = { '': 'home', content: 'home', hero: 'home', glance: 'home', explore: 'home', map: 'map', dash: 'dash', history: 'history', depts: 'data', data: 'data', status: 'data', open: 'data', about: 'about' };
-const PAGE_PARTS = { home: ['#hero', '.quick-sec', '#glance', '#explore'], map: ['#map'], dash: ['#dash'], history: ['#history'], data: ['#depts', '#data', '#status', '#open'], about: ['#about'] };
+const PAGE_OF = { '': 'home', content: 'home', hero: 'home', glance: 'home', explore: 'home', map: 'map', dash: 'dash', history: 'history', deps: 'history', depts: 'data', data: 'data', status: 'data', open: 'data', about: 'about' };
+const PAGE_PARTS = { home: ['#hero', '.quick-sec', '#glance', '#explore'], map: ['#map'], dash: ['#dash'], history: ['#deps', '#history'], data: ['#depts', '#data', '#status', '#open'], about: ['#about'] };
 let PAGE = '';
 function showPage(scroll = true) {
   const id = decodeURIComponent(location.hash.slice(1)), pg = PAGE_OF[id] ?? (PAGE || 'home');

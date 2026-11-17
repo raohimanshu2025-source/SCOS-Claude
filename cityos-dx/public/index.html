@@ -12,9 +12,11 @@
 <link rel="stylesheet" href="/portal.css">
 <link rel="stylesheet" href="/sky.css">
 <link rel="stylesheet" href="/modern.css">
+<link rel="stylesheet" href="/scos.css">
 <script src="/sky-theme.js"></script>
 <script src="/portal.js" defer></script>
 <script src="/smart.js" defer></script>
+<script src="/scos.js" defer></script>
 </head>
 <body data-own-weather="1">
 <a class="skip" href="#content" data-i18n="skip">Skip to main content</a>
@@ -138,6 +140,27 @@
     <div class="wrap">
       <h2 data-i18n="dashTitle">Dashboards</h2>
       <div class="dash" id="dashgrid"></div>
+    </div>
+  </section>
+
+  <!-- SCOS research layer (our addition on top of the City OS; not part of the two documents). Filled by scos.js. -->
+  <section id="deps" class="sec scos" hidden aria-labelledby="sx-title">
+    <div class="wrap">
+      <p class="sx-tagline"><span class="sx-tag" id="sx-tag">SCOS layer · research addition</span> <span class="small muted" id="sx-layers"></span></p>
+      <h2 id="sx-title">How failures spread between city services</h2>
+      <p class="muted" id="sx-lead"></p>
+      <p class="warn-box small" id="sx-warn"></p>
+      <p class="sx-stats" id="sx-stats"></p>
+      <div class="sx-bar">
+        <p class="small muted" id="sx-pick-l">Pick a city service</p>
+        <label class="small sx-strong"><input type="checkbox" id="sx-strong"> <span id="sx-strong-l">Only links seen in 2 or more incidents</span></label>
+      </div>
+      <div class="sx-pick" id="sx-pick" role="group" aria-labelledby="sx-pick-l"></div>
+      <div id="sx-explore"></div>
+      <h2 class="sx-h2" id="sx-sc-title">Three scenarios</h2>
+      <p class="muted" id="sx-sc-lead"></p>
+      <div class="sx-pick" id="sx-sc" role="group" aria-labelledby="sx-sc-title"></div>
+      <div id="sx-trace" aria-live="polite"></div>
     </div>
   </section>
 

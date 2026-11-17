@@ -11,7 +11,7 @@ import { iso, round } from './util.js';
 import { pkiPaths } from './identity/ca.js';
 import { seedTransit } from './seed-transit.js';
 import { cameraFrame } from './media-frames.js';
-import { sealIncidents } from './ops/register-seal.js';
+import { sealIncidents, sealLinks } from './ops/register-seal.js';
 
 let seedVal = 20261001;
 const rnd = () => { seedVal = (seedVal * 1664525 + 1013904223) % 4294967296; return seedVal / 4294967296; };
@@ -133,6 +133,7 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   group('roadworks', 'Road works', 'pwd', 'rs1', 'roadWork', 'openAPI');
   group('outages', 'Power cut notices', 'kesco', 'rs1', 'powerNotice', 'openAPI');
   group('incidents', 'Past incidents (from news reports)', 'iccc', 'rs1', 'pastIncident', 'openAPI');
+  group('deplinks', 'Dependency links between city services (SCOS research)', 'iccc', 'rs1', 'dependencyLink', 'openAPI');
   group('itms', 'Bus positions', 'kctsl', 'rs1', 'busPosition', 'asyncAPI');
   group('stops', 'Bus stops', 'kctsl', 'rs1', 'busStops', 'openAPI');
   group('fare', 'Fare revenue', 'kctsl', 'rs1', 'fareRevenue', 'openAPI');
@@ -231,6 +232,12 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   const INC = JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-incidents-build.json', import.meta.url), 'utf8'));
   ingest(incId, INC.map(o => { const k = placeOf(o.place); const row = { ...o, chain: o.chain.join(' → '), systems: o.systems.join(', '), departments: o.departments.replace(/\s*\([^)]*\)/g, '') /* department names only, no officials' names */, area: k ? k.replace(/([a-z])([A-Z])/g, '$1 $2') : '' }; if (k) row.location = geo(NEAR[k]); return row; }));
   sealIncidents(app, incId); // hash every incident row and put the register digest in the signed audit log
+  // SCOS research layer (our addition, not in the two documents): the 39 failure links coded from the same 52 incidents
+  // (thesis build set, frozen 4 Oct 2026). All are C1: one news family, single coder, not yet checked by hand.
+  const linkId = res({ key: 'dependency-links-52', grp: 'deplinks', name: 'Failure links between city services (SCOS research, from 52 past incidents)', desc: 'Which city service failed after which, in the 52 past incidents above, with the department that owns each side and the evidence level. Draft coding by a single coder from news reports; not checked by hand. Added by the SCOS research, not part of the two documents.', tags: ['scos', 'dependency', 'cascade', 'incidents', 'coordination'], rtype: 'table', label: 'public' });
+  const LINKS = JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-links-build.json', import.meta.url), 'utf8'));
+  ingest(linkId, LINKS.map(o => ({ ...o, incidentIds: o.incidentIds.join(', ') })));
+  sealLinks(app, linkId); // same seal as the incident register
   // KCTSL buses
   const ROUTES = { 'R-1': ['Kalyanpur', 'Rawatpur', 'SwaroopNagar', 'Parade', 'Central', 'Jajmau'], 'R-7': ['Panki', 'Kakadeo', 'GovindNagar', 'KidwaiNagar', 'Naubasta'] };
   const stopsId = res({ key: 'bus-stops', grp: 'stops', name: 'City bus stops (demo routes 1 and 7)', desc: 'Stop locations for two demo routes.', tags: ['transport', 'bus', 'stops'], rtype: 'table', label: 'public' });

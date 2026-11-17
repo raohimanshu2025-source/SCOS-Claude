@@ -69,6 +69,8 @@ These are deliberate. Each is stated in the verification PDF.
 
 ## Added by us (not asked for by the documents)
 
+**SCOS research layer (17 Nov 2026).** Dependency links between city services, an explorer, a cascade trace and officer decisions, under `/scos/v1` and on the portal's "Incidents and dependencies" page. This is the SCOS M.Tech research built on top of the City OS. It is not in either document, adds no point to `requirements.json` and changes no point's status.
+
 **Choices the documents leave open:**
 - Node.js, SQLite and the OpenSSL tool.
 - TLS 1.2 or later (BIS cites TLS 1.2).

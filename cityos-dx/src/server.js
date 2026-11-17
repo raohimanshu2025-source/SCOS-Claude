@@ -18,6 +18,7 @@ import { makeRegion } from './cil/region.js';
 import { makeSources } from './cil/sources.js';
 import { makeProviderAuth } from './dx/provider-auth.js';
 import { makeResource } from './dx/resource.js';
+import { makeTee } from './dx/tee.js';
 import { dataModelDoc, contextDoc, baseSchema, MODELS, MANDATORY, T3, T3_NAMES, TABLE4, TABLE4_ROWS, LABEL_DEFAULTS, LABEL_CLASSES } from './dx/model.js';
 import { CLASS_TEXT } from './identity/ca.js';
 import { makeCil } from './cil/cil.js';
@@ -50,6 +51,7 @@ export function createApp(overrides = {}) {
   const authz = makeAuthz(db, cfg, audit, catalogue, notify, artefacts, central);
   const providerAuth = makeProviderAuth({ db, audit, catalogue });
   const resource = makeResource(db, cfg, audit, catalogue, authz, providerAuth);
+  authz.tee = makeTee(db, audit, catalogue); // BIS 4.5.2.1: trusted execution environments for policy enforcement at data use
   const cil = makeCil(db, cfg, audit, catalogue, authz, resource, identity);
   const ops = makeOps(db, cfg, audit, { authz, notify, cil, resource, catalogue });
   const limit = makeRateLimiter(cfg.rateLimitPerMin);
@@ -124,7 +126,13 @@ export function createApp(overrides = {}) {
   R('GET', '/catalogue/v1/status', () => ({ service: 'catalogue', status: 'up', items: catalogue.stats(), ts: iso(Date.now()) }));
 
   // ---- authorization, consent, policy ----
-  R('POST', '/auth/v1/token', c => authz.requestToken(c.p, c.body.request, c.body.purpose));
+  R('POST', '/auth/v1/token', c => authz.requestToken(c.p, c.body.request, c.body.purpose, c.body.attestation));
+  // Trusted execution environments (BIS 4.5.2.1): verifiers the city trusts, and items usable only inside an attested enclave
+  R('GET', '/auth/v1/tee/verifiers', c => { role(c.p, 'admin', 'auditor'); return authz.tee.verifiers(); });
+  R('POST', '/auth/v1/tee/verifiers', c => { c.status = 201; return authz.tee.addVerifier(c.p, c.body); });
+  R('POST', '/auth/v1/tee/verifiers/remove', c => authz.tee.removeVerifier(c.p, c.body));
+  R('GET', '/auth/v1/tee/requirement', c => ({ id: String(c.query.id || ''), ...(authz.tee.requirement(String(c.query.id || '')) || { measurements: [] }) }));
+  R('POST', '/auth/v1/tee/requirement', c => authz.tee.setRequirement(c.p, c.body));
   R('POST', '/auth/v1/token/introspect', async c => {
     if (cfg.rsDnsCheck && c.p.kind === 'rs') await checkRsDns(c.p.cn, c.ip); // Figure 2 step 8
     const r = authz.introspect(c.p, c.body.token, c.body.id, { useCache: false });

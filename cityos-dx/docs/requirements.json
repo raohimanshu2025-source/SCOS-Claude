@@ -2134,9 +2134,14 @@
   "anchor": "ov-scope",
   "how": "Added on 30 Sep 2026 after a second, stricter reading of the document. The one-page demo was not updated for this point; the server verification pack covers it.",
   "server": {
-   "status": "notmet",
-   "how": "Not implemented. The server has no trusted execution environment support.",
-   "tests": []
+   "status": "working",
+   "how": "A provider can limit a non-public item to attested enclaves (POST /auth/v1/tee/requirement with the accepted SHA-256 code measurements). A token for it needs a fresh attestation report signed by a verifier the DX administrator registered (POST /auth/v1/tee/verifiers); the token is bound to that enclave, and at the time of use the resource server returns the data sealed to the enclave's X25519 key (AES-256-GCM), so only the attested code can read it. Streams, subscriptions and media of such items are refused (tested). The hardware quote (Intel TDX or SGX, AMD SEV-SNP) is checked by the registered verifier, such as a cloud attestation service; this server does not parse vendor quotes itself, and the demo has no real enclave.",
+   "tests": [
+    "[BIS-111] only the administrator registers an attestation verifier; only the owner limits an item to enclaves",
+    "[BIS-111] a token needs a fresh attestation of an accepted enclave, signed by a registered verifier",
+    "[BIS-111] at the time of use the data is sealed to the enclave key; plain paths are refused",
+    "[BIS-111] removing a verifier stops new tokens; removing the rule gives plain answers again"
+   ]
   }
  },
  {

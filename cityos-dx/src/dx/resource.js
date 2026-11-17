@@ -39,7 +39,7 @@ export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = nu
   }
 
   // Figure 2: steps 6 and 7-13 with the trace kept for the caller.
-  function authorize(p, it, srv, token, trace) {
+  function authorize(p, it, srv, token, trace, { sealed = false } = {}) {
     const S = (n, text, ok = true) => trace.push({ step: n, text, ok });
     S(6, `GET https://${srv.host}/resource/v1 id=${it.id}${token ? ' with token …' + String(token).slice(-8) : ' (no token)'}${srv.legacy ? ' via DX Adapter' : ''}`);
     if (it.policy.label === 'public') { S(6, 'public item: no token needed (BIS 4.1 transparency, 5.4.2 anonymous access)'); return null; }
@@ -59,6 +59,15 @@ export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = nu
     if (r.rec.cert_serial) need(p.serial === r.rec.cert_serial, 403, 'token was issued to another certificate; present it over TLS with that certificate', { authorizationFlow: trace });
     else need(p.email === r.rec.consumer, 403, 'token was issued to another consumer', { authorizationFlow: trace });
     if (!r.cached) S(10, `200 OK from authorization service: consumer ${r.rec.consumer}, class ${r.rec.cls}`);
+    // BIS 4.5.2.1: an item limited to trusted execution environments is answered only sealed to the attested enclave
+    if (authz.tee?.requirement(it.id)) {
+      const b = authz.tee.bound(r.rec.hash);
+      if (!b) { audit.log('Resource', actorOf(p), 'Access refused', `${it.id}: token not bound to an attested enclave`, false); fail(403, `${it.id} may be used only inside an attested enclave; request a token with an attestation report`, { authorizationFlow: trace }); }
+      need(sealed, 403, `${it.id} may be used only inside an attested enclave: read it with /resource/v1 latest, search or count, which return the data sealed to the enclave key; streams, subscriptions and media are refused`);
+      S(10, `token bound to enclave ${b.measurement.slice(0, 12)}…: data will be sealed to the enclave key`);
+      authz.recordAccess(r.rec.hash);
+      return { ...r.rec, tee: b };
+    }
     authz.recordAccess(r.rec.hash);
     return r.rec;
   }
@@ -108,7 +117,7 @@ export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = nu
     const trace = [];
     const { it, srv, model } = locate(params.id);
     const t0 = Date.now();
-    const tok = authorize(p, it, srv, token, trace);
+    const tok = authorize(p, it, srv, token, trace, { sealed: true });
     const rows = rowsOf(it, model, srv);
     const tf = timeFieldOf(model);
     let body;
@@ -124,8 +133,9 @@ export function makeResource(db, cfg, audit, catalogue, authz, providerAuth = nu
       const geo = Object.entries(MODELS[model].props).find(([, dd]) => dd[0] === 'GeoProperty')?.[0];
       body = { type: 'FeatureCollection', features: rows.map(r => ({ type: 'Feature', properties: Object.fromEntries(Object.entries(r).filter(([k]) => k !== geo)), geometry: r[geo] })) };
     } else fail(404, 'unknown operation');
-    trace.push({ step: 11, text: '200 OK, data returned', ok: true });
-    audit.log('Resource', actorOf(p), `${op}${srv.legacy ? ' via DX Adapter' : ''}`, `${it.id}${tok ? ' token …' + tok.tail : ''} ${Date.now() - t0} ms`);
+    if (tok?.tee) body = { id: it.id, enclaveMeasurement: tok.tee.measurement, sealed: authz.tee.seal(tok.tee.enclave_key, body) };
+    trace.push({ step: 11, text: tok?.tee ? '200 OK, data returned sealed to the enclave key' : '200 OK, data returned', ok: true });
+    audit.log('Resource', actorOf(p), `${op}${srv.legacy ? ' via DX Adapter' : ''}${tok?.tee ? ' sealed to enclave' : ''}`, `${it.id}${tok ? ' token …' + tok.tail : ''} ${Date.now() - t0} ms`);
     return params.trace ? { ...body, authorizationFlow: trace } : body;
   }
 

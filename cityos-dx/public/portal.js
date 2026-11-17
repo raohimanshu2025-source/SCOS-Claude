@@ -38,7 +38,7 @@ const T = {
     about3: 'All data here is synthetic. Department names are used only to show how the system would be organised. This is not an official website of any government body, and nothing here should be used for real decisions.',
     howTitle: 'How officials use it', how1: 'Open this page: anyone sees the public dashboards and open data.', how2: "Click Officer login. A department's data officer publishes datasets and sets who may see them.",
     how3: 'Staff of another department search the catalogue and ask for access. The owner approves or refuses, and every step is written to the audit log.', how4: 'The control room login sees all analytics and alerts across departments.',
-    foot1: 'Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.', apiStatus: 'Status API', apiList: 'API list',
+    foot1: 'Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.', apiStatus: 'Status API', apiList: 'API list', apiDev: 'For developers',
     // dynamic
     aq: 'Air quality (PM2.5)', temp: 'Temperature', rain: 'Rain, last reading', water: 'Water supply', beds: 'Hospital beds free', traffic: 'Traffic speed', buses: 'City buses on time',
     roadworks: 'Road works', flood: 'Flood alerts', datasets: 'Datasets', avgOf: 'average of {n} stations', maxOf: 'highest of {n} stations', hDay: 'hours/day', cityAvg: 'city average', tapHint: 'Tap or hover a point for details.', lowest: 'lowest', icuFree: 'ICU beds free',
@@ -87,7 +87,7 @@ const T = {
     about3: 'यहाँ का सारा डेटा कृत्रिम है। विभागों के नाम केवल यह दिखाने के लिए हैं कि प्रणाली कैसे व्यवस्थित होगी। यह किसी सरकारी संस्था की आधिकारिक वेबसाइट नहीं है, और यहाँ की किसी जानकारी का उपयोग वास्तविक निर्णयों के लिए न करें।',
     howTitle: 'अधिकारी इसका उपयोग कैसे करते हैं', how1: 'यह पेज खोलें: कोई भी सार्वजनिक डैशबोर्ड और खुला डेटा देख सकता है।', how2: 'अधिकारी लॉगिन पर क्लिक करें। विभाग का डेटा अधिकारी डेटासेट प्रकाशित करता है और तय करता है कि कौन देखे।',
     how3: 'दूसरे विभाग के कर्मचारी सूची में खोजते हैं और पहुँच माँगते हैं। मालिक विभाग स्वीकृत या अस्वीकार करता है, और हर कदम ऑडिट लॉग में दर्ज होता है।', how4: 'कंट्रोल रूम लॉगिन सभी विभागों के विश्लेषण और अलर्ट देखता है।',
-    foot1: 'स्वतंत्र शोध प्रोटोटाइप। कृत्रिम डेमो डेटा। किसी सरकारी विभाग से संबद्ध या समर्थित नहीं।', apiStatus: 'स्थिति API', apiList: 'API सूची',
+    foot1: 'स्वतंत्र शोध प्रोटोटाइप। कृत्रिम डेमो डेटा। किसी सरकारी विभाग से संबद्ध या समर्थित नहीं।', apiStatus: 'स्थिति API', apiList: 'API सूची', apiDev: 'डेवलपर के लिए',
     aq: 'वायु गुणवत्ता (PM2.5)', temp: 'तापमान', rain: 'वर्षा, अंतिम माप', water: 'जल आपूर्ति', beds: 'अस्पताल में खाली बिस्तर', traffic: 'यातायात गति', buses: 'सिटी बसें समय पर',
     roadworks: 'सड़क कार्य', flood: 'बाढ़ अलर्ट', datasets: 'डेटासेट', avgOf: '{n} स्टेशनों का औसत', maxOf: '{n} स्टेशनों में सबसे अधिक', hDay: 'घंटे/दिन', cityAvg: 'शहर औसत', tapHint: 'विवरण के लिए किसी बिंदु पर टैप करें या माउस रखें।', lowest: 'सबसे कम', icuFree: 'ICU बिस्तर खाली',
     junctionAvg: '{n} चौराहों का औसत', slowest: 'सबसे धीमा', inProgress: 'जारी', lanesClosed: 'लेन बंद', none: 'कोई सक्रिय नहीं', active: 'सक्रिय', publicOf: 'सार्वजनिक, कुल {n} में से',

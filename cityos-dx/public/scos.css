@@ -35,3 +35,24 @@
 .sx-who{margin:6px 0 8px 20px;padding:0}
 .sx-who li{margin:3px 0}
 @media (max-width:820px){.sx-cols{grid-template-columns:1fr}.sx-mid{order:-1}}
+/* Home page story (C5): the three layers and what SCOS is and is not */
+.st-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;margin-top:10px}
+.st-stack{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.st-layer{border-radius:12px;padding:10px 14px;border:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;gap:2px;border-left-width:6px}
+.st-layer.scos{border-color:var(--warn);background:var(--warn-soft);border-width:2px 2px 2px 6px}
+.st-layer.cos{border-left-color:var(--ok)}
+.st-layer.bis{border-left-color:var(--info)}
+.st-isnot{display:grid;gap:10px}
+.st-cta{margin-top:14px}
+.st-cta .cta.primary{background:var(--warn);color:var(--panel)}
+.st-cta .cta.ghost{color:var(--ink);border-color:var(--line)}
+.subnav{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px}
+.subnav a{border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.88rem;text-decoration:none;color:var(--ink);background:var(--panel)}
+.subnav a:hover{border-color:var(--info)}
+@media (max-width:820px){.st-grid{grid-template-columns:1fr}}
+/* Developer page (C7) */
+.info-sec pre{background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;font-size:.82rem;line-height:1.45;margin:8px 0 12px}
+.info-sec code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9em}
+.info-sec .st-stack{margin:10px 0}
+.info-sec table{border-collapse:collapse;width:100%;font-size:.9rem}
+.info-sec th,.info-sec td{text-align:left;vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line)}

@@ -17,9 +17,20 @@
       inc: '{n} incidents', inc1: '1 incident', hand: 'Hand-over', hazard: 'Hazard', ev: 'Evidence', showInc: 'Show the incidents',
       scTitle: 'Three scenarios: what may fail next, and who acts next', scLead: 'Start from a first failure and follow the links step by step. Only links seen in at least 2 past incidents are used. No machine learning and no weights: every step names the link it used.',
       step: 'Step {k}', start: 'First failure', via: 'via {l}', who: 'Who acts next (suggestion only)',
-      whoNote: 'A suggestion for the control room. Only the ICCC operator login can approve, hold or reject a task (through the SCOS API; a console screen comes next), and every decision is written to the signed audit log. Nothing is sent to any department.',
+      whoNote: 'A suggestion for the control room. Only the ICCC operator login can approve, hold or reject a task (officer console, screen "SCOS tasks"), and every decision is written to the signed audit log. Nothing is sent to any department.',
       basis: 'Based on {l} links and {i} past incidents; {x} links cross from one department to another.',
       noOwner: 'no owner', err: 'The SCOS layer could not be loaded.', layers: 'Data exchange (BIS 2019) → City intelligence (City OS 2023) → SCOS layer (this research)',
+      stTitle: 'What this site is: three layers', stTag: 'SCOS layer · research addition',
+      stLead: 'The lower two layers follow two public documents. The top layer is the SCOS research: it adds what happens when one failure causes the next, across departments.',
+      stLayers: [
+        ['scos', 'SCOS layer (this research, not in the two documents)', 'Which failure spreads to which service, who acts next, an officer approves, every decision is recorded.'],
+        ['cos', 'City Intelligence Layer (City OS paper, 2023)', 'Dashboards, alerts from sensors and rules, analytics APIs.'],
+        ['bis', 'Data Exchange (BIS draft standard, 2019)', 'Catalogue, consent, access rules and a signed audit trail. Each department stays the owner of its data.'],
+      ],
+      stIsH: 'SCOS is', stNotH: 'SCOS is not',
+      stIs: ['A map of how failures spread between city services, coded from {i} past Kanpur incidents in the news.', 'A list of who acts next, shown to the control room as a suggestion.', 'A record of every approve, hold or reject decision, in the signed audit log.'],
+      stNot: ['Not a live system: it is not connected to any department.', 'Not AI or a prediction model: plain rules, and every step names its link.', 'Not an order: nothing is sent to any department.', 'Not validated yet: a sealed-incident test and officer checks are planned.'],
+      stGo: 'See how failures spread', stDev: 'For developers',
     },
     hi: {
       title: 'शहर की सेवाओं में विफलता कैसे फैलती है', tag: 'SCOS परत · शोध से जोड़ा गया',
@@ -31,13 +42,25 @@
       inc: '{n} घटनाएँ', inc1: '1 घटना', hand: 'हैंड-ओवर', hazard: 'ख़तरा', ev: 'साक्ष्य', showInc: 'घटनाएँ देखें',
       scTitle: 'तीन परिदृश्य: आगे क्या विफल हो सकता है, और आगे कौन काम करे', scLead: 'पहली विफलता से शुरू करके कड़ियों को एक-एक कदम आगे बढ़ाएँ। सिर्फ़ कम से कम 2 पिछली घटनाओं में देखी गई कड़ियाँ। कोई मशीन लर्निंग नहीं।',
       step: 'कदम {k}', start: 'पहली विफलता', via: '{l} से', who: 'आगे कौन काम करे (सिर्फ़ सुझाव)',
-      whoNote: 'कंट्रोल रूम के लिए सुझाव। सिर्फ़ ICCC ऑपरेटर लॉगिन किसी काम को मंज़ूर, रोक या अस्वीकार कर सकता है (SCOS API से; कंसोल स्क्रीन आगे आएगी), और हर फ़ैसला हस्ताक्षरित ऑडिट लॉग में लिखा जाता है। किसी विभाग को कुछ नहीं भेजा जाता।',
+      whoNote: 'कंट्रोल रूम के लिए सुझाव। सिर्फ़ ICCC ऑपरेटर लॉगिन किसी काम को मंज़ूर, रोक या अस्वीकार कर सकता है (अधिकारी कंसोल, स्क्रीन "SCOS tasks"), और हर फ़ैसला हस्ताक्षरित ऑडिट लॉग में लिखा जाता है। किसी विभाग को कुछ नहीं भेजा जाता।',
       basis: '{l} कड़ियों और {i} पिछली घटनाओं पर आधारित; {x} कड़ियाँ एक विभाग से दूसरे तक।',
       noOwner: 'कोई ज़िम्मेदार नहीं', err: 'SCOS परत लोड नहीं हो सकी।', layers: 'डेटा एक्सचेंज (BIS 2019) → सिटी इंटेलिजेंस (City OS 2023) → SCOS परत (यह शोध)',
+      stTitle: 'यह साइट क्या है: तीन परतें', stTag: 'SCOS परत · शोध से जोड़ा गया',
+      stLead: 'नीचे की दो परतें दो सार्वजनिक दस्तावेज़ों पर आधारित हैं। ऊपर की परत SCOS शोध है: यह जोड़ती है कि एक विफलता से अगली विफलता कैसे होती है, विभागों के आर-पार।',
+      stLayers: [
+        ['scos', 'SCOS परत (यह शोध, दोनों दस्तावेज़ों में नहीं)', 'कौन-सी विफलता किस सेवा तक फैलती है, आगे कौन काम करे, अधिकारी मंज़ूरी दे, हर फ़ैसला दर्ज हो।'],
+        ['cos', 'सिटी इंटेलिजेंस लेयर (City OS पेपर, 2023)', 'डैशबोर्ड, सेंसर और नियमों से अलर्ट, एनालिटिक्स API।'],
+        ['bis', 'डेटा एक्सचेंज (BIS ड्राफ़्ट मानक, 2019)', 'कैटलॉग, सहमति, पहुँच नियम और हस्ताक्षरित ऑडिट रिकॉर्ड। हर विभाग अपने डेटा का मालिक रहता है।'],
+      ],
+      stIsH: 'SCOS क्या है', stNotH: 'SCOS क्या नहीं है',
+      stIs: ['शहर की सेवाओं के बीच विफलता कैसे फैलती है, इसका नक्शा, कानपुर की {i} पिछली घटनाओं की ख़बरों से।', 'आगे कौन काम करे, इसकी सूची, कंट्रोल रूम के लिए सिर्फ़ सुझाव।', 'हर मंज़ूरी, रोक या अस्वीकृति का रिकॉर्ड, हस्ताक्षरित ऑडिट लॉग में।'],
+      stNot: ['चालू प्रणाली नहीं: किसी विभाग से जुड़ा नहीं।', 'AI या भविष्यवाणी मॉडल नहीं: सीधे नियम, हर कदम अपनी कड़ी बताता है।', 'आदेश नहीं: किसी विभाग को कुछ नहीं भेजा जाता।', 'अभी प्रमाणित नहीं: सीलबंद घटनाओं की जाँच और अधिकारियों की जाँच की योजना है।'],
+      stGo: 'देखें विफलता कैसे फैलती है', stDev: 'डेवलपर के लिए',
     },
   };
   const lang = () => (document.documentElement.lang === 'hi' ? 'hi' : 'en');
-  const t = (k, v) => { let s = T[lang()][k] ?? T.en[k]; if (v) for (const [a, b] of Object.entries(v)) s = s.replace('{' + a + '}', b); return s; };
+  const raw = k => T[lang()][k] ?? T.en[k];
+  const t = (k, v) => { let s = raw(k); if (v) for (const [a, b] of Object.entries(v)) s = s.replace('{' + a + '}', b); return s; };
   const S = { about: null, services: [], svc: 'PWR', strong: false, explore: null, sc: 'S1', trace: null };
 
   const linkRow = (l, dir) => {
@@ -80,7 +103,16 @@
     $('#sx-pick-l').textContent = t('pick'); $('#sx-strong-l').textContent = t('strong');
     $('#sx-sc-title').textContent = t('scTitle'); $('#sx-sc-lead').textContent = t('scLead');
   }
-  const renderAll = () => { renderStatic(); renderPicker(); renderExplorer(); renderScenario(); };
+  function renderStory() {
+    const a = S.about, root = $('#story'); if (!a || !root) return;
+    const set = (id, k) => { const el = $('#' + id); if (el) el.textContent = t(k); };
+    set('st-title', 'stTitle'); set('st-tag', 'stTag'); set('st-lead', 'stLead'); set('st-is-h', 'stIsH'); set('st-not-h', 'stNotH'); set('st-go', 'stGo'); set('st-dev', 'stDev');
+    $('#st-stack').innerHTML = raw('stLayers').map(([k, h, d]) => `<li class="st-layer ${k}"><b>${esc(h)}</b><span class="small">${esc(d)}</span></li>`).join('');
+    $('#st-is').innerHTML = raw('stIs').map(x => `<li>${esc(x.replace('{i}', a.counts.incidents))}</li>`).join('');
+    $('#st-not').innerHTML = raw('stNot').map(x => `<li>${esc(x)}</li>`).join('');
+    root.hidden = false;
+  }
+  const renderAll = () => { renderStory(); renderStatic(); renderPicker(); renderExplorer(); renderScenario(); };
 
   async function loadExplore() { S.explore = await get(`/scos/v1/explore?service=${encodeURIComponent(S.svc)}&minIncidents=${S.strong ? 2 : 1}`); renderPicker(); renderExplorer(); }
   async function loadTrace() { const sc = S.about.scenarios.find(s => s.id === S.sc); S.trace = await get('/scos/v1/trace', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ start: sc.start }) }); renderScenario(); }
@@ -89,7 +121,7 @@
     const root = $('#deps'); if (!root) return;
     try { S.about = await get('/scos/v1'); } catch { return; }
     if (!S.about.counts.links) return; // this city has no SCOS registers (for example the default demo city)
-    root.hidden = false;
+    root.hidden = false; renderStory();
     S.services = await get('/scos/v1/services');
     renderStatic();
     await Promise.all([loadExplore(), loadTrace()]);

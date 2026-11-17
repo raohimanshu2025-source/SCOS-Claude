@@ -53,11 +53,8 @@
     <a href="#glance" data-i18n="navHome">City today</a>
     <a href="#map" data-i18n="navMap">Map</a>
     <a href="#dash" data-i18n="navDash">Dashboards</a>
-    <a href="#history" data-i18n="navHist">Past incidents</a>
-    <a href="#depts" data-i18n="navDepts">Departments</a>
+    <a href="#deps" data-i18n="navHist">Incidents and dependencies</a>
     <a href="#data" data-i18n="navData">Open data</a>
-    <a href="#status" data-i18n="navStatus">Service status</a>
-    <a href="#open" data-i18n="navOpen">Transparency</a>
     <a href="#about" data-i18n="navAbout">About</a>
     <a href="/info.html" data-i18n="navHelp">Help</a>
     <button type="button" class="find-btn" id="find-btn" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="findBtn">Search</span><kbd>Ctrl K</kbd></button>
@@ -106,13 +103,30 @@
     </div>
   </section>
 
+  <!-- What the site is, in three layers, and what SCOS is and is not (our addition). Filled by scos.js; hidden when the city has no SCOS register. -->
+  <section id="story" class="sec scos" hidden aria-labelledby="st-title">
+    <div class="wrap">
+      <p class="sx-tagline"><span class="sx-tag" id="st-tag">SCOS layer · research addition</span></p>
+      <h2 id="st-title">What this site is: three layers</h2>
+      <p class="muted" id="st-lead"></p>
+      <div class="st-grid">
+        <ol class="st-stack" id="st-stack" aria-label="Layers, top to bottom"></ol>
+        <div class="st-isnot">
+          <div class="sx-col"><h3 class="sub-h" id="st-is-h">SCOS is</h3><ul class="sx-who" id="st-is"></ul></div>
+          <div class="sx-col"><h3 class="sub-h" id="st-not-h">SCOS is not</h3><ul class="sx-who" id="st-not"></ul></div>
+        </div>
+      </div>
+      <div class="hero-cta st-cta"><a class="cta primary" href="#deps" id="st-go">See how failures spread</a> <a class="cta ghost" href="/developers.html" id="st-dev">For developers</a></div>
+    </div>
+  </section>
+
   <section id="explore" class="sec alt" aria-labelledby="ex-h">
     <div class="wrap">
       <h2 id="ex-h" data-i18n="exTitle">Explore the city</h2>
       <div class="explore">
         <a class="ex" href="#map"><b data-i18n="navMap">Map</b><span data-i18n="exMap">Air, traffic, hospitals, buses and photos on one map.</span></a>
         <a class="ex" href="#dash"><b data-i18n="navDash">Dashboards</b><span data-i18n="exDash">Water, air, beds, traffic and roads in charts.</span></a>
-        <a class="ex" href="#history"><b data-i18n="navHist">Past incidents</b><span data-i18n="exHist">52 real Kanpur incidents and how each one spread.</span></a>
+        <a class="ex" href="#deps"><b data-i18n="navHist">Incidents and dependencies</b><span data-i18n="exHist">52 real Kanpur incidents and how each one spread.</span></a>
         <a class="ex" href="#data"><b data-i18n="navData">Open data</b><span data-i18n="exData">Departments, datasets, service status and transparency.</span></a>
         <a class="ex" href="#about"><b data-i18n="navAbout">About</b><span data-i18n="exAbout">What this demo is, and how officials use it.</span></a>
       </div>
@@ -175,6 +189,7 @@
 
   <section id="depts" class="sec">
     <div class="wrap">
+      <nav class="subnav" aria-label="Open data sections"><a href="#depts" data-i18n="navDepts">Departments</a><a href="#data" data-i18n="navData">Open data</a><a href="#status" data-i18n="navStatus">Service status</a><a href="#open" data-i18n="navOpen">Transparency</a></nav>
       <h2 data-i18n="deptTitle">Departments on the data exchange</h2>
       <p class="muted" data-i18n="deptNote">Each department publishes its own data and decides who may see it. Names are used for demonstration only; no department has supplied or approved this data.</p>
       <div class="depts" id="deptgrid"></div>
@@ -252,7 +267,7 @@
       <a href="/info.html#sitemap" data-i18n="fMap">Sitemap</a>
     </nav>
     <p data-i18n="foot1">Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.</p>
-    <p class="small"><a href="/console.html" data-i18n="officerLogin">Officer login</a> · <a href="/status/v1" data-i18n="apiStatus">Status API</a> · <a href="/api" data-i18n="apiList">API list</a></p>
+    <p class="small"><a href="/console.html" data-i18n="officerLogin">Officer login</a> · <a href="/status/v1" data-i18n="apiStatus">Status API</a> · <a href="/api" data-i18n="apiList">API list</a> · <a href="/developers.html" data-i18n="apiDev">For developers</a></p>
   </div>
 </footer>
 
@@ -266,7 +281,7 @@
   <a href="#hero"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4Z"/></svg><span data-i18n="bnHome">Home</span></a>
   <a href="#map"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg><span data-i18n="navMap">Map</span></a>
   <button type="button" class="bn-main" id="bn-report"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4Z"/><circle cx="12" cy="13" r="3.5"/></svg><span data-i18n="bnReport">Report</span></button>
-  <a href="#history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span data-i18n="bnPast">Past</span></a>
+  <a href="#deps"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="8"/></svg><span data-i18n="bnPast">Past</span></a>
   <button type="button" id="bn-find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg><span data-i18n="findBtn">Search</span></button>
 </nav>
 </body>

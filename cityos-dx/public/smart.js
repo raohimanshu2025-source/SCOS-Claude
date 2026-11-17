@@ -28,7 +28,7 @@ Object.assign(T.en, {
   phSentNote: 'Your photo is now on the city map on this page only. It disappears when you reload or close the page.',
   phSample: 'Sample: drawn picture, made-up place', phYours: 'Your photo (on this device only)', phShow: 'Show on map', phNoLoc: 'No location',
   phS1: 'Waterlogging', phS2: 'Streetlight not working', phS3: 'Garbage not collected',
-  exTitle: 'Explore the city', exMap: 'Air, traffic, hospitals, buses and photos on one map.', exDash: 'Water, air, beds, traffic and roads in charts.', exHist: '52 real Kanpur incidents and how each one spread.', exData: 'Departments, datasets, service status and transparency.', exAbout: 'What this demo is, and how officials use it.',
+  exTitle: 'Explore the city', exMap: 'Air, traffic, hospitals, buses and photos on one map.', exDash: 'Water, air, beds, traffic and roads in charts.', exHist: '52 real Kanpur incidents, how each one spread, and which department hands over to which.', exData: 'Departments, datasets, service status and transparency.', exAbout: 'What this demo is, and how officials use it.',
   offline: 'You are offline. Showing the copy saved on this device; numbers may be old.', backHome: '← City today',
   sealTitle: 'Past incident register', sealOk: 'Checked: none of the {n} incidents has been changed since they were sealed on {d}.', sealBad: 'Check failed: incidents changed since sealing: {ids}', sealHow: 'Each incident row has a SHA-256 fingerprint; together they make one digest that is written into the signed audit log.',
 });
@@ -54,20 +54,20 @@ Object.assign(T.hi, {
   phSentNote: 'आपकी फ़ोटो अब सिर्फ़ इस पेज पर शहर के नक्शे पर है। पेज रीलोड या बंद करने पर हट जाएगी।',
   phSample: 'नमूना: बनाया गया चित्र, काल्पनिक स्थान', phYours: 'आपकी फ़ोटो (सिर्फ़ इस डिवाइस पर)', phShow: 'नक्शे पर दिखाएँ', phNoLoc: 'स्थान नहीं',
   phS1: 'जलभराव', phS2: 'स्ट्रीटलाइट खराब', phS3: 'कचरा नहीं उठा',
-  exTitle: 'शहर को देखें', exMap: 'वायु, यातायात, अस्पताल, बसें और फ़ोटो एक नक्शे पर।', exDash: 'पानी, वायु, बिस्तर, यातायात और सड़कें चार्ट में।', exHist: 'कानपुर की 52 असली घटनाएँ और हर एक कैसे फैली।', exData: 'विभाग, डेटासेट, सेवा स्थिति और पारदर्शिता।', exAbout: 'यह डेमो क्या है और अधिकारी इसका उपयोग कैसे करते हैं।',
+  exTitle: 'शहर को देखें', exMap: 'वायु, यातायात, अस्पताल, बसें और फ़ोटो एक नक्शे पर।', exDash: 'पानी, वायु, बिस्तर, यातायात और सड़कें चार्ट में।', exHist: 'कानपुर की 52 असली घटनाएँ, हर एक कैसे फैली, और कौन-सा विभाग किसे काम सौंपता है।', exData: 'विभाग, डेटासेट, सेवा स्थिति और पारदर्शिता।', exAbout: 'यह डेमो क्या है और अधिकारी इसका उपयोग कैसे करते हैं।',
   offline: 'आप ऑफ़लाइन हैं। इस डिवाइस पर सहेजी गई कॉपी दिख रही है; आँकड़े पुराने हो सकते हैं।', backHome: '← आज का शहर',
   sealTitle: 'पिछली घटनाओं का रजिस्टर', sealOk: 'जाँचा गया: {d} को सील होने के बाद {n} घटनाओं में से कोई नहीं बदली।', sealBad: 'जाँच विफल: सील होने के बाद ये घटनाएँ बदलीं: {ids}', sealHow: 'हर घटना की पंक्ति का SHA-256 फ़िंगरप्रिंट है; सब मिलकर एक डाइजेस्ट बनाते हैं जो हस्ताक्षरित ऑडिट लॉग में लिखा जाता है।',
 });
 
 // ---------- pages: the long page is shown one part at a time (all on this one address, by #section) ----------
-const PAGE_OF = { '': 'home', content: 'home', hero: 'home', glance: 'home', explore: 'home', map: 'map', dash: 'dash', history: 'history', deps: 'history', depts: 'data', data: 'data', status: 'data', open: 'data', about: 'about' };
-const PAGE_PARTS = { home: ['#hero', '.quick-sec', '#glance', '#explore'], map: ['#map'], dash: ['#dash'], history: ['#deps', '#history'], data: ['#depts', '#data', '#status', '#open'], about: ['#about'] };
+const PAGE_OF = { '': 'home', content: 'home', hero: 'home', glance: 'home', story: 'home', explore: 'home', map: 'map', dash: 'dash', history: 'history', deps: 'history', depts: 'data', data: 'data', status: 'data', open: 'data', about: 'about' };
+const PAGE_PARTS = { home: ['#hero', '.quick-sec', '#glance', '#story', '#explore'], map: ['#map'], dash: ['#dash'], history: ['#deps', '#history'], data: ['#depts', '#data', '#status', '#open'], about: ['#about'] };
 let PAGE = '';
 function showPage(scroll = true) {
   const id = decodeURIComponent(location.hash.slice(1)), pg = PAGE_OF[id] ?? (PAGE || 'home');
   const changed = pg !== PAGE; PAGE = pg; document.body.dataset.page = pg;
   for (const [k, sels] of Object.entries(PAGE_PARTS)) for (const sel of sels) document.querySelector(sel)?.classList.toggle('pg-off', k !== pg);
-  document.querySelectorAll('#menu a[href^="#"], .botnav a').forEach(a => { const h = a.getAttribute('href').slice(1); a.classList.toggle('on', (PAGE_OF[h] ?? '') === pg && (pg !== 'data' || h === id || (!PAGE_OF[id] && h === 'depts'))); });
+  document.querySelectorAll('#menu a[href^="#"], .botnav a').forEach(a => { const h = a.getAttribute('href').slice(1); a.classList.toggle('on', (PAGE_OF[h] ?? '') === pg); });
   if (!scroll) return;
   const el = id && document.getElementById(id);
   if (pg === 'home' && (!id || id === 'hero' || id === 'content')) scrollTo({ top: 0 });
@@ -237,7 +237,7 @@ const showDlg = d => { if (d.open) return; if (typeof d.showModal === 'function'
 // ---------- quick search ----------
 let KP = [], KI = 0;
 function kpItems() {
-  const sec = [...document.querySelectorAll('#menu a')].map(a => ({ k: t('kSec'), name: a.textContent, go: () => { const h = a.getAttribute('href'); h.startsWith('#') ? goTo(h.slice(1)) : (location.href = h); } }));
+  const sec = [...document.querySelectorAll('#menu a, .subnav a')].map(a => ({ k: t('kSec'), name: a.textContent, go: () => { const h = a.getAttribute('href'); h.startsWith('#') ? goTo(h.slice(1)) : (location.href = h); } }));
   if (!D) return sec;
   const lms = Object.keys(LANDMARKS).map(k => ({ k: t('kPlace'), name: t(LM_KEY[k]), go: () => openLandmark(k) }));
   const data = D.items.map(i => ({ k: t('kData'), name: i.name, sub: i.providerName, go: () => { $('#q').value = i.name; renderData(); goTo('data'); } }));

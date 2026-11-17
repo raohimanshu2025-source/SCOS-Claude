@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For developers · City Data Portal (demo)</title>
+<meta name="description" content="How to use the open APIs of the City Data Portal demo: the data exchange, the city intelligence layer and the SCOS research layer. Independent research prototype; not an official government website.">
+<link rel="icon" href="/portal-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/portal.css">
+<link rel="stylesheet" href="/sky.css">
+<link rel="stylesheet" href="/scos.css">
+<script src="/sky-theme.js"></script>
+<script src="/info.js" defer></script>
+</head>
+<body data-title-en="For developers · City Data Portal (demo)" data-title-hi="डेवलपर के लिए · सिटी डेटा पोर्टल (डेमो)">
+<a class="skip" href="#content"><span data-l="en">Skip to main content</span><span data-l="hi" lang="hi" hidden>मुख्य सामग्री पर जाएँ</span></a>
+
+<div class="strip" role="note">
+  <div class="wrap strip-in">
+    <p class="strip-msg"><b>DEMO</b> <span data-l="en">Independent research prototype with synthetic demo data. Not an official government website and not a live city system.</span><span data-l="hi" lang="hi" hidden>सिंथेटिक डेमो डेटा वाला स्वतंत्र शोध प्रोटोटाइप। यह आधिकारिक सरकारी वेबसाइट नहीं है और न ही कोई चालू शहरी प्रणाली।</span></p>
+    <div class="a11y" aria-label="Display settings">
+      <button type="button" class="a11y-btn" id="fs-dn" aria-label="Smaller text">A−</button>
+      <button type="button" class="a11y-btn" id="fs-0" aria-label="Normal text">A</button>
+      <button type="button" class="a11y-btn" id="fs-up" aria-label="Larger text">A+</button>
+      <button type="button" class="a11y-btn" id="contrast" aria-pressed="false"><span data-l="en">High contrast</span><span data-l="hi" lang="hi" hidden>उच्च कंट्रास्ट</span></button>
+      <button type="button" class="a11y-btn lang" id="lang" lang="hi">हिंदी</button>
+    </div>
+  </div>
+</div>
+
+<header class="mast">
+  <div class="wrap mast-in">
+    <a class="brand" href="/" aria-label="Home">
+      <img src="/portal-mark.svg" alt="" width="44" height="44">
+      <span class="brand-t">
+        <span class="brand-1"><span data-l="en">City Data Portal</span><span data-l="hi" lang="hi" hidden>सिटी डेटा पोर्टल</span></span>
+        <span class="brand-2"><span data-l="en">For developers</span><span data-l="hi" lang="hi" hidden>डेवलपर के लिए</span></span>
+      </span>
+    </a>
+    <a class="login-btn" href="/"><span data-l="en">Back to the portal</span><span data-l="hi" lang="hi" hidden>पोर्टल पर वापस</span></a>
+  </div>
+</header>
+
+<main id="content" class="sec">
+  <div class="wrap info-wrap">
+    <nav class="info-toc" aria-label="On this page">
+      <a href="#start"><span data-l="en">Start here</span><span data-l="hi" lang="hi" hidden>यहाँ से शुरू करें</span></a>
+      <a href="#quick"><span data-l="en">Quick start</span><span data-l="hi" lang="hi" hidden>जल्दी शुरुआत</span></a>
+      <a href="#scos"><span data-l="en">SCOS layer API</span><span data-l="hi" lang="hi" hidden>SCOS परत API</span></a>
+      <a href="#dx"><span data-l="en">Data exchange</span><span data-l="hi" lang="hi" hidden>डेटा एक्सचेंज</span></a>
+      <a href="#cil"><span data-l="en">City intelligence</span><span data-l="hi" lang="hi" hidden>सिटी इंटेलिजेंस</span></a>
+      <a href="#login"><span data-l="en">Officer login</span><span data-l="hi" lang="hi" hidden>अधिकारी लॉगिन</span></a>
+      <a href="#rules"><span data-l="en">Rules</span><span data-l="hi" lang="hi" hidden>नियम</span></a>
+    </nav>
+
+    <div class="info-body">
+      <section id="start" class="info-sec">
+        <h1><span data-l="en">For developers</span><span data-l="hi" lang="hi" hidden>डेवलपर के लिए</span></h1>
+        <p data-l="en">Everything on the portal comes from open web APIs that return JSON. There are three layers. The lower two follow two public documents; the top one is our research addition.</p>
+        <p data-l="hi" lang="hi" hidden>पोर्टल पर सब कुछ खुले वेब API से आता है जो JSON लौटाते हैं। तीन परतें हैं। नीचे की दो परतें दो सार्वजनिक दस्तावेज़ों पर आधारित हैं; ऊपर की परत हमारा शोध है। (नीचे के कोड उदाहरण अंग्रेज़ी में हैं।)</p>
+        <ol class="st-stack" aria-label="Layers, top to bottom">
+          <li class="st-layer scos"><b>SCOS layer · <code>/scos/v1</code></b><span class="small">Smart City Operations Support (this research, not in the two documents): dependency links between city services, cascade trace, who acts next, officer decisions.</span></li>
+          <li class="st-layer cos"><b>City Intelligence Layer · <code>/cil/v1</code></b><span class="small">City OS and City Intelligence Layer paper (2023): analytics APIs, alerts, reports.</span></li>
+          <li class="st-layer bis"><b>Data Exchange · <code>/catalogue/v1</code>, <code>/auth/v1</code>, <code>/resource/v1</code></b><span class="small">BIS draft standard on the data exchange (2019): catalogue, access tokens and consent, data access, audit.</span></li>
+        </ol>
+        <p class="small"><span data-l="en">Machine-readable lists:</span><span data-l="hi" lang="hi" hidden>मशीन से पढ़ी जाने वाली सूचियाँ:</span> <a href="/api">/api</a> (<span data-l="en">every route</span><span data-l="hi" lang="hi" hidden>हर रूट</span>) · <a href="/scos/v1/openapi">/scos/v1/openapi</a> (OpenAPI 3.0, SCOS) · <a href="/cil/v1/apis">/cil/v1/apis</a> (<span data-l="en">city intelligence APIs</span><span data-l="hi" lang="hi" hidden>सिटी इंटेलिजेंस API</span>)</p>
+      </section>
+
+      <section id="quick" class="info-sec">
+        <h2><span data-l="en">Quick start</span><span data-l="hi" lang="hi" hidden>जल्दी शुरुआत</span></h2>
+        <p data-l="en">Run your own copy (Node.js 22, no packages to install), with the Kanpur profile so the SCOS layer has its registers:</p>
+        <p data-l="hi" lang="hi" hidden>अपनी कॉपी चलाएँ (Node.js 22, कोई पैकेज इंस्टॉल नहीं), कानपुर प्रोफ़ाइल के साथ ताकि SCOS परत के रजिस्टर हों:</p>
+        <pre><code>cd cityos-dx
+DX_CITY_PROFILE=kanpur npm run seed
+DX_CITY_PROFILE=kanpur npm start      # https://localhost:8443</code></pre>
+        <p data-l="en">The server uses its own test certificate, so pass <code>-k</code> to curl on your own machine. Then try three public calls (no login):</p>
+        <p data-l="hi" lang="hi" hidden>सर्वर अपना टेस्ट सर्टिफ़िकेट इस्तेमाल करता है, इसलिए अपनी मशीन पर curl में <code>-k</code> दें। फिर तीन सार्वजनिक कॉल आज़माएँ (लॉगिन नहीं):</p>
+        <pre><code>B=https://localhost:8443
+curl -k $B/scos/v1                            # what the layer is, counts, sources
+curl -k "$B/scos/v1/explore?service=PWR"      # what power cuts cause, and what causes them
+curl -k -X POST $B/scos/v1/trace \
+     -H 'content-type: application/json' -d '{"start":"RAIN","steps":3}'</code></pre>
+      </section>
+
+      <section id="scos" class="info-sec">
+        <h2><span data-l="en">SCOS layer API</span><span data-l="hi" lang="hi" hidden>SCOS परत API</span> <span class="sx-tag">research addition</span></h2>
+        <p data-l="en">The links are coded from news reports of 52 past Kanpur incidents. Every link is evidence level C1 (news, one coder, not checked by hand). Results are suggestions only; nothing is sent to any department and nothing has been validated.</p>
+        <p data-l="hi" lang="hi" hidden>कड़ियाँ कानपुर की 52 पिछली घटनाओं की ख़बरों से दर्ज की गई हैं। हर कड़ी का साक्ष्य स्तर C1 है (ख़बर, एक व्यक्ति, हाथ से नहीं जाँची गई)। नतीजे सिर्फ़ सुझाव हैं; किसी विभाग को कुछ नहीं भेजा जाता और कुछ भी प्रमाणित नहीं है।</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Call</th><th>What it gives</th><th>Login</th></tr></thead>
+          <tbody>
+            <tr><td><code>GET /scos/v1</code></td><td>About the layer: note, evidence levels, counts, the catalogue items it reads</td><td>No</td></tr>
+            <tr><td><code>GET /scos/v1/services</code></td><td>City services in the register, with owner and number of links</td><td>No</td></tr>
+            <tr><td><code>GET /scos/v1/links</code></td><td>The links; filter with <code>service</code>, <code>direction</code> (up, down, both), <code>department</code>, <code>crossBoundary</code>, <code>minIncidents</code></td><td>No</td></tr>
+            <tr><td><code>GET /scos/v1/explore</code></td><td><code>?service=PWR</code>: upstream, downstream and the incidents behind them. <code>?department=KESCO</code>: hand-overs to and from that department</td><td>No</td></tr>
+            <tr><td><code>POST /scos/v1/trace</code></td><td>From <code>start</code>, follow links seen in at least <code>minIncidents</code> (default 2) incidents for up to <code>steps</code> (1 to 6, default 3); returns affected services, links used and "who acts next"</td><td>No</td></tr>
+            <tr><td><code>GET /scos/v1/scenarios</code></td><td>The three demonstration scenarios: S1 rain, S2 power cut to water, S3 road works</td><td>No</td></tr>
+            <tr><td><code>POST /scos/v1/decisions</code></td><td>Approve, hold or reject one suggested task (<code>scenario</code>, <code>order</code>, <code>decision</code>, <code>reason</code>); written to the signed audit log</td><td>ICCC operator</td></tr>
+            <tr><td><code>GET /scos/v1/decisions</code></td><td>The decision record</td><td>Operator, admin, auditor</td></tr>
+            <tr><td><code>GET /scos/v1/openapi</code></td><td>OpenAPI 3.0 description of these calls</td><td>No</td></tr>
+          </tbody>
+        </table></div>
+        <p data-l="en">The link register is also an ordinary public data exchange item, so any data exchange client can read it:</p>
+        <p data-l="hi" lang="hi" hidden>कड़ियों का रजिस्टर एक सामान्य सार्वजनिक डेटा एक्सचेंज आइटम भी है, इसलिए कोई भी डेटा एक्सचेंज क्लाइंट इसे पढ़ सकता है:</p>
+        <pre><code>curl -k "$B/resource/v1/search?id=urn:demo-cat:deplinks/dependency-links-52"</code></pre>
+        <p data-l="en">Each row has a fingerprint. If a row is changed quietly, <a href="/ops/v1/transparency">/ops/v1/transparency</a> shows it under <code>dependencyRegister</code>.</p>
+        <p data-l="hi" lang="hi" hidden>हर पंक्ति का एक फ़िंगरप्रिंट है। अगर कोई पंक्ति चुपचाप बदली जाए, तो <a href="/ops/v1/transparency">/ops/v1/transparency</a> उसे <code>dependencyRegister</code> में दिखाता है।</p>
+      </section>
+
+      <section id="dx" class="info-sec">
+        <h2><span data-l="en">Data exchange</span><span data-l="hi" lang="hi" hidden>डेटा एक्सचेंज</span></h2>
+        <p data-l="en">Find data in the catalogue, then read it. Public items need no token. Protected, private and confidential items need a token from the authorization service, which needs an identity (an officer login or a certificate) and the owner's consent.</p>
+        <p data-l="hi" lang="hi" hidden>कैटलॉग में डेटा खोजें, फिर पढ़ें। सार्वजनिक आइटम के लिए टोकन नहीं चाहिए। संरक्षित, निजी और गोपनीय आइटम के लिए ऑथराइज़ेशन सेवा से टोकन चाहिए, जिसके लिए पहचान (अधिकारी लॉगिन या सर्टिफ़िकेट) और मालिक की सहमति चाहिए।</p>
+        <pre><code>curl -k "$B/catalogue/v1/search?q=water"                  # find items
+curl -k "$B/catalogue/v1/items?id=&lt;item id&gt;"                 # one item, JSON-LD
+curl -k "$B/resource/v1/latest?id=&lt;public item id&gt;"          # read a public item
+curl -k -X POST $B/auth/v1/token -H 'content-type: application/json' \
+     -d '{"request":[{"id":"&lt;item id&gt;"}],"purpose":"..."}'   # token (needs identity)
+curl -k "$B/resource/v1/latest?id=&lt;item id&gt;" -H 'Authorization: IUDX &lt;token&gt;'</code></pre>
+      </section>
+
+      <section id="cil" class="info-sec">
+        <h2><span data-l="en">City intelligence</span><span data-l="hi" lang="hi" hidden>सिटी इंटेलिजेंस</span></h2>
+        <p data-l="en">Each analytic is an API under <code>/cil/v1/{domain}/{api}</code>. List them, read one's OpenAPI description, then call it.</p>
+        <p data-l="hi" lang="hi" hidden>हर एनालिटिक <code>/cil/v1/{domain}/{api}</code> के नीचे एक API है। सूची देखें, किसी एक का OpenAPI विवरण पढ़ें, फिर उसे बुलाएँ।</p>
+        <pre><code>curl -k $B/cil/v1/apis
+curl -k "$B/cil/v1/openapi?path=&lt;path from the list&gt;"
+curl -k $B/cil/v1/alerts</code></pre>
+      </section>
+
+      <section id="login" class="info-sec">
+        <h2><span data-l="en">Officer login (for decisions)</span><span data-l="hi" lang="hi" hidden>अधिकारी लॉगिन (फ़ैसलों के लिए)</span></h2>
+        <p data-l="en">Logging in gives a session cookie and a CSRF token. Calls that change something must send the token in the <code>x-csrf-token</code> header. On a demo copy the logins are listed in <code>docs/HOSTING.md</code>; on any shared copy, use your own account. Most people will use the <a href="/console.html">officer console</a> (screen "SCOS tasks") instead.</p>
+        <p data-l="hi" lang="hi" hidden>लॉगिन करने पर एक सेशन कुकी और एक CSRF टोकन मिलता है। कुछ बदलने वाली कॉल को टोकन <code>x-csrf-token</code> हेडर में भेजना होता है। ज़्यादातर लोग <a href="/console.html">अधिकारी कंसोल</a> (स्क्रीन "SCOS tasks") इस्तेमाल करेंगे।</p>
+        <pre><code>curl -k -c jar -X POST $B/auth/v1/login -H 'content-type: application/json' \
+     -d '{"username":"&lt;operator login&gt;","password":"&lt;password&gt;"}'   # answer has "csrf"
+curl -k -b jar -X POST $B/scos/v1/decisions -H 'content-type: application/json' \
+     -H 'x-csrf-token: &lt;csrf&gt;' \
+     -d '{"scenario":"S2","order":2,"decision":"hold","reason":"Waiting for restoration time"}'</code></pre>
+      </section>
+
+      <section id="rules" class="info-sec">
+        <h2><span data-l="en">Rules</span><span data-l="hi" lang="hi" hidden>नियम</span></h2>
+        <ul data-l="en">
+          <li>This is a research prototype. Data is synthetic, except the past incident summaries and the links coded from them, which come from public news reports.</li>
+          <li>Do not present anything from these APIs as official, certified or live city information.</li>
+          <li>Every call that changes something, and every protected read, is written to the signed audit log.</li>
+          <li>Never put a password or token in code you share.</li>
+        </ul>
+        <ul data-l="hi" lang="hi" hidden>
+          <li>यह शोध प्रोटोटाइप है। डेटा सिंथेटिक है, सिवाय पिछली घटनाओं के सारांश और उनसे दर्ज कड़ियों के, जो सार्वजनिक ख़बरों से हैं।</li>
+          <li>इन API से कुछ भी आधिकारिक, प्रमाणित या चालू शहरी जानकारी के रूप में न दिखाएँ।</li>
+          <li>कुछ बदलने वाली हर कॉल, और हर संरक्षित पढ़ाई, हस्ताक्षरित ऑडिट लॉग में लिखी जाती है।</li>
+          <li>पासवर्ड या टोकन कभी साझा कोड में न डालें।</li>
+        </ul>
+      </section>
+      <p class="muted small"><span data-l="en">Last reviewed: 17 November 2026.</span><span data-l="hi" lang="hi" hidden>अंतिम समीक्षा: 17 नवंबर 2026।</span></p>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <p><span data-l="en">Independent research prototype. Synthetic demo data. Not affiliated with or endorsed by any government department.</span><span data-l="hi" lang="hi" hidden>स्वतंत्र शोध प्रोटोटाइप। सिंथेटिक डेमो डेटा। किसी सरकारी विभाग से जुड़ा या उसके द्वारा समर्थित नहीं।</span></p>
+    <p class="small"><a href="/"><span data-l="en">Portal home</span><span data-l="hi" lang="hi" hidden>पोर्टल होम</span></a> · <a href="/info.html"><span data-l="en">Help and policies</span><span data-l="hi" lang="hi" hidden>सहायता और नीतियाँ</span></a> · <a href="/api"><span data-l="en">API list</span><span data-l="hi" lang="hi" hidden>API सूची</span></a></p>
+  </div>
+</footer>
+</body>
+</html>

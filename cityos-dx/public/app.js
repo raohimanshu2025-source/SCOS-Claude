@@ -47,6 +47,7 @@ const SCREENS = [
   ['cil', 'City intelligence', 'all'],
   ['iccc', 'ICCC dashboard', 'operator admin auditor'],
   ['calerts', 'Citizen alerts', 'provider operator admin auditor'],
+  ['scos', 'SCOS tasks', 'operator admin auditor'],
   ['region', 'Sector reports', 'all'],
   ['trust', 'Certificates and trust', 'admin auditor'],
   ['ops', 'Operations and audit', 'admin auditor'],
@@ -277,6 +278,36 @@ const VIEWS = {
       if (act === 'withdraw') { if (!confirm('Withdraw alert #' + id + '? It will disappear from the portal.')) return; x = await api('POST', '/cil/v1/citizen-alerts/withdraw', { id }); }
       else { const note = prompt(act === 'approve' ? 'Optional note for the record (what you checked):' : 'Reason for refusing:') ; if (note === null) return; x = await api('POST', '/cil/v1/citizen-alerts/decide', { id, approve: act === 'approve', note }); }
       toast(x.ok ? (act === 'approve' ? 'Approved. It is now on the public portal.' : act === 'refuse' ? 'Refused.' : 'Withdrawn.') : x.body.error); show();
+    }; });
+  },
+
+  // SCOS research layer (our addition, not part of the two documents): the control room reads the suggested order of
+  // departments for a scenario and approves, holds or rejects each one. Nothing is sent to any department; every
+  // decision is written to the signed audit log.
+  async scos(m) {
+    const canDecide = ME.role === 'operator';
+    const [ab, sc, dec] = await Promise.all([api('GET', '/scos/v1'), api('GET', '/scos/v1/scenarios'), api('GET', '/scos/v1/decisions')]);
+    const head = `<div class="view-head"><h2>SCOS tasks <span class="pill demo">research addition</span></h2><p>The SCOS layer follows the dependency links coded from past incidents and suggests which department acts next. <b>Suggestions only:</b> nothing is sent to any department. ${canDecide ? 'As the control room (ICCC operator) you approve, hold or reject each suggested task. Hold and reject need a reason.' : 'Only the ICCC operator login can decide; you can read the record.'} Every decision is written to the signed audit log. This screen is our addition; the two documents do not ask for it.</p></div>`;
+    if (!ab.ok || !ab.body.counts.links) { m.innerHTML = `<div class="view">${head}${card('No link register', '<p class="hint">This city has no SCOS dependency register. Start the server with the Kanpur profile to use this screen.</p>')}</div>`; return; }
+    const S = sc.body; const pick = S.find(s => s.id === m.dataset.sc) || S[0];
+    const t = await api('POST', '/scos/v1/trace', { start: pick.start });
+    const rec = dec.ok ? dec.body : [];
+    const last = a => rec.find(d => d.scenario === pick.id && d.service === a.service && d.department === a.department);
+    const cls = { approve: 'ok', hold: 'held', reject: 'bad' }, word = { approve: 'approved', hold: 'on hold', reject: 'rejected' };
+    const rows = t.body.actions.map(a => { const d = last(a); return `<tr><td>${a.order}</td><td>${a.step === 0 ? 'first failure' : 'step ' + a.step}</td><td><b>${esc(a.department)}</b><br><span class="hint">${esc(a.serviceName)} (${esc(a.service)})</span></td><td>${a.via ? `<span class="mono">${esc(a.via)}</span>` : '—'}</td><td>${d ? pill(word[d.decision], cls[d.decision]) + `<br><span class="hint">${esc(d.actor)}, ${esc(d.ts.slice(0, 16).replace('T', ' '))}${d.reason ? '<br>' + esc(d.reason) : ''}</span>` : pill('suggested', 'pending')}</td><td>${canDecide ? `<button class="btn primary sm" data-d="approve" data-o="${a.order}">Approve</button> <button class="btn sm" data-d="hold" data-o="${a.order}">Hold</button> <button class="btn danger sm" data-d="reject" data-o="${a.order}">Reject</button>` : ''}</td></tr>`; }).join('');
+    m.innerHTML = `<div class="view">${head}
+      ${card('Scenario', `<div class="row">${S.map(s => `<button class="btn${s.id === pick.id ? ' primary' : ''}" data-sc="${s.id}" aria-pressed="${s.id === pick.id}">${esc(s.id)} · ${esc(s.title)}</button>`).join('')}</div><p class="hint">${esc(pick.why)} Trace: ${t.body.affected.length} services reached in up to ${t.body.steps} steps, using ${t.body.links.length} links seen in ${t.body.minIncidents} or more past incidents (${t.body.crossBoundaryLinks} are hand-overs between departments), backed by ${t.body.incidents.length} news-reported incidents. All links are evidence level C1.</p>`)}
+      ${card('Who acts next (suggested order)', `<div class="tbl-wrap"><table><tr><th>#</th><th>When</th><th>Department and service</th><th>Link</th><th>Decision</th><th></th></tr>${rows}</table></div><div id="sxo"></div>`)}
+      ${card('Decision record (latest 100)', rec.length ? table(rec.map(d => ({ time: d.ts, scenario: d.scenario, task: `${d.service} → ${d.department}`, link: d.via || '', decision: d.decision, reason: d.reason || '', officer: d.actor }))) : '<p class="hint">No decisions yet.</p>')}
+      ${card('Where this comes from', `<p class="small">${esc(ab.body.note)}</p><p class="small">Open data: <a href="/#deps">dependency explorer on the portal</a> · <a href="/developers.html">developer page</a> · <a href="/scos/v1/openapi">OpenAPI</a></p>`)}</div>`;
+    m.querySelectorAll('[data-sc]').forEach(b => { b.onclick = () => { m.dataset.sc = b.dataset.sc; VIEWS.scos(m); }; });
+    m.querySelectorAll('[data-d]').forEach(b => { b.onclick = async () => {
+      const decision = b.dataset.d, order = Number(b.dataset.o);
+      let reason = '';
+      if (decision !== 'approve') { reason = prompt(decision === 'hold' ? 'Why hold this task? (for the record)' : 'Why reject this task? (for the record)'); if (reason === null) return; if (!reason.trim()) return toast('A reason is needed.'); }
+      const x = await api('POST', '/scos/v1/decisions', { scenario: pick.id, order, decision, reason });
+      if (!x.ok) return out($('#sxo'), x);
+      toast(`Recorded: task ${order} ${word[decision]}. Nothing was sent to the department.`); VIEWS.scos(m);
     }; });
   },
 

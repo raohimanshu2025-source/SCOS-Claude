@@ -144,3 +144,34 @@ export function makeScos({ db, audit, catalogue, resource }) {
   };
 }
 
+
+// OpenAPI 3.0 description of the SCOS routes, for the developer page (our addition, like the routes themselves).
+export function scosOpenapi() {
+  const ok = (description, schema = { type: 'object' }) => ({ 200: { description, content: { 'application/json': { schema } } } });
+  const err = { 400: { description: 'Bad input' }, 404: { description: 'No such service, scenario or task' } };
+  const q = (name, description, schema = { type: 'string' }) => ({ name, in: 'query', required: false, description, schema });
+  const minInc = q('minIncidents', 'Use only links seen in at least this many past incidents (1 to 100).', { type: 'integer', minimum: 1, maximum: 100 });
+  return {
+    openapi: '3.0.3',
+    info: { title: 'SCOS research layer API', version: '1.0.0', description: SCOS_NOTE },
+    servers: [{ url: '/' }],
+    tags: [{ name: 'SCOS', description: 'Smart City Operations Support: our addition on top of the City OS. Not part of the BIS Data Exchange draft or the City OS paper.' }],
+    paths: {
+      '/scos/v1': { get: { tags: ['SCOS'], summary: 'What the layer is, its counts and its sources', responses: ok('About the layer') } },
+      '/scos/v1/services': { get: { tags: ['SCOS'], summary: 'City services in the link register, with owner and number of links', responses: ok('Services', { type: 'array', items: { type: 'object' } }) } },
+      '/scos/v1/links': { get: { tags: ['SCOS'], summary: 'The dependency links, filtered', parameters: [q('service', 'Service code, e.g. PWR'), q('direction', 'up, down or both'), q('department', 'Part of a department name'), q('crossBoundary', 'true for hand-overs between departments only'), minInc], responses: { ...ok('Links', { type: 'array', items: { type: 'object' } }), ...err } } },
+      '/scos/v1/explore': { get: { tags: ['SCOS'], summary: 'Upstream and downstream of one service, or the hand-overs of one department', parameters: [q('service', 'Service code, e.g. PWR'), q('department', 'Part of a department name, at least 3 letters'), minInc], responses: { ...ok('Explorer result'), ...err } } },
+      '/scos/v1/trace': { post: { tags: ['SCOS'], summary: 'Follow the links step by step from a first failure and list who acts next (suggestion only)',
+        requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['start'], properties: { start: { type: 'string', example: 'PWR' }, steps: { type: 'integer', minimum: 1, maximum: 6, default: 3 }, minIncidents: { type: 'integer', default: 2 } } } } } },
+        responses: { ...ok('Trace: affected services, links used, suggested actions, incidents behind them'), ...err } } },
+      '/scos/v1/scenarios': { get: { tags: ['SCOS'], summary: 'The three demonstration scenarios with their trace sizes', responses: ok('Scenarios', { type: 'array', items: { type: 'object' } }) } },
+      '/scos/v1/decisions': {
+        post: { tags: ['SCOS'], summary: 'Approve, hold or reject one suggested task (ICCC operator login only; written to the signed audit log)', security: [{ session: [] }],
+          requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['scenario', 'order', 'decision'], properties: { scenario: { type: 'string', enum: SCENARIOS.map(s => s.id) }, order: { type: 'integer' }, decision: { type: 'string', enum: DECISIONS }, reason: { type: 'string', description: 'Needed for hold and reject' } } } } } },
+          responses: { 201: { description: 'Recorded (nothing is sent to the department)' }, 401: { description: 'Not logged in' }, 403: { description: 'Not the ICCC operator' }, ...err } },
+        get: { tags: ['SCOS'], summary: 'The decision record (operator, administrator, auditor)', security: [{ session: [] }], parameters: [q('limit', 'At most 500', { type: 'integer' })], responses: { ...ok('Decisions', { type: 'array', items: { type: 'object' } }), 401: { description: 'Not logged in' }, 403: { description: 'Role not allowed' } } },
+      },
+    },
+    components: { securitySchemes: { session: { type: 'apiKey', in: 'cookie', name: 'dx_session', description: 'Officer login session from POST /auth/v1/login; state-changing calls also need the x-csrf-token header.' } } },
+  };
+}

@@ -30,7 +30,7 @@ import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
 import { makeAmqp } from './dx/amqp.js';
 import { checkReplicaAuth } from './ha/replica.js';
 import { checkIncidents, checkLinks } from './ops/register-seal.js';
-import { makeScos } from './scos/scos.js';
+import { makeScos, scosOpenapi } from './scos/scos.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -227,6 +227,7 @@ export function createApp(overrides = {}) {
   R('GET', '/scos/v1/scenarios', c => scos.scenarios(c.p));
   R('POST', '/scos/v1/decisions', c => { c.status = 201; return scos.decide(c.p, c.body); });
   R('GET', '/scos/v1/decisions', c => scos.decisions(c.p, c.query));
+  R('GET', '/scos/v1/openapi', () => scosOpenapi());
 
   // ---- operations ----
   R('GET', '/status/v1', c => ops.status(Math.min(24 * 30, Number(c.query.hours) || 24)));

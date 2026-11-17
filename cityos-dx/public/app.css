@@ -141,5 +141,7 @@ td.mono{white-space:nowrap}
 .navtitle{font-weight:600}
 .grow{flex:1}
 .pill.muted{background:var(--line);color:var(--muted)}
+.pill.held{background:var(--info-soft);color:var(--info)}
 .player img{width:100%;height:auto;background:#222;border-radius:8px;display:block}
 ul.plain{list-style:none;padding:0;margin:0}ul.plain li{padding:4px 0}
+#main td .mono{white-space:nowrap}

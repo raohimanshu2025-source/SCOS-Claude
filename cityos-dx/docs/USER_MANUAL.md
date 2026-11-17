@@ -22,6 +22,7 @@ Your account is linked to your X.509 certificate. Everything you do in the conso
 | Provider console | | yes | | | | |
 | City intelligence | yes | yes | yes | yes | yes | yes, and plug in analytics |
 | ICCC dashboard | yes | | | yes | yes | |
+| SCOS tasks (our addition) | view | | | yes (decide) | view | |
 | Certificates and trust | yes (decide) | | | | yes (view) | |
 | Operations and audit | yes | | | | yes (view) | |
 | Status page | yes | yes | yes | yes | yes | yes |
@@ -64,6 +65,10 @@ Creating and changing catalogue entries and pushing data is done through the API
 ## 7. ICCC dashboard (operators)
 
 Latest alerts raised by analytics, and the monthly report: API use, alerts by domain and uptime.
+
+## 7a. SCOS tasks (ICCC operator; our addition)
+
+This screen is part of the SCOS research layer, not of the two documents. It needs the Kanpur profile. Pick a scenario (S1 heavy rain, S2 power cut hits water supply, S3 road works). The table lists the departments in the order the dependency links reach them, with the link used (for example L-03). Each row is a **suggestion**. Press **Approve**, **Hold** or **Reject**; hold and reject ask for a reason. Nothing is sent to any department: the decision is stored and written to the signed audit log. Administrators and auditors see the same screen and the decision record, without the buttons.
 
 ## 8. Certificates and trust (administrator)
 

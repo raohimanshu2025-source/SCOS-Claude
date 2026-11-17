@@ -99,3 +99,23 @@ test('the default demo city has no SCOS registers and says so instead of failing
     assert.equal((await d.req('GET', '/ops/v1/transparency')).body.dependencyRegister, null);
   } finally { await d.stop(); }
 });
+
+test('C5 and C7: the home page tells the three-layer story, the menu has 7 items, and the developer page and OpenAPI are served', async () => {
+  const home = (await c.req('GET', '/', { raw: true })).body;
+  assert.match(home, /<section id="story" class="sec scos" hidden/);
+  const menu = home.slice(home.indexOf('id="menu"'), home.indexOf('id="find-btn"'));
+  assert.equal((menu.match(/<a /g) || []).length, 7, 'menu: City today, Map, Dashboards, Incidents and dependencies, Open data, About, Help');
+  for (const id of ['depts', 'data', 'status', 'open']) assert.match(home, new RegExp(`class="subnav"[^]*href="#${id}"`), id);
+  assert.match(home, /href="\/developers\.html"/);
+  const dev = await c.req('GET', '/developers.html', { raw: true });
+  assert.equal(dev.status, 200);
+  assert.match(dev.body, /not part of|not in the two documents/);
+  assert.match(dev.body, /Not an official government website/);
+  assert.doesNotMatch(dev.body, /<script>|style="/, 'no inline script or style (strict CSP)');
+  const o = (await c.req('GET', '/scos/v1/openapi')).body;
+  assert.equal(o.openapi, '3.0.3');
+  for (const p of ['/scos/v1', '/scos/v1/explore', '/scos/v1/trace', '/scos/v1/decisions', '/scos/v1/scenarios']) assert.ok(o.paths[p], p);
+  assert.deepEqual(o.paths['/scos/v1/decisions'].post.requestBody.content['application/json'].schema.properties.decision.enum, ['approve', 'hold', 'reject']);
+  const con = (await c.req('GET', '/app.js', { raw: true })).body;
+  assert.match(con, /\['scos', 'SCOS tasks', 'operator admin auditor'\]/, 'the control room console has the SCOS tasks screen');
+});

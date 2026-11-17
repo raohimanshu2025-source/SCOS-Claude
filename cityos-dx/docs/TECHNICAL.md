@@ -52,7 +52,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 129 end-to-end tests |
+| `test/` | 130 end-to-end tests |
 
 ## 2. Identity and authentication
 
@@ -175,10 +175,13 @@ This part is **not** in either document and is **not** counted in `docs/requirem
 
 - **Data.** `src/seed-data/kanpur-links-build.json` holds the 39 failure links coded from the 52 build incidents (frozen copy of 4 Oct 2026; the 10 held-back test incidents are not included). The seed publishes it as the public catalogue item `urn:demo-cat:deplinks/dependency-links-52` (data model `dependencyLink`), next to the incident register, and seals it the same way (row hashes, digest in the signed audit log, shown under `dependencyRegister` in `/ops/v1/transparency`).
 - **Reading through the data exchange.** The layer reads both registers as catalogue items; if a city marks them non-public, a caller needs a certificate like any other consumer.
-- **API.** `GET /scos/v1` (counts, evidence ladder, scenarios), `GET /scos/v1/services`, `GET /scos/v1/links` (`service`, `direction`, `department`, `minIncidents`, `crossBoundary`), `GET /scos/v1/explore` (`service` or `department`), `POST /scos/v1/trace` (`start`, `steps` 1-6, `minIncidents`, default 2), `GET /scos/v1/scenarios`, `POST /scos/v1/decisions` and `GET /scos/v1/decisions` (ICCC operator only; admin and auditor may read).
+- **API.** `GET /scos/v1` (counts, evidence ladder, scenarios), `GET /scos/v1/services`, `GET /scos/v1/links` (`service`, `direction`, `department`, `minIncidents`, `crossBoundary`), `GET /scos/v1/explore` (`service` or `department`), `POST /scos/v1/trace` (`start`, `steps` 1-6, `minIncidents`, default 2), `GET /scos/v1/scenarios`, `POST /scos/v1/decisions` and `GET /scos/v1/decisions` (ICCC operator only; admin and auditor may read), `GET /scos/v1/openapi` (OpenAPI 3.0 description of these routes).
 - **Method.** Breadth-first trace over the links, using only links seen in at least `minIncidents` incidents. No weights and no machine learning. "Who acts next" lists the owners of the services in the order they are reached; it is a suggestion. A decision (approve, hold with a reason, reject with a reason) is stored and written to the audit log under the interface `SCOS`. Nothing is sent to any department.
 - **Evidence.** Every link is C1 (news, one source family, single coder, not checked by hand). Nothing in this layer has been validated.
 - **Portal.** The "Incidents and dependencies" page (`public/scos.js`, `public/scos.css`) shows the explorer and the three scenarios: S1 heavy rain and waterlogging, S2 power cut hits water supply, S3 road works or digging damage.
+- **Home page.** A "three layers" section (`#story`) shows the Data Exchange, the City Intelligence Layer and the SCOS layer, and what SCOS is and is not. Like the explorer it appears only when the city has a link register. The top menu has 7 items; Departments, Service status and Transparency are reached from the Open data page.
+- **Console.** The "SCOS tasks" screen (`public/app.js`) lets the ICCC operator approve, hold or reject each suggested task; admin and auditor can read it.
+- **Developer page.** `public/developers.html` explains the three API layers with curl examples (data exchange, city intelligence, SCOS) and links to `/api` and `/scos/v1/openapi`.
 
 ## 11. Known limits
 

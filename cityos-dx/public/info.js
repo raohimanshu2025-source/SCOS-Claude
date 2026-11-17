@@ -1,4 +1,4 @@
-// Help and website policies page: same display settings as the portal (text size, contrast, language), remembered in this browser only.
+// Help and website policies page (also the developer page): same display settings as the portal (text size, contrast, language), remembered in this browser only.
 'use strict';
 (() => {
   const $ = s => document.querySelector(s);
@@ -12,7 +12,7 @@
     lang = l; store.set('portal-lang', l); document.documentElement.lang = l;
     document.querySelectorAll('[data-l]').forEach(el => { el.hidden = el.dataset.l !== l; });
     const b = $('#lang'); b.textContent = l === 'en' ? 'हिंदी' : 'English'; b.lang = l === 'en' ? 'hi' : 'en';
-    document.title = l === 'en' ? 'Help and website policies · City Data Portal (demo)' : 'सहायता और वेबसाइट नीतियाँ · सिटी डेटा पोर्टल (डेमो)';
+    const d = document.body.dataset; document.title = l === 'en' ? (d.titleEn || 'Help and website policies · City Data Portal (demo)') : (d.titleHi || 'सहायता और वेबसाइट नीतियाँ · सिटी डेटा पोर्टल (डेमो)');
   };
   document.addEventListener('DOMContentLoaded', () => {
     setSize(size); setContrast(store.get('portal-contrast') === '1'); setLang(lang);

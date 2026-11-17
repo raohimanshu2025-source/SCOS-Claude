@@ -17,7 +17,7 @@ One Node.js 22 process serves the whole City OS over HTTPS. Each part keeps to t
    | accounts,     | items,     | consent,      | subscribe/      | change     |   (BIS)
    | ID tokens     | search     | tokens        | ingest, adapter | notices    |
    +---------------+------------+---------------+-----------------+------------+
-   | City Intelligence Layer: 19 domain APIs, plugged analytics, scheduler,    |   CIL
+   | City Intelligence Layer: 23 domain APIs, plugged analytics, scheduler,    |   CIL
    | alerts, OLAP, questions, ICCC report, NGSI-LD output, federation          |   (City OS)
    +---------------------------------------------------------------------------+
    | Operations: signed audit log, status page, heartbeat, backups, drills     |
@@ -45,13 +45,14 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `src/dx/authz.js` | Policies, consent, licences, tokens, introspection |
 | `src/dx/resource.js` | Resource servers, reads, ingest, subscriptions, legacy adapter |
 | `src/dx/notify.js` | Notification service with queued delivery |
-| `src/cil/*.js` | Ontology, the 19 analytics, the CIL runtime |
+| `src/cil/*.js` | Ontology, the 23 analytics, the CIL runtime |
+| `src/scos/scos.js` | SCOS research layer (our addition, not in the two documents): dependency links, explorer, cascade trace, officer decisions |
 | `src/ops/ops.js` | Heartbeats, metrics, backups, rate limiter, security headers |
 | `src/seed.js`, `src/simulate.js` | Demo city and its simulated sensor feed |
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 85 end-to-end tests |
+| `test/` | 129 end-to-end tests |
 
 ## 2. Identity and authentication
 
@@ -128,7 +129,7 @@ The demo city has 48 catalogue items: 28 resource items, 12 groups, 5 providers,
 
 ## 6. City Intelligence Layer
 
-- **19 domain APIs** (City OS section 4) across the six domains. Each has an OpenAPI description tagged with the ontology terms of City OS Figure 12, the inputs it reads, its period and its provenance.
+- **23 domain APIs** (City OS section 4) across the six domains. Each has an OpenAPI description tagged with the ontology terms of City OS Figure 12, the inputs it reads, its period and its provenance.
 - **Pluggable analytics.** A provider sends a declarative specification. The server checks the ontology terms and that every input attribute exists in the catalogue's data models (schema matching). Supported operations: meanByWard, maxByWard, minByWard, countAboveByWard. No uploaded code is run.
 - **Scheduler and alerts.** Each API runs at its period. Alerts are de-duplicated for 60 seconds.
 - **ICCC.** Alerts feed, OLAP by ward, day and category, keyword questions (not a language model), monthly report.
@@ -166,13 +167,24 @@ The demo city has 48 catalogue items: 28 resource items, 12 groups, 5 providers,
 
 ## 9. Mapping to the two documents
 
-Every point of both documents is listed in `docs/requirements.json` (138 points). For each point the `server` field says whether the software implements it, how, and which tests check it. `docs/TEST_REPORT.md` is generated from a test run and lists the tests per point. The verification PDF uses the same file.
+Every point of both documents is listed in `docs/requirements.json` (162 points). For each point the `server` field says whether the software implements it, how, and which tests check it. `docs/TEST_REPORT.md` is generated from a test run and lists the tests per point. The verification PDF uses the same file.
 
-## 10. Known limits
+## 10. SCOS research layer (our addition)
+
+This part is **not** in either document and is **not** counted in `docs/requirements.json`. It is an application on top of the City OS, built for the SCOS M.Tech research (Smart City Operations Support, IIT Kanpur). It is switched on by the data: only the Kanpur profile has the registers it reads.
+
+- **Data.** `src/seed-data/kanpur-links-build.json` holds the 39 failure links coded from the 52 build incidents (frozen copy of 4 Oct 2026; the 10 held-back test incidents are not included). The seed publishes it as the public catalogue item `urn:demo-cat:deplinks/dependency-links-52` (data model `dependencyLink`), next to the incident register, and seals it the same way (row hashes, digest in the signed audit log, shown under `dependencyRegister` in `/ops/v1/transparency`).
+- **Reading through the data exchange.** The layer reads both registers as catalogue items; if a city marks them non-public, a caller needs a certificate like any other consumer.
+- **API.** `GET /scos/v1` (counts, evidence ladder, scenarios), `GET /scos/v1/services`, `GET /scos/v1/links` (`service`, `direction`, `department`, `minIncidents`, `crossBoundary`), `GET /scos/v1/explore` (`service` or `department`), `POST /scos/v1/trace` (`start`, `steps` 1-6, `minIncidents`, default 2), `GET /scos/v1/scenarios`, `POST /scos/v1/decisions` and `GET /scos/v1/decisions` (ICCC operator only; admin and auditor may read).
+- **Method.** Breadth-first trace over the links, using only links seen in at least `minIncidents` incidents. No weights and no machine learning. "Who acts next" lists the owners of the services in the order they are reached; it is a suggestion. A decision (approve, hold with a reason, reject with a reason) is stored and written to the audit log under the interface `SCOS`. Nothing is sent to any department.
+- **Evidence.** Every link is C1 (news, one source family, single coder, not checked by hand). Nothing in this layer has been validated.
+- **Portal.** The "Incidents and dependencies" page (`public/scos.js`, `public/scos.css`) shows the explorer and the three scenarios: S1 heavy rain and waterlogging, S2 power cut hits water supply, S3 road works or digging damage.
+
+## 11. Known limits
 
 - One SQLite file. Several worker processes can share it on one machine (`src/cluster.js`), and a standby server copies it and takes over on failure (`src/ha/standby.js`, `deploy/ha-frontdoor.js`). There is one writer at a time and the standby can lose the last pull interval of changes, so the BIS 5.6 "distributed architecture for vertical and horizontal scale" is only partly covered.
 - The demo CA is not a licensed certifying authority. Licensed CAs can be configured (section 2), but none are configured in the demo.
 - Trusted execution environments for policy enforcement at the time of data use (BIS 4.5.2.1, "shall support") are not implemented.
-- Streams use server-sent events; MQTT and AMQP with AsyncAPI are not implemented.
+- Streams use server-sent events, MQTT 5.0 (with AsyncAPI documents) and AMQP 1.0. AMQP transactions and link recovery are not implemented.
 - The question box matches keywords only.
 - Sensor data is simulated. Live feeds need department agreements.

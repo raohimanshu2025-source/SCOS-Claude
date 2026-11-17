@@ -29,7 +29,8 @@ import { checkRsDns } from './identity/dns-check.js';
 import { makeMqtt, asyncApiDoc } from './dx/mqtt.js';
 import { makeAmqp } from './dx/amqp.js';
 import { checkReplicaAuth } from './ha/replica.js';
-import { checkIncidents } from './ops/register-seal.js';
+import { checkIncidents, checkLinks } from './ops/register-seal.js';
+import { makeScos } from './scos/scos.js';
 import { HttpError, fail, need, readBody, iso } from './util.js';
 
 const MEDIA_EXT = { 'image/svg+xml': '.svg', 'image/jpeg': '.jpg', 'image/png': '.png', 'video/mp4': '.mp4', 'video/webm': '.webm' };
@@ -58,6 +59,8 @@ export function createApp(overrides = {}) {
   const helpers = makeConsoleHelpers(parts);
   const citizenAlerts = makeCitizenAlerts(db, audit);
   parts.citizenAlerts = citizenAlerts;
+  const scos = makeScos({ db, audit, catalogue, resource }); // SCOS research layer (our addition, on top of the City OS)
+  parts.scos = scos;
 
   const routes = [];
   const R = (method, pattern, fn) => routes.push({ method, pattern, fn });
@@ -214,6 +217,17 @@ export function createApp(overrides = {}) {
   R('POST', '/cil/v1/citizen-alerts/withdraw', c => citizenAlerts.withdraw(c.p, c.body.id));
   R('POST', /^\/cil\/v1(\/[a-z]+\/[A-Za-z]+)$/, (c, m) => cil.call(c.p, m[1], c.body, { format: c.query.format }));
 
+  // ---- SCOS research layer (our addition: not in the two documents, not in requirements.json) ----
+  // Dependency links coded from past incidents, an explorer, a cascade trace and officer decisions (src/scos/scos.js).
+  R('GET', '/scos/v1', c => scos.about(c.p));
+  R('GET', '/scos/v1/services', c => scos.services(c.p));
+  R('GET', '/scos/v1/links', c => scos.links(c.p, c.query));
+  R('GET', '/scos/v1/explore', c => scos.explore(c.p, c.query));
+  R('POST', '/scos/v1/trace', c => scos.trace(c.p, c.body));
+  R('GET', '/scos/v1/scenarios', c => scos.scenarios(c.p));
+  R('POST', '/scos/v1/decisions', c => { c.status = 201; return scos.decide(c.p, c.body); });
+  R('GET', '/scos/v1/decisions', c => scos.decisions(c.p, c.query));
+
   // ---- operations ----
   R('GET', '/status/v1', c => ops.status(Math.min(24 * 30, Number(c.query.hours) || 24)));
   R('GET', '/status/v1/heartbeat', () => ops.heartbeat());
@@ -246,6 +260,7 @@ export function createApp(overrides = {}) {
       audit: { events: n('SELECT COUNT(*) n FROM audit'), refused: n('SELECT COUNT(*) n FROM audit WHERE ok=0'), lastEvent: last?.ts ?? null, chainIntact: chain.v.ok, checkedAt: iso(chain.at), publicKey: '/ops/v1/audit/public-key' },
       citizenAlerts: citizenAlerts.counts(),
       incidentRegister: checkIncidents(db), // past incidents: unchanged since they were sealed? (null when there is no register)
+      dependencyRegister: checkLinks(db), // SCOS dependency links: the same seal (null when there is no register)
     };
   });
   R('GET', '/ops/v1/stats', c => { role(c.p, 'admin', 'auditor'); return ops.stats(); });
@@ -291,7 +306,7 @@ export function createApp(overrides = {}) {
     else fail(400, 'service must be authorization, notification, cil or a resource server id');
     ops.beat(); return ops.heartbeat();
   });
-  R('GET', '/api', () => ({ name: 'City OS data exchange reference implementation', city: cfg.cityName, note: 'Research reference implementation with synthetic demo data. Not an official, certified or live system.', routes: routes.map(r => `${r.method} ${r.pattern instanceof RegExp ? '/cil/v1/{domain}/{api}' : r.pattern}`) }));
+  R('GET', '/api', () => ({ name: 'City OS data exchange reference implementation', city: cfg.cityName, note: 'Research reference implementation with synthetic demo data. Not an official, certified or live system.', routes: routes.map(r => `${r.method} ${r.pattern instanceof RegExp ? '/cil/v1/{domain}/{api}' : r.pattern}`), scos: 'Routes under /scos/v1 are the SCOS research layer, added on top of the City OS; they are not part of the two documents.' }));
 
   // ---- server-sent events for subscriptions ----
   function startStream(c) {
@@ -325,7 +340,7 @@ export function createApp(overrides = {}) {
     let status = 200;
     try {
       limit(ip);
-      if (req.method === 'GET' && !url.pathname.match(/^\/(auth|catalogue|resource|notify|cil|status|ops|identity|api)(\/|$)/)) return serveStatic(url.pathname, res);
+      if (req.method === 'GET' && !url.pathname.match(/^\/(auth|catalogue|resource|notify|cil|status|ops|identity|api|scos)(\/|$)/)) return serveStatic(url.pathname, res);
       const cookie = Object.fromEntries(String(req.headers.cookie || '').split(';').map(s => s.trim().split('=')).filter(x => x[0]));
       c.sid = cookie.dx_session; c.session = accounts.session(c.sid);
       c.p = identity.principal(req, c.session);

@@ -3,7 +3,7 @@
 import crypto from 'node:crypto';
 import { q } from './db.js';
 
-export const IFACES = ['Manage', 'Discover', 'Authorization', 'Resource', 'Consent', 'Identity', 'CIL', 'Operations'];
+export const IFACES = ['Manage', 'Discover', 'Authorization', 'Resource', 'Consent', 'Identity', 'CIL', 'Operations', 'SCOS']; // 'SCOS': officer decisions in the SCOS research layer (our addition)
 const canon = e => [e.seq, e.ts, e.iface, e.actor, e.action, e.detail, e.ok ? 1 : 0].join('\u001f');
 
 export function makeAudit(db, keyPem) {

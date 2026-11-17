@@ -43,6 +43,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `src/dx/model.js` | JSON-LD context, item types, data models, validation (BIS Tables 5-8) |
 | `src/dx/catalogue.js` | Catalogue storage and search |
 | `src/dx/authz.js` | Policies, consent, licences, tokens, introspection |
+| `src/dx/tee.js` | Trusted execution environments (BIS 4.5.2.1): attestation verifiers, items limited to enclaves, data sealed to the enclave key |
 | `src/dx/resource.js` | Resource servers, reads, ingest, subscriptions, legacy adapter |
 | `src/dx/notify.js` | Notification service with queued delivery |
 | `src/cil/*.js` | Ontology, the 23 analytics, the CIL runtime |
@@ -52,7 +53,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 131 end-to-end tests |
+| `test/` | 135 end-to-end tests |
 
 ## 2. Identity and authentication
 
@@ -190,7 +191,7 @@ This part is **not** in either document and is **not** counted in `docs/requirem
 
 - One SQLite file. Several worker processes can share it on one machine (`src/cluster.js`), and a standby server copies it and takes over on failure (`src/ha/standby.js`, `deploy/ha-frontdoor.js`). There is one writer at a time and the standby can lose the last pull interval of changes, so the BIS 5.6 "distributed architecture for vertical and horizontal scale" is only partly covered.
 - The demo CA is not a licensed certifying authority. Licensed CAs can be configured (section 2), but none are configured in the demo.
-- Trusted execution environments for policy enforcement at the time of data use (BIS 4.5.2.1, "shall support") are not implemented.
+- Trusted execution environments (BIS 4.5.2.1): an item can be limited to attested enclaves and its data is sealed to the enclave key (`src/dx/tee.js`, `/auth/v1/tee/...`). The hardware quote is checked by a registered attestation verifier, not by this server, and no real enclave is part of the demo.
 - Streams use server-sent events, MQTT 5.0 (with AsyncAPI documents) and AMQP 1.0. AMQP transactions and link recovery are not implemented.
 - The question box matches keywords only.
 - Sensor data is simulated. Live feeds need department agreements.

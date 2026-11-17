@@ -51,12 +51,12 @@ With Docker: `docker compose -f deploy/docker-compose.yml up -d --build`.
 ## Tests
 
 ```sh
-npm test             # 131 tests; each starts a fresh city and talks to it over HTTPS with client certificates
+npm test             # 135 tests; each starts a fresh city and talks to it over HTTPS with client certificates
 npm run test:report  # also writes docs/TEST_REPORT.md with coverage and requirement traceability
 npm run trace        # then updates the "server" status of every point in docs/requirements.json
 ```
 
-Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result for 162 points: 148 working and tested, 2 partly met, 1 not met (BIS-111 trusted execution environments), 8 statements with no function, 3 out of scope in the documents. See [docs/DOCUMENT_CONFORMANCE.md](docs/DOCUMENT_CONFORMANCE.md) for what matches, what differs and what we added.
+Test titles carry the requirement point IDs (`[BIS-58]`, `[COS-23]`) from [docs/requirements.json](docs/requirements.json), the same list used in the verification PDF. Current result for 162 points: 149 working and tested, 2 partly met (BIS-60 ISO 27001 self-assessment, BIS-78 distributed scaling), 0 not met, 8 statements with no function, 3 out of scope in the documents. See [docs/DOCUMENT_CONFORMANCE.md](docs/DOCUMENT_CONFORMANCE.md) for what matches, what differs and what we added.
 
 To put a demo online for officials, see [docs/HOSTING.md](docs/HOSTING.md): one command on a small cloud machine, with a free web certificate and demo logins.
 

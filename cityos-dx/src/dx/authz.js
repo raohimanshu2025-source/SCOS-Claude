@@ -45,7 +45,8 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
     setUp(up, by) { state.up = !!up; audit.log('Operations', by, up ? 'Authorization service resumed' : 'Authorization service paused', ''); },
     decide,
     // POST /auth/v1/token  (Figure 2 steps 2-5)
-    requestToken(p, request, purpose) {
+    tee: null, // set by the server: enclave rules (BIS 4.5.2.1 trusted execution environments), see tee.js
+    requestToken(p, request, purpose, attestation) {
       need(state.up, 503, 'authorization service unavailable; retry later (BIS 5.6)');
       need(Array.isArray(request) && request.length && request.length <= 50, 400, 'request must be a list of 1-50 {id} objects');
       const items = request.map(r => { const it = catalogue.get(String(r?.id || '')); need(it, 404, 'no such item: ' + r?.id); return it; });
@@ -56,6 +57,7 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
         const worst = bad.find(b => b.d.code === 401) || bad[0];
         fail(worst.d.code, worst.d.msg, { denied: bad.map(b => ({ id: b.it.id, reason: b.d.msg, consent: b.d.consent })) });
       }
+      const att = api.tee ? api.tee.check(p, attestation, items) : null; // items limited to enclaves need a verified attestation
       const token = `${cfg.authHost}/${p.email}/${randHex(32)}`; // BIS 5.2 token shape
       const exp = Math.min(Date.now() + Math.min(cfg.tokenTtlSec, central ? central.maxTtl() : Infinity) * 1000, ...decisions.map(x => x.d.until || Infinity)); // never outlives a consent artefact
       const duties = Object.fromEntries(items.map(it => [it.id, it.policy.A]));
@@ -63,9 +65,10 @@ export function makeAuthz(db, cfg, audit, catalogue, notify, artefacts = null, c
       q.run(db, 'INSERT INTO tokens (hash, consumer, cert_serial, items, cls, policy_ref, duties, via, issued_at, expires_at, tail) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
         sha256(token), p.email, p.serial, JSON.stringify(items.map(i => i.id)), p.cls, policyRef, JSON.stringify(duties),
         [...new Set(decisions.map(x => x.d.via))].join('; '), iso(Date.now()), exp, token.slice(-8));
-      audit.log('Authorization', actorOf(p), 'Token granted', `${items.map(i => i.id).join(', ')} via ${decisions[0].d.via} token …${token.slice(-8)}`);
+      if (att) api.tee.bind(sha256(token), att);
+      audit.log('Authorization', actorOf(p), 'Token granted', `${items.map(i => i.id).join(', ')} via ${decisions[0].d.via} token …${token.slice(-8)}${att ? ` bound to enclave ${att.measurement.slice(0, 12)}… (verifier ${att.verifier})` : ''}`);
       artefacts?.used(p.email, decisions.filter(x => x.d.until).map(x => x.it.id));
-      return { token, 'token-type': 'IUDX', 'expires-in': Math.round((exp - Date.now()) / 1000), expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })) };
+      return { token, 'token-type': 'IUDX', 'expires-in': Math.round((exp - Date.now()) / 1000), expiry: iso(exp), via: decisions.map(x => ({ id: x.it.id, via: x.d.via })), ...(att ? { enclave: { measurement: att.measurement, verifier: att.verifier, note: 'data for this token is returned sealed to the enclave key' } } : {}) };
     },
     // POST /auth/v1/token/introspect  (Figure 2 steps 7-10); `rs` is the calling resource server principal
     introspect(rs, token, itemId, { useCache = true } = {}) {

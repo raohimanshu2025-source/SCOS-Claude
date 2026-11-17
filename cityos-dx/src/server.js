@@ -228,6 +228,8 @@ export function createApp(overrides = {}) {
   R('POST', '/scos/v1/decisions', c => { c.status = 201; return scos.decide(c.p, c.body); });
   R('GET', '/scos/v1/decisions', c => scos.decisions(c.p, c.query));
   R('GET', '/scos/v1/openapi', () => scosOpenapi());
+  R('GET', '/scos/v1/incidents', c => scos.incidents(c.p));
+  R('GET', '/scos/v1/incident', c => scos.incident(c.p, c.query));
 
   // ---- operations ----
   R('GET', '/status/v1', c => ops.status(Math.min(24 * 30, Number(c.query.hours) || 24)));

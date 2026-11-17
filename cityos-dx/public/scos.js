@@ -19,6 +19,8 @@
       step: 'Step {k}', start: 'First failure', via: 'via {l}', who: 'Who acts next (suggestion only)',
       whoNote: 'A suggestion for the control room. Only the ICCC operator login can approve, hold or reject a task (officer console, screen "SCOS tasks"), and every decision is written to the signed audit log. Nothing is sent to any department.',
       basis: 'Based on {l} links and {i} past incidents; {x} links cross from one department to another.',
+      play: 'Play', pause: 'Pause', next: 'Next step', back: 'Back', reset: 'Start again', animLabel: 'How the failure spreads, step by step',
+      capStart: 'First failure: {s}. Press Play or Next step.', capStep: 'Step {k} of {n}: {list}.', capEnd: 'End of the trace: {a} services reached through {l} links.', capLink: '{f} → {t} ({id}, seen in {c} incidents{h})', capHand: ', hand-over {a} → {b}', actsNow: 'Acts now', key: 'Amber arrow: hand-over between two departments. Grey arrow: same department or a hazard.',
       noOwner: 'no owner', err: 'The SCOS layer could not be loaded.', layers: 'Data exchange (BIS 2019) → City intelligence (City OS 2023) → SCOS layer (this research)',
       stTitle: 'What this site is: three layers', stTag: 'SCOS layer · research addition',
       stLead: 'The lower two layers follow two public documents. The top layer is the SCOS research: it adds what happens when one failure causes the next, across departments.',
@@ -44,6 +46,8 @@
       step: 'कदम {k}', start: 'पहली विफलता', via: '{l} से', who: 'आगे कौन काम करे (सिर्फ़ सुझाव)',
       whoNote: 'कंट्रोल रूम के लिए सुझाव। सिर्फ़ ICCC ऑपरेटर लॉगिन किसी काम को मंज़ूर, रोक या अस्वीकार कर सकता है (अधिकारी कंसोल, स्क्रीन "SCOS tasks"), और हर फ़ैसला हस्ताक्षरित ऑडिट लॉग में लिखा जाता है। किसी विभाग को कुछ नहीं भेजा जाता।',
       basis: '{l} कड़ियों और {i} पिछली घटनाओं पर आधारित; {x} कड़ियाँ एक विभाग से दूसरे तक।',
+      play: 'चलाएँ', pause: 'रोकें', next: 'अगला कदम', back: 'पीछे', reset: 'फिर से शुरू', animLabel: 'विफलता एक-एक कदम कैसे फैलती है',
+      capStart: 'पहली विफलता: {s}। चलाएँ या अगला कदम दबाएँ।', capStep: 'कदम {k} / {n}: {list}।', capEnd: 'ट्रेस पूरा: {l} कड़ियों से {a} सेवाएँ प्रभावित।', capLink: '{f} → {t} ({id}, {c} घटनाओं में{h})', capHand: ', हैंड-ओवर {a} → {b}', actsNow: 'अभी काम करे', key: 'नारंगी तीर: दो विभागों के बीच हैंड-ओवर। धूसर तीर: वही विभाग या ख़तरा।',
       noOwner: 'कोई ज़िम्मेदार नहीं', err: 'SCOS परत लोड नहीं हो सकी।', layers: 'डेटा एक्सचेंज (BIS 2019) → सिटी इंटेलिजेंस (City OS 2023) → SCOS परत (यह शोध)',
       stTitle: 'यह साइट क्या है: तीन परतें', stTag: 'SCOS परत · शोध से जोड़ा गया',
       stLead: 'नीचे की दो परतें दो सार्वजनिक दस्तावेज़ों पर आधारित हैं। ऊपर की परत SCOS शोध है: यह जोड़ती है कि एक विफलता से अगली विफलता कैसे होती है, विभागों के आर-पार।',
@@ -89,12 +93,54 @@
     $('#sx-sc').innerHTML = (S.about?.scenarios || []).map(s => `<button type="button" class="sx-chip${s.id === S.sc ? ' on' : ''}" data-sc="${esc(s.id)}" aria-pressed="${s.id === S.sc}">${esc(s.id)} · ${esc(s.title)}</button>`).join('');
     const sc = S.about.scenarios.find(s => s.id === S.sc);
     box.innerHTML = `<p class="muted">${esc(sc.why)}</p>
-      <ol class="sx-steps">${byStep.map((list, k) => `<li class="sx-step"><p class="small muted">${esc(k === 0 ? t('start') : t('step', { k }))}</p>${list.map(a => `<div class="sx-node${a.step === 0 ? ' first' : ''}"><b>${esc(a.name)}</b><span class="small">${esc(a.trigger && a.step === 0 && /no owner|IMD/.test(a.owner) ? t('noOwner') : a.owner)}</span>${a.via ? `<span class="small muted">${esc(t('via', { l: a.via }))}</span>` : ''}</div>`).join('')}</li>`).join('')}</ol>
+      <div class="sx-anim-bar" role="group" aria-label="${esc(t('animLabel'))}"><button type="button" class="sx-chip" id="sx-play">▶ ${esc(t('play'))}</button><button type="button" class="sx-chip" id="sx-back">◀ ${esc(t('back'))}</button><button type="button" class="sx-chip" id="sx-next">${esc(t('next'))} ▶</button><button type="button" class="sx-chip" id="sx-reset">↺ ${esc(t('reset'))}</button></div>
+      <div class="sx-anim">${diagram(tr, byStep)}</div>
+      <p class="sx-cap" id="sx-cap" aria-live="polite"></p>
+      <p class="small muted">${esc(t('key'))}</p>
+      <ol class="sx-steps">${byStep.map((list, k) => `<li class="sx-step" data-k="${k}"><p class="small muted">${esc(k === 0 ? t('start') : t('step', { k }))}</p>${list.map(a => `<div class="sx-node${a.step === 0 ? ' first' : ''}"><b>${esc(a.name)}</b><span class="small">${esc(a.trigger && a.step === 0 && /no owner|IMD/.test(a.owner) ? t('noOwner') : a.owner)}</span>${a.via ? `<span class="small muted">${esc(t('via', { l: a.via }))}</span>` : ''}</div>`).join('')}</li>`).join('')}</ol>
       <h3 class="sub-h">${esc(t('who'))}</h3>
-      <ol class="sx-who">${tr.actions.map(a => `<li><b>${esc(a.department)}</b> <span class="small muted">· ${esc(a.serviceName)}${a.via ? ' · ' + esc(t('via', { l: a.via })) : ''}</span></li>`).join('')}</ol>
+      <ol class="sx-who">${tr.actions.map(a => `<li data-k="${a.step}"><b>${esc(a.department)}</b> <span class="small muted">· ${esc(a.serviceName)}${a.via ? ' · ' + esc(t('via', { l: a.via })) : ''}</span></li>`).join('')}</ol>
       <p class="small muted">${esc(t('whoNote'))}</p>
       <p class="small">${esc(t('basis', { l: tr.links.length, i: tr.incidents.length, x: tr.crossBoundaryLinks }))}</p>`;
+    S.maxK = byStep.length - 1; showStep(Math.min(S.k ?? S.maxK, S.maxK));
+    $('#sx-play').onclick = () => (S.timer ? stop() : play());
+    $('#sx-next').onclick = () => { stop(); showStep(Math.min(S.k + 1, S.maxK)); };
+    $('#sx-back').onclick = () => { stop(); showStep(Math.max(S.k - 1, 0)); };
+    $('#sx-reset').onclick = () => { stop(); showStep(0); };
   }
+  // Step-by-step picture of the trace: one column per step, one box per service, one arrow per link used.
+  // Only links from the register are drawn (the same ones the trace API returns); nothing is added.
+  function diagram(tr, byStep) {
+    const CW = 245, BW = 160, BH = 44, RH = 58, top = 26, pos = new Map();
+    byStep.forEach((list, k) => list.forEach((a, i) => pos.set(a.code, { x: 10 + k * CW, y: top + i * RH, a })));
+    const W = 10 + byStep.length * CW, H = top + Math.max(...byStep.map(l => l.length)) * RH + 30;
+    const into = {};
+    const edges = tr.links.map(l => {
+      const p = pos.get(l.from), q = pos.get(l.to); if (!p || !q) return '';
+      const fwd = q.x > p.x, x1 = fwd ? p.x + BW : p.x + BW / 2, y1 = fwd ? p.y + BH / 2 : p.y + BH, x2 = fwd ? q.x : q.x + BW / 2, y2 = fwd ? q.y + BH / 2 : q.y + BH;
+      const d = fwd ? `M${x1},${y1} C${x1 + 22},${y1} ${x2 - 22},${y2} ${x2 - 4},${y2}` : `M${x1},${y1} C${x1},${y1 + 34} ${x2},${y2 + 34} ${x2},${y2 + 4}`;
+      const n = (into[l.to] = (into[l.to] || 0) + 1) - 1; // labels of arrows into the same box are stacked, not on top of each other
+      const mx = fwd ? x2 - 40 : (x1 + x2) / 2, my = fwd ? y2 - 6 - 12 * n : Math.max(y1, y2) + 22 + 12 * n;
+      return `<g class="sx-e${l.crossBoundary ? ' hand' : ''}" data-k="${l.step}"><path d="${d}" marker-end="url(#sx-ah${l.crossBoundary ? 'h' : ''})"><title>${esc(t('capLink', { f: l.fromName, t: l.toName, id: l.linkId, c: l.incidents, h: l.crossBoundary ? t('capHand', { a: l.ownerFrom, b: l.ownerTo }) : '' }))}</title></path><text x="${mx.toFixed(0)}" y="${my.toFixed(0)}" text-anchor="middle">${esc(l.linkId)}</text></g>`;
+    }).join('');
+    const cut = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+    const nodes = [...pos.values()].map(({ x, y, a }) => `<g class="sx-v${a.step === 0 ? ' first' : ''}" data-k="${a.step}"><rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="9"/><text x="${x + 8}" y="${y + 18}" class="n">${esc(cut(a.name, 22))}</text><text x="${x + 8}" y="${y + 34}" class="o">${esc(cut(a.trigger && a.step === 0 && /no owner|IMD/.test(a.owner) ? t('noOwner') : a.owner || '', 26))}</text><title>${esc(a.name + ' · ' + (a.owner || ''))}</title></g>`).join('');
+    const heads = byStep.map((_, k) => `<text class="sx-col-h" data-k="${k}" x="${10 + k * CW}" y="16">${esc(k === 0 ? t('start') : t('step', { k }))}</text>`).join('');
+    return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${esc(t('animLabel'))}"><defs><marker id="sx-ah" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="sx-ah"/></marker><marker id="sx-ahh" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="sx-ah hand"/></marker></defs>${heads}${edges}${nodes}</svg>`;
+  }
+  function showStep(k) {
+    const box = $('#sx-trace'), tr = S.trace; if (!box || !tr) return; S.k = k;
+    box.querySelectorAll('[data-k]').forEach(el => { const s = Number(el.dataset.k); el.classList.toggle('sx-off', s > k); el.classList.toggle('sx-now', s === k); });
+    const name = c => tr.affected.find(a => a.code === c)?.name || c;
+    const cap = k === 0 ? t('capStart', { s: name(tr.start) })
+      : t('capStep', { k, n: S.maxK, list: tr.links.filter(l => l.step === k).map(l => t('capLink', { f: l.fromName, t: l.toName, id: l.linkId, c: l.incidents, h: l.crossBoundary ? t('capHand', { a: l.ownerFrom, b: l.ownerTo }) : '' })).join('; ') })
+        + (tr.actions.some(a => a.step === k) ? ' ' + t('actsNow') + ': ' + tr.actions.filter(a => a.step === k).map(a => a.department).join('; ') + '.' : '')
+        + (k === S.maxK ? ' ' + t('capEnd', { a: tr.affected.length, l: tr.links.length }) : '');
+    $('#sx-cap').textContent = cap;
+    $('#sx-back').disabled = k === 0; $('#sx-next').disabled = k === S.maxK;
+  }
+  function play() { if (S.k >= S.maxK) showStep(0); $('#sx-play').textContent = '❚❚ ' + t('pause'); S.timer = setInterval(() => { if (S.k >= S.maxK) return stop(); showStep(S.k + 1); }, 1800); }
+  function stop() { clearInterval(S.timer); S.timer = null; const b = $('#sx-play'); if (b) b.textContent = '▶ ' + t('play'); }
   function renderStatic() {
     const a = S.about; if (!a) return;
     $('#sx-title').textContent = t('title'); $('#sx-tag').textContent = t('tag'); $('#sx-layers').textContent = t('layers');
@@ -115,7 +161,7 @@
   const renderAll = () => { renderStory(); renderStatic(); renderPicker(); renderExplorer(); renderScenario(); };
 
   async function loadExplore() { S.explore = await get(`/scos/v1/explore?service=${encodeURIComponent(S.svc)}&minIncidents=${S.strong ? 2 : 1}`); renderPicker(); renderExplorer(); }
-  async function loadTrace() { const sc = S.about.scenarios.find(s => s.id === S.sc); S.trace = await get('/scos/v1/trace', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ start: sc.start }) }); renderScenario(); }
+  async function loadTrace() { stop(); S.k = 0; const sc = S.about.scenarios.find(s => s.id === S.sc); S.trace = await get('/scos/v1/trace', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ start: sc.start }) }); renderScenario(); }
 
   async function init() {
     const root = $('#deps'); if (!root) return;

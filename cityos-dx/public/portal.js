@@ -47,7 +47,7 @@ const T = {
     band: ['Good', 'Satisfactory', 'Moderate', 'Poor', 'Very poor', 'Severe'], bandNote: 'Band uses CPCB AQI breakpoints for PM2.5; indicative only (demo readings).',
     histTitle: 'Past incidents in Kanpur', histLead: '52 real incidents from 2021 to 2026: floods, pipe bursts, fires, power cuts and more. Each one shows how one failure spread to other city services, and which departments acted.', histWarn: 'Summarised from public news reports by an automated tool and not checked by hand. Open the news source before relying on any detail. These are real events, unlike the demo data elsewhere on this site.',
     hFlood: 'Flood / waterlogging', hWater: 'Water / pipe burst', hFire: 'Fire', hPower: 'Power cut', hRoad: 'Road', hOther: 'Other', hAll: 'All', hYear: 'Year', hAllYears: 'All years', hFilter: 'Filter by type',
-    hMapLabel: 'Map of past incidents', hMapNote: '{n} of {m} incidents placed at the approximate centre of the locality named in the news. Tap a point to open it.', hSystems: 'City services affected', hMany: 'of {n} incidents affected three or more city services at once.',
+    hMapLabel: 'Map of past incidents', hMapNote: '{n} of {m} incidents are on the map, at the approximate centre of a locality named in the news (not the exact spot). Tap a point to open it.', hKeyOne: 'one place', hKeyMany: 'many areas named (ring at the first one)', hManyAreas: 'many areas', hApprox: 'approximate centre of', hPage: 'Full page: steps, links and all sources', hSystems: 'City services affected', hMany: 'of {n} incidents affected three or more city services at once.',
     hTrigger: 'What started it', hChain: 'How it spread (as reported)', hImpact: 'Impact', hDepts: 'Departments named in the news', hSource: 'Source', hSources: '{n} news source(s)', hShowAll: 'Show all {n} incidents',
     lAq: 'Air quality', lTraffic: 'Traffic', lBeds: 'Hospitals', lBus: 'Buses', lWx: 'Weather', river: 'Ganga (approximate line)',
     pAq: 'Air quality by station', pAqTrend: 'City average PM2.5, last 24 hours', pWx: 'Weather stations', pWater: 'Water supply by zone', pWaterTrend: 'City average supply hours, last 14 days',
@@ -95,7 +95,7 @@ const T = {
     band: ['अच्छा', 'संतोषजनक', 'मध्यम', 'खराब', 'बहुत खराब', 'गंभीर'], bandNote: 'श्रेणी PM2.5 के लिए CPCB AQI सीमाओं पर आधारित है; केवल संकेतात्मक (डेमो माप)।',
     histTitle: 'कानपुर की पिछली घटनाएँ', histLead: '2021 से 2026 तक की 52 असली घटनाएँ: बाढ़, पाइप फटना, आग, बिजली कटौती और अन्य। हर घटना दिखाती है कि एक खराबी दूसरी शहरी सेवाओं तक कैसे फैली और किन विभागों ने कार्रवाई की। विवरण अंग्रेज़ी में हैं।', histWarn: 'सार्वजनिक समाचारों से एक स्वचालित टूल द्वारा सारांशित, हाथ से जाँचा नहीं गया। किसी भी विवरण पर भरोसा करने से पहले समाचार स्रोत खोलें। यह असली घटनाएँ हैं, साइट के बाकी डेमो डेटा जैसी नहीं।',
     hFlood: 'बाढ़ / जलभराव', hWater: 'पानी / पाइप फटना', hFire: 'आग', hPower: 'बिजली कटौती', hRoad: 'सड़क', hOther: 'अन्य', hAll: 'सभी', hYear: 'वर्ष', hAllYears: 'सभी वर्ष', hFilter: 'प्रकार से छाँटें',
-    hMapLabel: 'पिछली घटनाओं का नक्शा', hMapNote: '{m} में से {n} घटनाएँ समाचार में बताए गए इलाके के अनुमानित केंद्र पर दिखाई गई हैं। खोलने के लिए बिंदु पर टैप करें।', hSystems: 'प्रभावित शहरी सेवाएँ', hMany: 'घटनाओं ({n} में से) ने एक साथ तीन या अधिक शहरी सेवाओं को प्रभावित किया।',
+    hMapLabel: 'पिछली घटनाओं का नक्शा', hMapNote: '{m} में से {n} घटनाएँ नक्शे पर हैं, समाचार में बताए गए इलाके के अनुमानित केंद्र पर (सटीक जगह नहीं)। खोलने के लिए बिंदु पर टैप करें।', hKeyOne: 'एक जगह', hKeyMany: 'कई इलाक़े (पहले इलाक़े पर घेरा)', hManyAreas: 'कई इलाक़े', hApprox: 'अनुमानित केंद्र:', hPage: 'पूरा पेज: कदम, कड़ियाँ और सभी स्रोत', hSystems: 'प्रभावित शहरी सेवाएँ', hMany: 'घटनाओं ({n} में से) ने एक साथ तीन या अधिक शहरी सेवाओं को प्रभावित किया।',
     hTrigger: 'शुरुआत कैसे हुई', hChain: 'कैसे फैली (समाचार अनुसार)', hImpact: 'प्रभाव', hDepts: 'समाचार में नामित विभाग', hSource: 'स्रोत', hSources: '{n} समाचार स्रोत', hShowAll: 'सभी {n} घटनाएँ दिखाएँ',
     lAq: 'वायु गुणवत्ता', lTraffic: 'यातायात', lBeds: 'अस्पताल', lBus: 'बसें', lWx: 'मौसम', river: 'गंगा (अनुमानित रेखा)',
     pAq: 'स्टेशन अनुसार वायु गुणवत्ता', pAqTrend: 'शहर औसत PM2.5, पिछले 24 घंटे', pWx: 'मौसम स्टेशन', pWater: 'ज़ोन अनुसार जल आपूर्ति', pWaterTrend: 'शहर औसत आपूर्ति घंटे, पिछले 14 दिन',
@@ -142,7 +142,7 @@ const V = d => d?.value;
 const gkey = g => String(g || '').split('/').pop();
 
 let D = null; // last loaded data
-const KNOWN = new Set(['incidents', 'outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops']);
+const KNOWN = new Set(['incidents', 'outages', 'aqm', 'weather', 'beds', 'junctions', 'itms', 'water', 'roadworks', 'permits', 'floodalert', 'gis', 'stops', 'deplinks', 'incsteps', 'incsources']); // the last three are shown on the incident pages and the SCOS section, not as extra dashboard tables
 async function load() {
   const [info, cat, status, alerts, fleet, cityAlertList, open] = await Promise.all([soft(get('/api')), get('/catalogue/v1/search?limit=500'), soft(get('/status/v1')), soft(get('/cil/v1/alerts?limit=20')), soft(post('/cil/v1/publictransit/fleetPerformance')), soft(get('/cil/v1/citizen-alerts')), soft(get('/ops/v1/transparency'))]);
   const docs = cat.results;
@@ -488,8 +488,10 @@ function renderHistory() {
     map = `<svg viewBox="0 0 ${F.W} ${F.H}" role="img" aria-label="${esc(t('hMapLabel'))}">` + F.base + placed.map(x => {
       const c = x.location.coordinates, key = c.join(), k = (seen[key] = (seen[key] || 0) + 1) - 1; // spread incidents at the same locality in a small ring
       const a = k * 2.4, r = k ? 7 + 3 * Math.sqrt(k) : 0, cx = F.X(c[0]) + r * Math.cos(a), cy = F.Y(c[1]) + r * Math.sin(a);
-      return `<circle class="pt hpt" data-id="${esc(x.incidentId)}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7" fill="${htype(x)[2]}" stroke="#fff" stroke-width="1.5"><title>${esc(`${x.date} · ${x.summary}`)}</title></circle>`;
-    }).join('') + '</svg>' + `<p class="small muted">${esc(t('hMapNote', { n: placed.length, m: shown.length }))}</p>`;
+      // filled dot: one place (approximate centre of the locality); hollow ring: the news names many areas (ring at the first one)
+      const many = x.placement === 'many';
+      return `<circle class="pt hpt${many ? ' hmany' : ''}" data-id="${esc(x.incidentId)}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${many ? 9 : 7}" fill="${many ? 'none' : htype(x)[2]}" stroke="${many ? htype(x)[2] : '#fff'}" stroke-width="${many ? 3 : 1.5}"${many ? ` data-s="${htype(x)[2]}"` : ''}><title>${esc(`${x.date} · ${x.summary}${many ? ' · ' + t('hManyAreas') + ': ' + x.areas : ' · ' + t('hApprox') + ' ' + x.area}`)}</title></circle>`;
+    }).join('') + '</svg>' + `<p class="small muted">${esc(t('hMapNote', { n: placed.length, m: shown.length }))}</p><p class="small hkey"><span class="hk one"></span> ${esc(t('hKeyOne'))} <span class="hk many"></span> ${esc(t('hKeyMany'))}</p>`;
   }
   // which city systems the incidents touched
   const sys = {}; for (const x of shown) for (const y of String(x.systems).split(',').map(v => v.trim()).filter(Boolean)) sys[y] = (sys[y] || 0) + 1;
@@ -505,11 +507,13 @@ function renderHistory() {
     return head + `<details class="hcard" id="inc-${esc(x.incidentId)}" ${HF.open === x.incidentId ? 'open' : ''}><summary><span class="hdate">${esc(fmtDay(x.date))}</span><span class="hbadge" data-c="${c}">${esc(t(l))}</span><b>${esc(x.summary)}</b><span class="small muted">${esc(String(x.place).split(/[;(]/)[0])}</span></summary>
       <div class="hdet"><p><b>${esc(t('hTrigger'))}:</b> ${esc(x.trigger)}</p><p><b>${esc(t('hChain'))}:</b></p><ol class="hchain">${steps.map(v => `<li>${esc(v)}</li>`).join('')}</ol>
       <p><b>${esc(t('hImpact'))}:</b> ${esc(x.impact)}</p><p><b>${esc(t('hDepts'))}:</b> ${esc(x.departments)}</p>
-      <p class="small"><a href="${esc(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(t('hSource'))}: ${esc(x.publisher)} ↗</a> · ${esc(t('hSources', { n: x.sources }))} · ${esc(x.incidentId)}</p></div></details>`;
+      <p class="small"><a href="${esc(x.sourceUrl)}" target="_blank" rel="noopener noreferrer">${esc(t('hSource'))}: ${esc(x.publisher)} ↗</a> · ${esc(t('hSources', { n: x.sources }))} · ${esc(x.incidentId)}</p>
+      <p><a class="cta-sm" href="/incident.html?id=${esc(x.incidentId)}">${esc(t('hPage'))} →</a></p></div></details>`;
   }).join('');
   const more = shown.length > list.length ? `<button type="button" class="cta-sm" id="hmore">${esc(t('hShowAll', { n: shown.length }))}</button>` : '';
   box.innerHTML = chips + `<div class="hgrid"><div class="hmap">${map}</div><div class="hside">${side}</div></div><div class="htl">${cards || `<p class="muted">${esc(t('noData'))}</p>`}</div>${more}`;
   box.querySelectorAll('[data-c]').forEach(e => { e.style.background = e.dataset.c; });
+  box.querySelectorAll('.hmany[data-s]').forEach(e => { e.style.stroke = e.dataset.s; e.style.fill = 'none'; e.style.strokeWidth = '3'; }); // CSS colours the dots; a ring keeps its type colour
   paint(box);
   box.querySelectorAll('[data-ht]').forEach(b => { b.onclick = () => { HF.type = b.dataset.ht; renderHistory(); }; });
   $('#hyear').onchange = e => { HF.year = e.target.value; renderHistory(); };

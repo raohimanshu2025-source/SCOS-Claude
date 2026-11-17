@@ -119,3 +119,28 @@ test('C5 and C7: the home page tells the three-layer story, the menu has 7 items
   const con = (await c.req('GET', '/app.js', { raw: true })).body;
   assert.match(con, /\['scos', 'SCOS tasks', 'operator admin auditor'\]/, 'the control room console has the SCOS tasks screen');
 });
+
+test('incident pages: steps, sources and links for each of the 52 build incidents, and the map marks approximate places', async () => {
+  const all = (await c.req('GET', '/scos/v1/incidents')).body;
+  assert.equal(all.length, 52);
+  assert.deepEqual(new Set(all.map(x => x.incidentId)), new Set(INC.map(i => i.incidentId)), 'only the build incidents, never the held-back ones');
+  const d = (await c.req('GET', '/scos/v1/incident?id=KI-045')).body;
+  assert.equal(d.incident.incidentId, 'KI-045');
+  assert.ok(d.steps.length >= 2 && d.steps.every((s, i) => s.step === i + 1), 'steps in order');
+  assert.ok(d.sources.length >= 1 && d.sources.every(s => /^https?:\/\//.test(s.url) && s.checkedByHand === 'No'));
+  assert.deepEqual(d.links.map(l => l.linkId).sort(), LINKS.filter(l => l.incidentIds.includes('KI-045')).map(l => l.linkId).sort(), 'the links that cite it, no more');
+  assert.equal(d.total, 52);
+  assert.equal((await c.req('GET', '/scos/v1/incident?id=KI-999')).status, 404);
+  assert.equal((await c.req('GET', '/scos/v1/incident?id=x')).status, 400);
+  // placement: one place gets a point; a report naming many areas is flagged so the map does not pretend it is one spot
+  const rows = (await c.req('GET', '/resource/v1/search?id=' + encodeURIComponent('urn:demo-cat:incidents/past-incidents-news'))).body.results;
+  const by = Object.fromEntries(rows.map(r => [r.incidentId, r]));
+  assert.equal(by['KI-005'].placement, 'many', '80 localities is not one point');
+  assert.equal(by['KI-001'].placement, 'one');
+  assert.ok(rows.every(r => r.placement === 'none' ? !r.location : !!r.location));
+  const page = await c.req('GET', '/incident.html', { raw: true });
+  assert.equal(page.status, 200);
+  assert.doesNotMatch(page.body, /<script>|style="/, 'strict CSP: no inline script or style');
+  const js = (await c.req('GET', '/scos.js', { raw: true })).body;
+  assert.match(js, /Only links from the register are drawn/, 'the scenario animation draws trace links only');
+});

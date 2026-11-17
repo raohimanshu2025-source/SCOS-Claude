@@ -1,0 +1,1731 @@
+[
+{
+"incidentId": "KI-001",
+"step": 1,
+"effect": "Fire in first-floor storeroom near ICU; smoke spread",
+"time": "08:00",
+"department": "LPS Institute of Cardiology"
+},
+{
+"incidentId": "KI-001",
+"step": 2,
+"effect": "Fire tenders deployed (NewsBytes: at least seven; India TV: 'a couple')",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-001",
+"step": 3,
+"effect": "Window panes on first floor broken to let smoke out",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-001",
+"step": 4,
+"effect": "About 140-175 patients evacuated from ICU and neighbouring wards and shifted to other wards",
+"time": "",
+"department": "LPS Institute of Cardiology"
+},
+{
+"incidentId": "KI-001",
+"step": 5,
+"effect": "CM orders care for evacuated patients and high-level probe (Principal Secretary Health Education, DG Fire, Divisional Commissioner)",
+"time": "",
+"department": "State Government"
+},
+{
+"incidentId": "KI-004",
+"step": 1,
+"effect": "Fire in basement storage; dense smoke reaches first-floor coaching class",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-004",
+"step": 2,
+"effect": "About 25 students trapped in coaching institute",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-004",
+"step": 3,
+"effect": "4 fire tenders and police rescue over 20 students",
+"time": "",
+"department": "Fire Service; Police"
+},
+{
+"incidentId": "KI-004",
+"step": 4,
+"effect": "Fire officials directed to check whether building had fire NOC",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-005",
+"step": 1,
+"effect": "HT line broken in Barra; not repaired due to KESCO staff strike",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-005",
+"step": 2,
+"effect": "More than 30 tubewells and zonal pumping stations (Bhutbangla, Usmanpur, Rajiv Park ZPS) could not run",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-005",
+"step": 3,
+"effect": "Kidwai Nagar area ZPS non-functional for three days",
+"time": "3 days",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-005",
+"step": 4,
+"effect": "Water shortage for 5-6 lakh people in 80 localities; long queues at water ATMs; people buying water; disputes over water until queues were organised",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-005",
+"step": 5,
+"effect": "Tankers deployed but described as insufficient",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-006",
+"step": 1,
+"effect": "Short circuit at transformer outside AR Tower starts fire",
+"time": "~00:45-03:00",
+"department": ""
+},
+{
+"incidentId": "KI-006",
+"step": 2,
+"effect": "Strong wind gusts spread fire to 100+ shops before brigades arrived, then to five complexes",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-006",
+"step": 3,
+"effect": "Additional fire tenders sought from Kanpur Dehat, Unnao, Lucknow, Kannauj; hydraulic platforms from Lucknow/Allahabad",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-006",
+"step": 4,
+"effect": "Army vehicles mobilised/requested",
+"time": "",
+"department": "Army"
+},
+{
+"incidentId": "KI-006",
+"step": 5,
+"effect": "Fire still burning after 24 hours; doused after 38-hour operation with ~60 tenders",
+"time": "Sat 1 Apr evening",
+"department": "Fire Service; Police; NDRF"
+},
+{
+"incidentId": "KI-006",
+"step": 6,
+"effect": "Buildings developed cracks; one body (Gyan Chand, 40) found",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-006",
+"step": 7,
+"effect": "Four-member committee formed to assess damage and investigate",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-007",
+"step": 1,
+"effect": "133 faults in 24 hours; peak load 695 MW",
+"time": "24 hours",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-007",
+"step": 2,
+"effect": "Ratanpur B Block without power 11.5 hours; Karrahi 9 hours",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-007",
+"step": 3,
+"effect": "Water crisis intensified because pumps could not run",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-007",
+"step": 4,
+"effect": "9,025 complaint calls to the helpline",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-008",
+"step": 1,
+"effect": "Pipeline ruptured at five locations during testing",
+"time": "",
+"department": "UP Jal Nigam (C&DS)"
+},
+{
+"incidentId": "KI-008",
+"step": 2,
+"effect": "About 18,000 residents faced severe water shortage for 8 days; supply reduced to ~20 minutes each morning at low pressure",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-008",
+"step": 3,
+"effect": "More than 25 families vacated apartments",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-009",
+"step": 1,
+"effect": "900mm pipeline damaged by metro excavation",
+"time": "",
+"department": "UPMRC (Kanpur Metro)"
+},
+{
+"incidentId": "KI-009",
+"step": 2,
+"effect": "Complete water supply shutdown in ~50 localities for ~50 hours",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-009",
+"step": 3,
+"effect": "Residents relied on neighbours' submersibles and hand pumps; tankers deployed to some areas",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-009",
+"step": 4,
+"effect": "900 mm pipeline damaged during metro digging",
+"time": "",
+"department": "UPMRC"
+},
+{
+"incidentId": "KI-009",
+"step": 5,
+"effect": "Water supply halted in about 50 localities for ~50 hours",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-009",
+"step": 6,
+"effect": "Residents relied on neighbours' submersibles/hand pumps; tankers deployed",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-009",
+"step": 7,
+"effect": "Temporary pipeline repair; supply resumed",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-009",
+"step": 8,
+"effect": "Water department filed complaint/FIR against metro",
+"time": "",
+"department": "Jalkal / Police"
+},
+{
+"incidentId": "KI-010",
+"step": 1,
+"effect": "Underground cable faults affecting Medical College feeder and water-authority (Jal Sansthan) feeders",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-010",
+"step": 2,
+"effect": "Transformer damage and HT line failures at substations; frequent tripping",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-010",
+"step": 3,
+"effect": "About one-third of city / ~100 localities without power for 4-8 hours; residents 'soaked in sweat'",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-010",
+"step": 4,
+"effect": "Scheduled cuts announced for Monday 8 AM-12 noon for maintenance",
+"time": "2024-06-24",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-011",
+"step": 1,
+"effect": "10-12 ft water fountain; waterlogging",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-011",
+"step": 2,
+"effect": "Road caved in: 40 ft wide x 10 ft deep crater (Amar Ujala) / road sank over 15 ft radius (Amrit Vichar)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-011",
+"step": 3,
+"effect": "Traffic movement affected ('आवागमन प्रभावित'); crater barricaded",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-011",
+"step": 4,
+"effect": "Over 1 crore litres wasted in ~1.5 hours",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-011",
+"step": 5,
+"effect": "Ganga Barrage WTP supply shut; south Kanpur supply suspended till 15 July",
+"time": "",
+"department": "UP Jal Nigam"
+},
+{
+"incidentId": "KI-012",
+"step": 1,
+"effect": "Trees fell on wires; 12 KESCO substations lost supply overnight",
+"time": "evening/night",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-012",
+"step": 2,
+"effect": "Pumps that depend on electricity stopped, water supply crisis",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-012",
+"step": 3,
+"effect": "At Gwaltoli a falling tree hit underground cables near the Commissioner's office, causing a cable fire, controlled by the fire brigade",
+"time": "",
+"department": "Fire brigade"
+},
+{
+"incidentId": "KI-012",
+"step": 4,
+"effect": "Trees blocked roads at Sanjay Van Road and Mirpur Harding Road; power restored by early morning",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-012",
+"step": 5,
+"effect": "Govind Nagar feeder tripping kept power off 10 AM-9 PM; Kidwai Nagar H-Block 12-4 PM",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-013",
+"step": 1,
+"effect": "4 ft wide, 5 ft deep pit formed in road",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-013",
+"step": 2,
+"effect": "Traffic disrupted; road partly blocked with plastic barricading",
+"time": "",
+"department": "Kanpur Metro"
+},
+{
+"incidentId": "KI-014",
+"step": 1,
+"effect": "Main pipeline broken by metro excavation",
+"time": "Saturday night",
+"department": "UPMRC"
+},
+{
+"incidentId": "KI-014",
+"step": 2,
+"effect": "Over 1 crore litres spilled; road looked like a canal",
+"time": "Sunday morning",
+"department": ""
+},
+{
+"incidentId": "KI-014",
+"step": 3,
+"effect": "Fazalganj fire station flooded",
+"time": "Sunday morning",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-014",
+"step": 4,
+"effect": "Traffic disrupted",
+"time": "Sunday",
+"department": ""
+},
+{
+"incidentId": "KI-014",
+"step": 5,
+"effect": "Supply to southern area suspended for 4 days from 2 Dec",
+"time": "",
+"department": "UP Jal Nigam"
+},
+{
+"incidentId": "KI-014",
+"step": 6,
+"effect": "Main water pipeline damaged by metro excavation",
+"time": "Saturday night (30 Nov)",
+"department": "UPMRC"
+},
+{
+"incidentId": "KI-014",
+"step": 7,
+"effect": "Supply started from Ganga Barrage plant; damaged line burst, fountain from chamber",
+"time": "Sunday 7:00 AM",
+"department": "Jal Nigam"
+},
+{
+"incidentId": "KI-014",
+"step": 8,
+"effect": "Road waterlogged 'like a canal', traffic disrupted; Fazalganj fire station flooded",
+"time": "Sunday morning",
+"department": ""
+},
+{
+"incidentId": "KI-014",
+"step": 9,
+"effect": "Supply shut off",
+"time": "11:00 AM",
+"department": "Jal Nigam"
+},
+{
+"incidentId": "KI-014",
+"step": 10,
+"effect": "Water kept flowing until 1:30 PM; >1 crore litres lost",
+"time": "1:30 PM",
+"department": ""
+},
+{
+"incidentId": "KI-014",
+"step": 11,
+"effect": "Southern zone (25 localities) without water supply for 4 days during repair",
+"time": "from 2 Dec",
+"department": "Jal Nigam"
+},
+{
+"incidentId": "KI-015",
+"step": 1,
+"effect": "Main pipeline broken during shifting",
+"time": "",
+"department": "UPMRC"
+},
+{
+"incidentId": "KI-015",
+"step": 2,
+"effect": "Supply from Barrage WTP to southern Kanpur disrupted; ~2.5 lakh residents affected",
+"time": "",
+"department": "UP Jal Nigam"
+},
+{
+"incidentId": "KI-016",
+"step": 1,
+"effect": "Jal Nigam 150mm main from Rajiv Gandhi Park (Baradevi) and 250mm Ganga Barrage supply line ruptured",
+"time": "Wednesday night",
+"department": "Metro Corporation"
+},
+{
+"incidentId": "KI-016",
+"step": 2,
+"effect": "24 localities (~30,000 people) without water for two days",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-017",
+"step": 1,
+"effect": "Waterlogging in several areas of the city",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-017",
+"step": 2,
+"effect": "Waterlogging in front of Rawatpur Station turned the road to mud",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-017",
+"step": 3,
+"effect": "A UPSRTC Roadways bus got stuck in the mud",
+"time": "",
+"department": "Roadways (UPSRTC)"
+},
+{
+"incidentId": "KI-017",
+"step": 4,
+"effect": "Severe traffic jam developed",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-018",
+"step": 1,
+"effect": "Fire in ground-floor shoe factory spreads through six-storey building; chemical fumes from leather/adhesive",
+"time": "21:30 Sun",
+"department": ""
+},
+{
+"incidentId": "KI-018",
+"step": 2,
+"effect": "Five family members trapped",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-018",
+"step": 3,
+"effect": "35 fire vehicles deployed; firefighters break walls with hammers",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-018",
+"step": 4,
+"effect": "SDRF called for rescue",
+"time": "",
+"department": "SDRF"
+},
+{
+"incidentId": "KI-018",
+"step": 5,
+"effect": "Police from over a dozen stations deployed; ~200 m perimeter sealed; nearby buildings evacuated",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-018",
+"step": 6,
+"effect": "Smoke enters nearby homes via running fans/coolers",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-018",
+"step": 7,
+"effect": "Charred bodies recovered",
+"time": "~03:00 Mon",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-018",
+"step": 8,
+"effect": "Building developed cracks",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-019",
+"step": 1,
+"effect": "Fire in chemical godown spreads within minutes; explosions heard; flames/smoke visible for kilometres",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-019",
+"step": 2,
+"effect": "More than half a dozen fire tenders reach site",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-019",
+"step": 3,
+"effect": "Electricity of the area cut given seriousness of incident",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-019",
+"step": 4,
+"effect": "Traffic diverted to control the situation",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-019",
+"step": 5,
+"effect": "Local administration and police present",
+"time": "",
+"department": "Police; District Admin"
+},
+{
+"incidentId": "KI-020",
+"step": 1,
+"effect": "Power cuts over three days in severe heat; on 15 May power went off ~7 PM until midnight",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-020",
+"step": 2,
+"effect": "Residents and traders (led by a Kalyanpur youth industry-trade association) surrounded the substation",
+"time": "evening 15 May and morning 16 May",
+"department": ""
+},
+{
+"incidentId": "KI-020",
+"step": 3,
+"effect": "Police called to the protest",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-023",
+"step": 1,
+"effect": "~10 ft crater at Brahm Nagar; 5 ft at Jawahar Nagar; 3 ft at Swaroop Nagar",
+"time": "late night",
+"department": ""
+},
+{
+"incidentId": "KI-023",
+"step": 2,
+"effect": "Trees fell at Brahm Nagar due to road collapse",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-023",
+"step": 3,
+"effect": "Routes barricaded / cordoned",
+"time": "",
+"department": "Kanpur Nagar Nigam"
+},
+{
+"incidentId": "KI-023",
+"step": 4,
+"effect": "Overhead KESCO electric lines required shifting",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-025",
+"step": 1,
+"effect": "Waterlogging (1-2 ft) in 100+ localities, residential and industrial",
+"time": "Sunday night-Monday",
+"department": ""
+},
+{
+"incidentId": "KI-025",
+"step": 2,
+"effect": "14 KESCO substations waterlogged and 30+ substations faulted; tree branches fell on 11 kV/HT lines disrupting 14 feeders",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-025",
+"step": 3,
+"effect": "Power supply disrupted 6-7 hours",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-025",
+"step": 4,
+"effect": "Drinking water supply disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-025",
+"step": 5,
+"effect": "Water on track at Kanpur Central during rain; signal system problems; trains stopped and run at Bhimsen, Panki Dham, Govindpuri, Bhaupur, Gangapul, Gangaghat etc.",
+"time": "Monday",
+"department": "Railways"
+},
+{
+"incidentId": "KI-025",
+"step": 6,
+"effect": "Parents carried children through waterlogging in front of Wendy School; school closures reported",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-025",
+"step": 7,
+"effect": "Municipal garbage collection and street sweeping suspended",
+"time": "",
+"department": "Kanpur Nagar Nigam"
+},
+{
+"incidentId": "KI-025",
+"step": 8,
+"effect": "Factory operations halted, commerce disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-025",
+"step": 9,
+"effect": "Mound (tila) collapsed in Jajmau burying a couple; woman died",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-026",
+"step": 1,
+"effect": "Waterlogging in many areas",
+"time": "Tuesday",
+"department": ""
+},
+{
+"incidentId": "KI-026",
+"step": 2,
+"effect": "Tree fell on Juhi Khalwa bridge blocking traffic",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-026",
+"step": 3,
+"effect": "Traffic diverted to alternate routes; congestion multiplied on Dadanagar bridge and other roads",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-026",
+"step": 4,
+"effect": "Afternoon rain worsened conditions; whole city gripped by jam",
+"time": "afternoon",
+"department": ""
+},
+{
+"incidentId": "KI-027",
+"step": 1,
+"effect": "3-4 ft water inside factories in industrial areas",
+"time": "morning",
+"department": ""
+},
+{
+"incidentId": "KI-027",
+"step": 2,
+"effect": "Raw and finished goods submerged",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-027",
+"step": 3,
+"effect": "Morning shift (7 AM) could not start; over 50% employee absence",
+"time": "7:00 AM",
+"department": ""
+},
+{
+"incidentId": "KI-027",
+"step": 4,
+"effect": "Production disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-028",
+"step": 1,
+"effect": "Fire in warehouse storing Metro materials (L&T / Metro company)",
+"time": "~21:00 Fri",
+"department": "Metro (L&T contractor)"
+},
+{
+"incidentId": "KI-028",
+"step": 2,
+"effect": "Sparks/fire spread to adjacent coaching students' hostel (rooftop water tank and belongings burnt) and ~10 neighbouring houses; homes evacuated",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-028",
+"step": 3,
+"effect": "Adjacent tractor agency destroyed (Times Now)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-028",
+"step": 4,
+"effect": "8 fire tenders from Panki, Kidwai Nagar, Fazalganj stations",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-028",
+"step": 5,
+"effect": "Fire controlled after ~5 hours",
+"time": "~02:30 Sat",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-029",
+"step": 1,
+"effect": "Water leaking onto road and into drains for ~7 days (~25 lakh litres/day per summary)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-029",
+"step": 2,
+"effect": "Excavation on 23 Dec for repair",
+"time": "",
+"department": "UP Jal Nigam"
+},
+{
+"incidentId": "KI-029",
+"step": 3,
+"effect": "Supply from Company Bagh chauraha toward city shut 24-26 Dec; ~2.5 lakh people affected; southern area normal",
+"time": "",
+"department": "UP Jal Nigam"
+},
+{
+"incidentId": "KI-030",
+"step": 1,
+"effect": "Road over nala collapsed",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-030",
+"step": 2,
+"effect": "Residents detour 2-3 km; access to Kanpur Court, Civil Lines, northern areas disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-030",
+"step": 3,
+"effect": "Cracks in nearby homes; 7 homeowners served notice to vacate",
+"time": "",
+"department": "Kanpur Nagar Nigam"
+},
+{
+"incidentId": "KI-031",
+"step": 1,
+"effect": "Car hit an auto-rickshaw, then a parked Royal Enfield; rider flung ~10 ft",
+"time": "3:15 PM",
+"department": ""
+},
+{
+"incidentId": "KI-031",
+"step": 2,
+"effect": "Car dragged motorcycle and hit an electric pole",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-031",
+"step": 3,
+"effect": "Six injured taken to private hospital",
+"time": "",
+"department": "Police / Hospital"
+},
+{
+"incidentId": "KI-031",
+"step": 4,
+"effect": "Vehicle seized; FIR to be registered",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-033",
+"step": 1,
+"effect": "Trees fell across main roads in industrial area",
+"time": "Saturday evening",
+"department": ""
+},
+{
+"incidentId": "KI-033",
+"step": 2,
+"effect": "Electric poles collapsed",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-033",
+"step": 3,
+"effect": "Roads blocked, traffic hindered",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-033",
+"step": 4,
+"effect": "About 5 lakh residents faced power outage",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-033",
+"step": 5,
+"effect": "KESCO tree trimming at substations and pole repair; MD warns of action for negligence",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-034",
+"step": 1,
+"effect": "CUGL digging damaged the main underground cable feeding south Kanpur; KESCO announced 4-6 days of load restrictions and shutdowns for Barra/Gujaini area",
+"time": "",
+"department": "CUGL / KESCO"
+},
+{
+"incidentId": "KI-034",
+"step": 2,
+"effect": "ABC cable fault at Karrahi; power off 36+ hours in Barra/Karrahi",
+"time": "from Sunday/Monday morning",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-034",
+"step": 3,
+"effect": "400 kVA transformer overloaded in heat; power cut every ~30 minutes for 48+ hours, ~5 lakh residents affected",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-034",
+"step": 4,
+"effect": "Water supply disrupted because there was no power for pumps",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-034",
+"step": 5,
+"effect": "Residents surrounded Thakur Chauraha substation at night; police arrived",
+"time": "Monday night",
+"department": "Police"
+},
+{
+"incidentId": "KI-034",
+"step": 6,
+"effect": "150-200 residents put up barriers and sat in on Karrahi Road (road blockade)",
+"time": "night/Tuesday morning",
+"department": "Police"
+},
+{
+"incidentId": "KI-034",
+"step": 7,
+"effect": "Hundreds from Barra power colony locked the KESCO substation office gates and officers' rooms; Barra police deployed",
+"time": "19 May morning",
+"department": "Police (Barra police station)"
+},
+{
+"incidentId": "KI-034",
+"step": 8,
+"effect": "Crowd stoned Barra Vidyut Colony substation and smashed chairs; a KESCO worker held ~3 hours; police used lathis, 4 detained",
+"time": "around midnight, ~20/21 May",
+"department": "Police"
+},
+{
+"incidentId": "KI-036",
+"step": 1,
+"effect": "Transformer bursts into flames; panic in locality",
+"time": "Night",
+"department": ""
+},
+{
+"incidentId": "KI-036",
+"step": 2,
+"effect": "Residents call fire brigade and electricity department, which reach the spot",
+"time": "",
+"department": "Fire Service; electricity dept"
+},
+{
+"incidentId": "KI-036",
+"step": 3,
+"effect": "Supply to surrounding locality cut for entire night",
+"time": "Overnight",
+"department": ""
+},
+{
+"incidentId": "KI-036",
+"step": 4,
+"effect": "Residents suffer in intense heat and humidity",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-037",
+"step": 1,
+"effect": "Waterlogging at ~80 locations; major and minor drains overflowed",
+"time": "from 7 AM",
+"department": "Kanpur Nagar Nigam"
+},
+{
+"incidentId": "KI-037",
+"step": 2,
+"effect": "Metro tin barricades at Devki chauraha obstructed flow",
+"time": "",
+"department": "UP Metro (UPMRC)"
+},
+{
+"incidentId": "KI-037",
+"step": 3,
+"effect": "Hours-long traffic jams at major intersections; vehicles broke down mid-road",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-037",
+"step": 4,
+"effect": "Hallet hospital premises waterlogged; patients waded knee-deep water; traffic affected in low-lying areas",
+"time": "",
+"department": "GSVM Medical College / Health"
+},
+{
+"incidentId": "KI-037",
+"step": 5,
+"effect": "70 complaints to Nagar Nigam control room; 8 resolved immediately, others in 2-4 h",
+"time": "",
+"department": "Kanpur Nagar Nigam"
+},
+{
+"incidentId": "KI-038",
+"step": 1,
+"effect": "Short circuit and fire in ENT electrical panel",
+"time": "~14:40 Wed",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-038",
+"step": 2,
+"effect": "Smoke spreads to adjoining ultrasound and X-ray centres",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-038",
+"step": 3,
+"effect": "Hospital staff and security evacuate 100+ patients and attendants",
+"time": "",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-038",
+"step": 4,
+"effect": "Fire put out within minutes with extinguishers",
+"time": "",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-038",
+"step": 5,
+"effect": "Ultrasound and X-ray services temporarily suspended",
+"time": "",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-038",
+"step": 6,
+"effect": "Technical investigation ordered",
+"time": "",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-039",
+"step": 1,
+"effect": "Faults/tripping and transformer failures; outages of 8-9 hours in worst areas, 5-6 hours elsewhere, 72+ localities",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-039",
+"step": 2,
+"effect": "Water supply disrupted in affected zones because pumps failed",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-039",
+"step": 3,
+"effect": "Consumers complained on toll-free 1912",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-040",
+"step": 1,
+"effect": "Roads flooded; open potholes and manholes became invisible",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-040",
+"step": 2,
+"effect": "Motorcyclists fell into submerged pits; a scooter sank into a crater near Parmat",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-040",
+"step": 3,
+"effect": "Ambulance trapped at Fazalganj",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-040",
+"step": 4,
+"effect": "Heavy congestion HDFC Bank to Fazalganj; Juhi Khalwa bridge closed with barriers",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-040",
+"step": 5,
+"effect": "Water entered homes in Nirala Nagar, Kidwai Nagar and dozens of shops at PAC chauraha",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-041",
+"step": 1,
+"effect": "After rain, traffic system collapsed; queue from Hallet to Moti Jheel",
+"time": "afternoon",
+"department": ""
+},
+{
+"incidentId": "KI-041",
+"step": 2,
+"effect": "Ambulances carrying patients stuck despite sirens",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-041",
+"step": 3,
+"effect": "School dismissal coincided with peak jam",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-041",
+"step": 4,
+"effect": "Renewed heavy rain; riders parked haphazardly for shelter, jam spread to Afeem Kothi, Jarib Chowki, Rawatpur",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-043",
+"step": 1,
+"effect": "Roof collapsed; four people trapped under debris",
+"time": "evening",
+"department": ""
+},
+{
+"incidentId": "KI-043",
+"step": 2,
+"effect": "Fire brigade and police rescue operation; all four extracted",
+"time": "",
+"department": "Fire Service / Police"
+},
+{
+"incidentId": "KI-043",
+"step": 3,
+"effect": "Four seriously injured (incl. two teenage girls) admitted to Hallet hospital",
+"time": "",
+"department": "Hallet hospital"
+},
+{
+"incidentId": "KI-044",
+"step": 1,
+"effect": "Fire in four-storey furniture showroom spreads to all floors; smoke visible ~2 km",
+"time": "Morning",
+"department": ""
+},
+{
+"incidentId": "KI-044",
+"step": 2,
+"effect": "About six+ fire vehicles reach on information (Amrit Vichar headline: 10+)",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-044",
+"step": 3,
+"effect": "Old Govindpuri bridge closed/traffic stopped as precaution",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-044",
+"step": 4,
+"effect": "Adjacent shops and buildings evacuated",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-044",
+"step": 5,
+"effect": "Several hours needed to control; showroom almost fully gutted",
+"time": "",
+"department": "Fire Service"
+},
+{
+"incidentId": "KI-045",
+"step": 1,
+"effect": "Knee-deep water on Govind Nagar roads; traffic system collapsed, vehicles stalled, long queues",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-045",
+"step": 2,
+"effect": "Heavy waterlogging outside Kanshiram Hospital and CMO office; patients and attendants struggled to move",
+"time": "",
+"department": "CMO office"
+},
+{
+"incidentId": "KI-045",
+"step": 3,
+"effect": "Trees fell, damaging poles, wires and transformers; a transformer fell off its platform at Karnalganj Bajriya",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-045",
+"step": 4,
+"effect": "Power outage 4-8 h in ~40 localities",
+"time": "evening",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-045",
+"step": 5,
+"effect": "Water supply disrupted because of evening power cuts",
+"time": "evening",
+"department": ""
+},
+{
+"incidentId": "KI-045",
+"step": 6,
+"effect": "Trees fell on poles/lines; transformer fell from platform; outages in ~40 localities for 4-8 hours (Om Nagar 8 hours)",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-045",
+"step": 7,
+"effect": "Evening power loss disrupted water supply; residents without drinking water at peak demand hours",
+"time": "evening",
+"department": ""
+},
+{
+"incidentId": "KI-045",
+"step": 8,
+"effect": "Residents complained via KESCO helpline and social media",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-046",
+"step": 1,
+"effect": "Short circuit/smoke in gallery cable between wards 5 and 6",
+"time": "afternoon",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-046",
+"step": 2,
+"effect": "Technical team cut power to the affected ward for about 15-20 minutes",
+"time": "",
+"department": "LLR Hospital"
+},
+{
+"incidentId": "KI-046",
+"step": 3,
+"effect": "Panic among patients (headline); no injuries; services continued",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-048",
+"step": 1,
+"effect": "Heavy waterlogging inside Kanshiram Hospital and CMO office premises",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-048",
+"step": 2,
+"effect": "Patients and attendants faced major difficulty entering/leaving hospital",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-048",
+"step": 3,
+"effect": "Main road Devki Palace-Gutaiya crossing fully waterlogged; two-wheelers slipped and fell; thousands of commuters affected",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 1,
+"effect": "Road caved in: ~3 m wide, 18 ft deep",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 2,
+"effect": "Rainwater poured into hole ('waterfall'); waterlogging in surrounding streets",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 3,
+"effect": "One traffic lane closed; traffic congestion",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-049",
+"step": 4,
+"effect": "Nine homes/shops' foundations threatened",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 5,
+"effect": "Potholes had formed two months earlier; Jalkal filled with debris but leak persisted",
+"time": "~2 months earlier",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-049",
+"step": 6,
+"effect": "Heavy rain; road caved in, 18-ft deep, ~3 m wide hole",
+"time": "26 Aug",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 7,
+"effect": "Floodwater poured into cavity like a waterfall",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-049",
+"step": 8,
+"effect": "Police barricaded area; road closed",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-049",
+"step": 9,
+"effect": "Municipal repairs at Jajmau started from Sunday (per Amar Ujala)",
+"time": "",
+"department": "KNN"
+},
+{
+"incidentId": "KI-050",
+"step": 1,
+"effect": "Water accumulated at many spots across hospital premises",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-050",
+"step": 2,
+"effect": "Patients and attendants had difficulty moving",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-050",
+"step": 3,
+"effect": "Water leaked from OPD ceiling",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-051",
+"step": 1,
+"effect": "Daat nala and road collapsed",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-051",
+"step": 2,
+"effect": "Jalkal water lines (10 inch and 16 inch) burst; water filled pit and came onto road",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-051",
+"step": 3,
+"effect": "Soil erosion threatens two houses (Ashok Kureel, Abhay Pratap Singh)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-051",
+"step": 4,
+"effect": "Dot Nala collapsed under road",
+"time": "27 Aug",
+"department": ""
+},
+{
+"incidentId": "KI-051",
+"step": 5,
+"effect": "10-inch and 16-inch water supply pipelines damaged; water flooded roadway and surrounding area",
+"time": "",
+"department": "Jal Nigam"
+},
+{
+"incidentId": "KI-051",
+"step": 6,
+"effect": "Soil erosion threatens two adjacent houses; owners told to vacate",
+"time": "",
+"department": "KNN Zone 4"
+},
+{
+"incidentId": "KI-051",
+"step": 7,
+"effect": "Water pooling in settlements behind GT Road; pumping continued through Sunday",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-052",
+"step": 1,
+"effect": "Wall collapsed onto two adjacent mud structures; two people trapped",
+"time": "~7 PM",
+"department": ""
+},
+{
+"incidentId": "KI-052",
+"step": 2,
+"effect": "Police, SDRF and fire brigade extracted both in ~30 min",
+"time": "",
+"department": "Police / SDRF / Fire Service"
+},
+{
+"incidentId": "KI-052",
+"step": 3,
+"effect": "Taken to Ursula hospital; Karan Kashyap (27) declared dead",
+"time": "",
+"department": "Ursula hospital"
+},
+{
+"incidentId": "KI-052",
+"step": 4,
+"effect": "Usha (60) critically injured, referred to Hallet hospital",
+"time": "",
+"department": "Hallet hospital"
+},
+{
+"incidentId": "KI-053",
+"step": 1,
+"effect": "Drains and small channels overflowed",
+"time": "overnight",
+"department": ""
+},
+{
+"incidentId": "KI-053",
+"step": 2,
+"effect": "Roads submerged; road and drain indistinguishable",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-053",
+"step": 3,
+"effect": "Two-wheeler riders and pedestrians most affected",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-053",
+"step": 4,
+"effect": "On Jajmau old bridge rainwater filled potholes; vehicles crawled, congestion",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-053",
+"step": 5,
+"effect": "Planned bridge repair (from 1 Sep) postponed for lack of NOC from Unnao district",
+"time": "",
+"department": "District administration (Unnao)"
+},
+{
+"incidentId": "KI-054",
+"step": 1,
+"effect": "Drain collapsed, blocking outflow",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-054",
+"step": 2,
+"effect": "Rainwater accumulated across the area",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-054",
+"step": 3,
+"effect": "About 40 shops submerged; ~2 ft water inside shops; business disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-054",
+"step": 4,
+"effect": "Traders (Nagar Udyog Vyapar Mandal) protested standing in water",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-055",
+"step": 1,
+"effect": "Pandu water entered ~300 houses in Barra slum; residents moved belongings",
+"time": "3 Sep",
+"department": ""
+},
+{
+"incidentId": "KI-055",
+"step": 2,
+"effect": "River water reversed through colony drain into Sundar Nagar causing waterlogging",
+"time": "4 Sep",
+"department": ""
+},
+{
+"incidentId": "KI-055",
+"step": 3,
+"effect": "Gopalpuram roads under ~2 ft water; movement badly hindered; residents vacating homes",
+"time": "7 Sep",
+"department": ""
+},
+{
+"incidentId": "KI-055",
+"step": 4,
+"effect": "Elderly woman Vimla Devi nearly drowned; admitted to Hallet hospital in critical condition",
+"time": "",
+"department": "Hallet hospital"
+},
+{
+"incidentId": "KI-055",
+"step": 5,
+"effect": "Resident used his tractor to ferry people out",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-056",
+"step": 1,
+"effect": "Multi-directional jams from morning",
+"time": "morning",
+"department": ""
+},
+{
+"incidentId": "KI-056",
+"step": 2,
+"effect": "Brief afternoon easing, then intense rain renewed gridlock",
+"time": "afternoon",
+"department": ""
+},
+{
+"incidentId": "KI-056",
+"step": 3,
+"effect": "Several ambulances trapped (15+ min at Jarib Chowki-Kalpi Road); one needed police help to pass",
+"time": "",
+"department": "Police"
+},
+{
+"incidentId": "KI-056",
+"step": 4,
+"effect": "Traffic police described as helpless; congestion till late evening",
+"time": "evening",
+"department": "Traffic Police"
+},
+{
+"incidentId": "KI-058",
+"step": 1,
+"effect": "Floodwater entered substation control room and premises",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-058",
+"step": 2,
+"effect": "Power supply off to ~2 lakh population for ~5 days",
+"time": "",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-058",
+"step": 3,
+"effect": "Water pumped out; sandbag embankment built; panels and machines cleaned and dried before restart",
+"time": "by 30 Sep morning",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-058",
+"step": 4,
+"effect": "Floodwater entered the substation premises and control room",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-058",
+"step": 5,
+"effect": "Complete power cut to ~2 lakh people in the listed localities for five days",
+"time": "5 days",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-058",
+"step": 6,
+"effect": "Water pumped out; restoration pending drying of panels",
+"time": "by morning of 30 Sep",
+"department": "KESCO"
+},
+{
+"incidentId": "KI-059",
+"step": 1,
+"effect": "Water level rose 5-7 ft within hours; ground floors inundated",
+"time": "night",
+"department": ""
+},
+{
+"incidentId": "KI-059",
+"step": 2,
+"effect": "Residents trapped, moved to rooftops; belongings lost",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-059",
+"step": 3,
+"effect": "NDRF rescued 16+ families by boat; ~120 people shifted to relief camp at Composite School",
+"time": "",
+"department": "NDRF; District Administration (SDM Sadar)"
+},
+{
+"incidentId": "KI-059",
+"step": 4,
+"effect": "Family with pregnant woman trapped in Pipauri called 1070; NDRF rescued in 25 min; woman needed hospital check-up",
+"time": "29 Sep",
+"department": "NDRF; Tehsildar Sadar"
+},
+{
+"incidentId": "KI-059",
+"step": 5,
+"effect": "Residents of Gopalapuram forced to commute by boat (resident bought a Rs 3,000 boat)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-060",
+"step": 1,
+"effect": "Rafaka nala overflowed",
+"time": "Saturday",
+"department": ""
+},
+{
+"incidentId": "KI-060",
+"step": 2,
+"effect": "Streets waterlogged; backflow prevented drainage out of the colony",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-060",
+"step": 3,
+"effect": "Water entered 40+ homes",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-060",
+"step": 4,
+"effect": "Spread to Indira Nagar; water entered buildings and apartments (Ratan Orbit)",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-061",
+"step": 1,
+"effect": "Roller sank; 4 ft deep crater formed",
+"time": "Tuesday night",
+"department": "PWD"
+},
+{
+"incidentId": "KI-061",
+"step": 2,
+"effect": "Water pipelines damaged",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-061",
+"step": 3,
+"effect": "Traffic temporarily disrupted",
+"time": "",
+"department": ""
+},
+{
+"incidentId": "KI-062",
+"step": 1,
+"effect": "Gujaini plant offline ~2 days; ~20 localities without water",
+"time": "",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-062",
+"step": 2,
+"effect": "Barrage plant shut for leakage repair at Company Bagh",
+"time": "Tuesday morning",
+"department": "Jalkal"
+},
+{
+"incidentId": "KI-062",
+"step": 3,
+"effect": "Outage expanded to ~50 localities; no morning supply",
+"time": "morning",
+"department": ""
+}
+]

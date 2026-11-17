@@ -134,6 +134,8 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   group('outages', 'Power cut notices', 'kesco', 'rs1', 'powerNotice', 'openAPI');
   group('incidents', 'Past incidents (from news reports)', 'iccc', 'rs1', 'pastIncident', 'openAPI');
   group('deplinks', 'Dependency links between city services (SCOS research)', 'iccc', 'rs1', 'dependencyLink', 'openAPI');
+  group('incsteps', 'Past incidents: reported steps', 'iccc', 'rs1', 'incidentStep', 'openAPI');
+  group('incsources', 'Past incidents: news sources', 'iccc', 'rs1', 'incidentSource', 'openAPI');
   group('itms', 'Bus positions', 'kctsl', 'rs1', 'busPosition', 'asyncAPI');
   group('stops', 'Bus stops', 'kctsl', 'rs1', 'busStops', 'openAPI');
   group('fare', 'Fare revenue', 'kctsl', 'rs1', 'fareRevenue', 'openAPI');
@@ -225,13 +227,27 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
   ].map(([noticeId, area, zone, type, a, b, reason, status]) => ({ noticeId, area: area + ' (demo)', zone, type, from: hr(a), to: hr(b), reason, status })));
   // ICCC past incident register: real incidents from public news reports (not synthetic). A point is shown only
   // when the reported place names a known locality; the point is that locality's approximate centre.
-  const NEAR = { ...PL, Barra: [80.292, 26.425], Juhi: [80.315, 26.432], Bansmandi: [80.356, 26.466], Chamanganj: [80.356, 26.476], Collectorganj: [80.35, 26.459], MallRoad: [80.345, 26.466], BrahmNagar: [80.338, 26.466], Hallet: [80.333, 26.478] };
-  const ALIAS = { SwaroopNagar: ['swaroop nagar', 'swarup nagar'], Central: ['kanpur central'], MallRoad: ['mall road'], BrahmNagar: ['brahm nagar'], Hallet: ['hallet', 'gsvm', 'lps institute'] };
-  const placeOf = txt => { const t = String(txt).toLowerCase(); return Object.keys(NEAR).find(k => (ALIAS[k] || [k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()]).some(a => t.includes(a))); };
+  const NEAR = { ...PL, Barra: [80.292, 26.425], Juhi: [80.315, 26.432], Bansmandi: [80.356, 26.466], Chamanganj: [80.356, 26.476], Collectorganj: [80.35, 26.459], MallRoad: [80.345, 26.466], BrahmNagar: [80.338, 26.466], Hallet: [80.333, 26.478],
+    PhoolBagh: [80.346, 26.469], Sisamau: [80.336, 26.478], Birhana: [80.352, 26.464] };
+  const ALIAS = { SwaroopNagar: ['swaroop nagar', 'swarup nagar'], Central: ['kanpur central'], MallRoad: ['mall road'], BrahmNagar: ['brahm nagar'], Hallet: ['hallet', 'gsvm', 'lps institute'], PhoolBagh: ['phool bagh'], Birhana: ['birhana road'] };
+  // Every known locality named in the reported place, in the order the news names them. "one": the incident happened
+  // at one place (the first named locality); "many": the news names many areas or a city-wide effect, so no single point is right.
+  const placesOf = txt => { const t = String(txt).toLowerCase(); return Object.keys(NEAR).map(k => [k, Math.min(...(ALIAS[k] || [k.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()]).map(a => { const i = t.indexOf(a); return i < 0 ? Infinity : i; }))]).filter(([, i]) => i < Infinity).sort((a, b) => a[1] - b[1]).map(([k]) => k); };
+  const nice = k => k.replace(/([a-z])([A-Z])/g, '$1 $2');
   const incId = res({ key: 'past-incidents-news', grp: 'incidents', name: 'Past incidents in Kanpur (from news reports)', desc: 'Floods, pipe bursts, fires, power outages and other incidents in Kanpur, 2021-2026, summarised from public news reports with a link to each source. Not checked by hand; open the source before relying on any detail.', tags: ['incidents', 'history', 'flood', 'fire', 'power', 'water'], rtype: 'table', label: 'public' });
   const INC = JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-incidents-build.json', import.meta.url), 'utf8'));
-  ingest(incId, INC.map(o => { const k = placeOf(o.place); const row = { ...o, chain: o.chain.join(' → '), systems: o.systems.join(', '), departments: o.departments.replace(/\s*\([^)]*\)/g, '') /* department names only, no officials' names */, area: k ? k.replace(/([a-z])([A-Z])/g, '$1 $2') : '' }; if (k) row.location = geo(NEAR[k]); return row; }));
+  ingest(incId, INC.map(o => {
+    const ks = placesOf(o.place), many = ks.length >= 3 || /localities|city-?wide|several areas|\bareas\b/i.test(o.place), k = ks[0];
+    const row = { ...o, chain: o.chain.join(' → '), systems: o.systems.join(', '), departments: o.departments.replace(/\s*\([^)]*\)/g, '') /* department names only, no officials' names */, area: k ? nice(k) : '',
+      placement: !k ? 'none' : many ? 'many' : 'one', areas: ks.map(nice).join(', ') };
+    if (k) row.location = geo(NEAR[k]); return row;
+  }));
   sealIncidents(app, incId); // hash every incident row and put the register digest in the signed audit log
+  // The reported steps and the news sources of the same 52 incidents, for the page of each incident.
+  const stepsId = res({ key: 'past-incident-steps', grp: 'incsteps', name: 'Past incidents in Kanpur: reported steps', desc: 'For each past incident, how it spread step by step, with the time and department where the news gives them. From public news reports, not checked by hand.', tags: ['incidents', 'history', 'chain'], rtype: 'table', label: 'public' });
+  ingest(stepsId, JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-incident-steps-build.json', import.meta.url), 'utf8')));
+  const srcId = res({ key: 'past-incident-sources', grp: 'incsources', name: 'Past incidents in Kanpur: news sources', desc: 'Every news report used for the past incidents, with publisher, date, language, headline and link. None has been checked by hand yet.', tags: ['incidents', 'history', 'sources'], rtype: 'table', label: 'public' });
+  ingest(srcId, JSON.parse(fs.readFileSync(new URL('./seed-data/kanpur-incident-sources-build.json', import.meta.url), 'utf8')));
   // SCOS research layer (our addition, not in the two documents): the 39 failure links coded from the same 52 incidents
   // (thesis build set, frozen 4 Oct 2026). All are C1: one news family, single coder, not yet checked by hand.
   const linkId = res({ key: 'dependency-links-52', grp: 'deplinks', name: 'Failure links between city services (SCOS research, from 52 past incidents)', desc: 'Which city service failed after which, in the 52 past incidents above, with the department that owns each side and the evidence level. Draft coding by a single coder from news reports; not checked by hand. Added by the SCOS research, not part of the two documents.', tags: ['scos', 'dependency', 'cascade', 'incidents', 'coordination'], rtype: 'table', label: 'public' });

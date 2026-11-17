@@ -52,7 +52,7 @@ The City Intelligence Layer reads city data only through the Data Exchange, as t
 | `public/` | Officer console (plain HTML, CSS and JS, no inline code) |
 | `scripts/` | PKI setup, backup, restore, uptime probe, test report |
 | `deploy/` | Dockerfile, docker compose file, systemd units |
-| `test/` | 130 end-to-end tests |
+| `test/` | 131 end-to-end tests |
 
 ## 2. Identity and authentication
 
@@ -181,6 +181,9 @@ This part is **not** in either document and is **not** counted in `docs/requirem
 - **Portal.** The "Incidents and dependencies" page (`public/scos.js`, `public/scos.css`) shows the explorer and the three scenarios: S1 heavy rain and waterlogging, S2 power cut hits water supply, S3 road works or digging damage.
 - **Home page.** A "three layers" section (`#story`) shows the Data Exchange, the City Intelligence Layer and the SCOS layer, and what SCOS is and is not. Like the explorer it appears only when the city has a link register. The top menu has 7 items; Departments, Service status and Transparency are reached from the Open data page.
 - **Console.** The "SCOS tasks" screen (`public/app.js`) lets the ICCC operator approve, hold or reject each suggested task; admin and auditor can read it.
+- **Incident pages.** `public/incident.html?id=KI-045` shows one past incident: the register row, the reported steps (time and department where the news gives them), every news source, and the links in the register that cite it (`GET /scos/v1/incident?id=…`; list: `GET /scos/v1/incidents`). The steps and sources are two more public catalogue items, `past-incident-steps` and `past-incident-sources` (data models `incidentStep`, `incidentSource`), from the same 52 build incidents.
+- **Scenario animation.** The scenario view draws the trace as columns of steps and plays it one step at a time (Play, Back, Next step). It draws only the links the trace API returns.
+- **Incident map.** Each incident row has `placement`: `one` (a point at the approximate centre of the first named locality), `many` (the news names many areas or a city-wide effect; drawn as a hollow ring at the first one) or `none` (no known locality; not drawn). Positions are approximate locality centres, not surveyed points.
 - **Developer page.** `public/developers.html` explains the three API layers with curl examples (data exchange, city intelligence, SCOS) and links to `/api` and `/scos/v1/openapi`.
 
 ## 11. Known limits

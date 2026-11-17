@@ -123,6 +123,23 @@ export function makeScos({ db, audit, catalogue, resource }) {
       return { start, steps, minIncidents: n, note: SCOS_NOTE, method: 'Breadth-first trace over the link register; a link is used if it was seen in at least minIncidents past incidents. No machine learning, no weights.',
         affected, links: used, actions, crossBoundaryLinks: used.filter(l => l.crossBoundary).length, incidents: ids.map(id => incBrief(incidents, id)) };
     },
+    // Incident pages: the register row, its reported steps and sources, and the dependency links it supports.
+    incidents(p) {
+      const { links, incidents } = load(p);
+      return [...incidents.values()].sort((a, b) => String(a.date).localeCompare(String(b.date))).map(x => ({ incidentId: x.incidentId, date: x.date, type: x.type, summary: x.summary, area: x.area, placement: x.placement,
+        links: links.filter(l => l.incidentIds.includes(x.incidentId)).length }));
+    },
+    incident(p, query = {}) {
+      const id = String(query.id || '').toUpperCase(); need(/^KI-\d{3}$/.test(id), 400, 'give id, for example KI-045');
+      const { links, incidents, nodes } = load(p); const x = incidents.get(id); need(x, 404, `no incident ${id} in the register`);
+      const order = [...incidents.keys()].sort((a, b) => String(incidents.get(a).date).localeCompare(String(incidents.get(b).date)) || a.localeCompare(b)), i = order.indexOf(id);
+      const steps = rowsOfGroup('incsteps', p).filter(r => r.incidentId === id).sort((a, b) => a.step - b.step).map(({ step, effect, time, department }) => ({ step, effect, time, department }));
+      const sources = rowsOfGroup('incsources', p).filter(r => r.incidentId === id).sort((a, b) => a.sourceNo - b.sourceNo).map(({ incidentId, ...s }) => s);
+      const mine = links.filter(l => l.incidentIds.includes(id)).map(pubLink);
+      return { note: SCOS_NOTE, incident: x, steps, sources, links: mine, handovers: mine.filter(l => l.crossBoundary).length,
+        services: [...new Set(mine.flatMap(l => [l.from, l.to]))].map(c => ({ code: c, name: nodes.get(c)?.name, owner: nodes.get(c)?.owner })),
+        previous: order[i - 1] || null, next: order[i + 1] || null, position: i + 1, total: order.length };
+    },
     scenarios(p) { return SCENARIOS.map(s => { const t = this.trace(p, { start: s.start }); return { ...s, affected: t.affected.length, links: t.links.length, crossBoundaryLinks: t.crossBoundaryLinks, incidents: t.incidents.length }; }); },
     decide(p, body = {}) {
       need(p.role === 'operator', p.role === 'anonymous' ? 401 : 403, 'only the ICCC operator (control room) may approve, hold or reject a suggested task');
@@ -164,6 +181,8 @@ export function scosOpenapi() {
       '/scos/v1/trace': { post: { tags: ['SCOS'], summary: 'Follow the links step by step from a first failure and list who acts next (suggestion only)',
         requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['start'], properties: { start: { type: 'string', example: 'PWR' }, steps: { type: 'integer', minimum: 1, maximum: 6, default: 3 }, minIncidents: { type: 'integer', default: 2 } } } } } },
         responses: { ...ok('Trace: affected services, links used, suggested actions, incidents behind them'), ...err } } },
+      '/scos/v1/incidents': { get: { tags: ['SCOS'], summary: 'The past incidents in the register, oldest first, with how many links each supports', responses: ok('Incidents', { type: 'array', items: { type: 'object' } }) } },
+      '/scos/v1/incident': { get: { tags: ['SCOS'], summary: 'One past incident: register row, reported steps, news sources and the links it supports', parameters: [{ name: 'id', in: 'query', required: true, schema: { type: 'string', example: 'KI-045' } }], responses: { ...ok('Incident page data'), ...err } } },
       '/scos/v1/scenarios': { get: { tags: ['SCOS'], summary: 'The three demonstration scenarios with their trace sizes', responses: ok('Scenarios', { type: 'array', items: { type: 'object' } }) } },
       '/scos/v1/decisions': {
         post: { tags: ['SCOS'], summary: 'Approve, hold or reject one suggested task (ICCC operator login only; written to the signed audit log)', security: [{ session: [] }],

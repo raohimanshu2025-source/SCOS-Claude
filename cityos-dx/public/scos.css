@@ -56,3 +56,45 @@
 .info-sec .st-stack{margin:10px 0}
 .info-sec table{border-collapse:collapse;width:100%;font-size:.9rem}
 .info-sec th,.info-sec td{text-align:left;vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line)}
+/* Incident map key and incident pages */
+.hkey{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.hk{display:inline-block;width:12px;height:12px;border-radius:50%}
+.hk.one{background:var(--info)}
+.hk.many{border:3px solid var(--info)}
+.ip h1{margin:.2em 0 .3em}
+.ip h2{font-size:1.1rem;margin:18px 0 6px}
+.ip-meta{display:flex;flex-wrap:wrap;gap:6px}
+.ip-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:20px;align-items:start}
+.ip-scos{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:14px}
+.ip-steps{list-style:none;margin:0;padding:0;border-left:3px solid var(--line);margin-left:12px}
+.ip-steps li{display:flex;gap:10px;margin:0 0 10px -15px}
+.ip-steps p{margin:0}
+.ip-n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--warn);color:var(--panel);font-weight:800;display:grid;place-items:center;font-size:.85rem}
+.ip-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0 10px;flex-wrap:wrap}
+.ip-t{border-collapse:collapse;width:100%;font-size:.9rem}
+.ip-t th,.ip-t td{text-align:left;vertical-align:top;padding:7px 8px;border-bottom:1px solid var(--line)}
+.ip .nw{white-space:nowrap}
+@media (max-width:820px){.ip-grid{grid-template-columns:1fr}}
+/* Scenario animation: one column per step, arrows are register links only */
+.sx-anim-bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.sx-anim-bar .sx-chip:disabled{opacity:.45;cursor:default}
+.sx-anim{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px}
+.sx-anim svg{display:block;max-width:none}
+.sx-anim text{font-family:inherit;fill:var(--ink)}
+.sx-col-h{font-size:12px;font-weight:700;fill:var(--muted)!important}
+.sx-v rect{fill:var(--panel);stroke:var(--warn);stroke-width:1.5}
+.sx-v.first rect{stroke:var(--bad);stroke-width:2.5}
+.sx-v .n{font-size:12px;font-weight:700}
+.sx-v .o{font-size:10.5px;fill:var(--muted)!important}
+.sx-e path{fill:none;stroke:var(--muted);stroke-width:1.6}
+.sx-e.hand path{stroke:var(--warn);stroke-width:2.6}
+.sx-e text{font-size:10px;fill:var(--muted)!important}
+.sx-ah{fill:var(--muted)} .sx-ah.hand{fill:var(--warn)}
+.sx-anim [data-k],.sx-steps [data-k],.sx-who [data-k]{transition:opacity .45s}
+.sx-anim .sx-off{opacity:.08}
+.sx-steps .sx-off,.sx-who .sx-off{opacity:.35}
+.sx-anim .sx-now rect{fill:var(--warn-soft)}
+.sx-anim .sx-now.sx-e path{stroke-width:3.4}
+.sx-cap{font-weight:600;min-height:3em;margin:8px 0 2px}
+@media (prefers-reduced-motion:reduce){.sx-anim [data-k],.sx-steps [data-k],.sx-who [data-k]{transition:none}}
+@media (max-width:640px){.ip-t thead{display:none}.ip-t tr{display:block;border-bottom:1px solid var(--line);padding:6px 0}.ip-t td{display:block;border:0;padding:2px 4px}.ip-t td:empty{display:none}}

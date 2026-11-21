@@ -145,3 +145,16 @@ td.mono{white-space:nowrap}
 .player img{width:100%;height:auto;background:#222;border-radius:8px;display:block}
 ul.plain{list-style:none;padding:0;margin:0}ul.plain li{padding:4px 0}
 #main td .mono{white-space:nowrap}
+/* SCOS cascade picture in the console (same look as the portal's, see scos.css) */
+.sx-anim{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:6px;margin:8px 0}
+.sx-anim svg{display:block;max-width:none}
+.sx-anim text{font-family:inherit;fill:var(--ink)}
+.sx-col-h{font-size:12px;font-weight:700;fill:var(--muted)!important}
+.sx-v rect{fill:var(--panel);stroke:var(--warn);stroke-width:1.5}
+.sx-v.first rect{stroke:var(--bad);stroke-width:2.5}
+.sx-v .n{font-size:12px;font-weight:700}
+.sx-v .o{font-size:10.5px;fill:var(--muted)!important}
+.sx-e path{fill:none;stroke:var(--muted);stroke-width:1.6}
+.sx-e.hand path{stroke:var(--warn);stroke-width:2.6}
+.sx-e text{font-size:10px;fill:var(--muted)!important}
+.sx-ah{fill:var(--muted)} .sx-ah.hand{fill:var(--warn)}

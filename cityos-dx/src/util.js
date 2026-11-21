@@ -3,6 +3,14 @@ import crypto from 'node:crypto';
 
 export const iso = d => new Date(d).toISOString().replace(/\.\d{3}Z$/, 'Z');
 export const round = (x, d = 1) => Math.round(x * 10 ** d) / 10 ** d;
+// Synthetic air temperature that follows the season and the time of day, roughly like Kanpur (monthly mean in °C,
+// warmest about 3 pm India time). Demo values only, not real weather.
+const MONTH_MEAN_C = [15.5, 19, 24.5, 30.5, 33.5, 33.5, 30, 29.5, 29, 26, 20.5, 16.5];
+export function seasonalTemp(t) {
+  const d = new Date(Number(t) + 5.5 * 3600e3), m = d.getUTCMonth(), h = d.getUTCHours() + d.getUTCMinutes() / 60;
+  const amp = m >= 5 && m <= 8 ? 3.5 : 6.5; // smaller day-night swing in the monsoon
+  return MONTH_MEAN_C[m] + amp * Math.cos((h - 15) / 24 * 2 * Math.PI);
+}
 export const mean = a => a.reduce((x, y) => x + y, 0) / (a.length || 1);
 export const randHex = bytes => crypto.randomBytes(bytes).toString('hex');
 export const sha256 = s => crypto.createHash('sha256').update(s).digest('hex');

@@ -167,3 +167,30 @@ test('the control room can enter a new incident: it is traced on the frozen map,
   assert.match(q.get(c.app.db, "SELECT * FROM audit WHERE iface='SCOS' AND action='Task approve' AND detail LIKE 'NEW-001%'").detail, /WAT/);
   assert.equal(c.app.audit.verify().ok, true);
 });
+
+test('reset demo hides earlier new incidents and decisions from the SCOS screens but keeps the audit log', async () => {
+  const ctl = await c.login('control');
+  const kesco = await c.login('officer.kesco');
+  assert.equal((await kesco.as('POST', '/scos/v1/reset-demo', { body: {} })).status, 403);
+  await ctl.as('POST', '/scos/v1/new-incidents', { body: { title: 'Before reset (demo)', date: '2026-11-20', description: 'Demo.', start: 'PWR' } });
+  const auditBefore = q.get(c.app.db, 'SELECT COUNT(*) AS n FROM audit').n;
+  const r = await ctl.as('POST', '/scos/v1/reset-demo', { body: {} });
+  assert.equal(r.status, 200, JSON.stringify(r.body));
+  assert.ok(r.body.hidden.incidents >= 1);
+  assert.equal((await ctl.as('GET', '/scos/v1/new-incidents')).body.length, 0);
+  assert.equal((await ctl.as('GET', '/scos/v1/decisions')).body.length, 0);
+  assert.equal((await ctl.as('POST', '/scos/v1/decisions', { body: { scenario: 'NEW-001', order: 1, decision: 'approve' } })).status, 400, 'a hidden incident can no longer be decided');
+  const after = await ctl.as('POST', '/scos/v1/new-incidents', { body: { title: 'After reset (demo)', date: '2026-11-21', description: 'Demo.', start: 'RAIN' } });
+  assert.notEqual(after.body.incident.id, 'NEW-001', 'ids keep counting, so audit entries stay unambiguous');
+  assert.deepEqual((await ctl.as('GET', '/scos/v1/new-incidents')).body.map(x => x.id), [after.body.incident.id]);
+  assert.ok(q.get(c.app.db, 'SELECT COUNT(*) AS n FROM audit').n > auditBefore, 'nothing removed from the audit log');
+  assert.ok(q.get(c.app.db, "SELECT * FROM audit WHERE iface='SCOS' AND action='Demo reset'"));
+  assert.equal(c.app.audit.verify().ok, true);
+});
+
+test('demo temperatures follow the season and the time of day', async () => {
+  const { seasonalTemp } = await import('../src/util.js');
+  const novNight = seasonalTemp(Date.parse('2026-11-21T16:00:00Z')), mayAfternoon = seasonalTemp(Date.parse('2026-05-21T09:30:00Z'));
+  assert.ok(novNight > 10 && novNight < 22, String(novNight));
+  assert.ok(mayAfternoon > 36, String(mayAfternoon));
+});

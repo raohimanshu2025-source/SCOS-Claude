@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { q } from './db.js';
-import { iso, round } from './util.js';
+import { iso, round, seasonalTemp } from './util.js';
 import { pkiPaths } from './identity/ca.js';
 import { seedTransit } from './seed-transit.js';
 import { cameraFrame } from './media-frames.js';
@@ -161,13 +161,13 @@ export function seedKanpur(app, { password, adminPassword, now = Date.now() } = 
 
   // UPPCB air quality
   [['Kalyanpur', 62], ['Fazalganj', 110], ['Central', 96], ['KidwaiNagar', 78], ['Jajmau', 128], ['Naubasta', 70]].forEach(([pl, pm0], i) => {
-    const loc = PL[pl], pm = series(pm0, 18, 10, i), co2 = series(430 + i * 30, 40, 20, i), temp = series(31 + (i % 3), 3, 1, i);
+    const loc = PL[pl], pm = series(pm0, 18, 10, i), co2 = series(430 + i * 30, 40, 20, i), temp = times.map(t => round(seasonalTemp(t) + 1 + (i % 3) * 0.5 + (rnd() - 0.5), 1));
     const id = res({ key: 'aqm-' + (i + 1), grp: 'aqm', name: `Air quality sensor, ${pl} (demo)`, desc: 'CO2, temperature and PM2.5 (synthetic values, approximate location).', tags: ['environment', 'air-quality', 'pollution', 'PM2.5', ...tagz(loc)], rtype: 'messageStream', label: 'public', loc });
     ingest(id, times.map((t, k) => ({ NAME: `AQ ${pl}`, CO2_MAX: co2[k], TEMPERATURE_MAX: temp[k], PM2_5: Math.max(0, pm[k]), LASTUPDATEDATETIME: iso(t) })));
   });
   // ICCC weather
   ['Kalyanpur', 'Central', 'Chakeri', 'Panki', 'Naubasta'].forEach((pl, i) => {
-    const loc = PL[pl], temp = series(31 + i * 0.6, 3, 0.8, 0.3), rh = series(64, 10, 4), ws = series(2.5 + i * 0.3, 1.2, 0.6), wd = series(250 + i * 8, 20, 10);
+    const loc = PL[pl], temp = times.map(t => round(seasonalTemp(t) + i * 0.3 + (rnd() - 0.5) * 0.8, 1)), rh = series(64, 10, 4), ws = series(2.5 + i * 0.3, 1.2, 0.6), wd = series(250 + i * 8, 20, 10);
     const id = res({ key: 'wx-' + (i + 1), grp: 'weather', name: `Weather station, ${pl} (demo)`, desc: 'Temperature, humidity, wind and rain (synthetic).', tags: ['weather', 'rain', ...tagz(loc)], rtype: 'messageStream', label: 'public', loc });
     ingest(id, times.map((t, k) => ({ airTemperature: temp[k], relativeHumidity: Math.min(100, Math.max(0, rh[k])), windSpeed: Math.max(0, ws[k]), windDirection: ((wd[k] % 360) + 360) % 360, rainfall: k > 80 ? round(rnd() * 14, 1) : 0, observationDateTime: iso(t) })));
   });

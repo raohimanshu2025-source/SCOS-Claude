@@ -237,6 +237,7 @@ export function createApp(overrides = {}) {
   R('GET', '/scos/v1/decisions', c => scos.decisions(c.p, c.query));
   R('POST', '/scos/v1/new-incidents', c => { c.status = 201; return scos.addIncident(c.p, c.body); });
   R('GET', '/scos/v1/new-incidents', c => scos.newIncidents(c.p));
+  R('POST', '/scos/v1/reset-demo', c => scos.resetDemo(c.p));
   R('GET', '/scos/v1/openapi', () => scosOpenapi());
   R('GET', '/scos/v1/incidents', c => scos.incidents(c.p));
   R('GET', '/scos/v1/incident', c => scos.incident(c.p, c.query));

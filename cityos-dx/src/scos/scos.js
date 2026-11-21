@@ -35,7 +35,12 @@ export function makeScos({ db, audit, catalogue, resource }) {
     service TEXT NOT NULL, department TEXT NOT NULL, via TEXT, decision TEXT NOT NULL, reason TEXT, actor TEXT NOT NULL, ts TEXT NOT NULL)`);
   q.run(db, `CREATE TABLE IF NOT EXISTS scos_new_incidents (id TEXT PRIMARY KEY, title TEXT NOT NULL, date TEXT NOT NULL, area TEXT,
     description TEXT NOT NULL, source TEXT, start TEXT NOT NULL, actor TEXT NOT NULL, ts TEXT NOT NULL)`);
-  const newInc = id => q.get(db, 'SELECT * FROM scos_new_incidents WHERE id = ?', String(id || ''));
+  // "Reset demo" hides earlier new incidents and decisions from the SCOS screens (before a presentation). Nothing is
+  // deleted, ids keep counting, and the signed audit log keeps every earlier entry.
+  // A reset remembers the last row of each table at that moment; the screens show only rows written after it.
+  q.run(db, 'CREATE TABLE IF NOT EXISTS scos_resets (id INTEGER PRIMARY KEY AUTOINCREMENT, actor TEXT NOT NULL, ts TEXT NOT NULL, lastIncident INTEGER NOT NULL, lastDecision INTEGER NOT NULL)');
+  const since = () => q.get(db, 'SELECT lastIncident AS inc, lastDecision AS dec FROM scos_resets ORDER BY id DESC LIMIT 1') || { inc: 0, dec: 0 };
+  const newInc = id => q.get(db, 'SELECT * FROM scos_new_incidents WHERE id = ? AND rowid > ?', String(id || ''), since().inc);
   const groupItems = key => catalogue.all('resourceItem').filter(i => i.doc.resourceServerGroup?.value === `urn:demo-cat:group/${key}`);
   // Read through the data exchange. Both registers are public catalogue items; if a city marks them otherwise,
   // the caller must hold a token like any other consumer (the same rule the City Intelligence Layer follows).
@@ -178,11 +183,20 @@ export function makeScos({ db, audit, catalogue, resource }) {
     },
     newIncidents(p) {
       need(['operator', 'admin', 'auditor'].includes(p.role), p.role === 'anonymous' ? 401 : 403, 'new incidents are for the control room, administrators and auditors');
-      return q.all(db, 'SELECT * FROM scos_new_incidents ORDER BY id DESC LIMIT 100');
+      return q.all(db, 'SELECT * FROM scos_new_incidents WHERE rowid > ? ORDER BY id DESC LIMIT 100', since().inc);
+    },
+    resetDemo(p) {
+      need(['operator', 'admin'].includes(p.role), p.role === 'anonymous' ? 401 : 403, 'only the ICCC operator or the administrator may reset the SCOS demo');
+      const ts = iso(Date.now()), actor = actorOf(p), s0 = since();
+      const n = { incidents: q.get(db, 'SELECT COUNT(*) AS n FROM scos_new_incidents WHERE rowid > ?', s0.inc).n, decisions: q.get(db, 'SELECT COUNT(*) AS n FROM scos_decisions WHERE id > ?', s0.dec).n };
+      q.run(db, 'INSERT INTO scos_resets (actor, ts, lastIncident, lastDecision) VALUES (?,?,?,?)', actor, ts,
+        q.get(db, 'SELECT COALESCE(MAX(rowid), 0) AS n FROM scos_new_incidents').n, q.get(db, 'SELECT COALESCE(MAX(id), 0) AS n FROM scos_decisions').n);
+      audit.log('SCOS', actor, 'Demo reset', `${n.incidents} new incidents and ${n.decisions} task decisions hidden from the SCOS screens; earlier audit entries are kept`);
+      return { ts, hidden: n, note: 'Hidden from the SCOS screens only. Nothing was deleted and the audit log keeps every earlier entry.' };
     },
     decisions(p, query = {}) {
       need(['operator', 'admin', 'auditor'].includes(p.role), p.role === 'anonymous' ? 401 : 403, 'the decision record is for the control room, administrators and auditors');
-      return q.all(db, 'SELECT * FROM scos_decisions ORDER BY id DESC LIMIT ?', Math.min(500, Number(query.limit) || 100));
+      return q.all(db, 'SELECT * FROM scos_decisions WHERE id > ? ORDER BY id DESC LIMIT ?', since().dec, Math.min(500, Number(query.limit) || 100));
     },
   };
 }
@@ -209,6 +223,7 @@ export function scosOpenapi() {
         responses: { ...ok('Trace: affected services, links used, suggested actions, incidents behind them'), ...err } } },
       '/scos/v1/new-incidents': { get: { tags: ['SCOS'], summary: 'New incidents entered by the control room (research demo), newest first', responses: { ...ok('New incidents', { type: 'array', items: { type: 'object' } }), ...err } },
         post: { tags: ['SCOS'], summary: 'Enter a new incident (control room only): title, date, area, description, source, start (first failed service). Returns the trace on the frozen map. Not added to the map.', responses: { ...ok('New incident and its trace'), ...err } } },
+      '/scos/v1/reset-demo': { post: { tags: ['SCOS'], summary: 'Reset the SCOS demo (operator or admin): hide earlier new incidents and decisions from the SCOS screens. Nothing is deleted; the audit log keeps every entry.', responses: { ...ok('Reset'), ...err } } },
       '/scos/v1/incidents': { get: { tags: ['SCOS'], summary: 'The past incidents in the register, oldest first, with how many links each supports', responses: ok('Incidents', { type: 'array', items: { type: 'object' } }) } },
       '/scos/v1/incident': { get: { tags: ['SCOS'], summary: 'One past incident: register row, reported steps, news sources and the links it supports', parameters: [{ name: 'id', in: 'query', required: true, schema: { type: 'string', example: 'KI-045' } }], responses: { ...ok('Incident page data'), ...err } } },
       '/scos/v1/scenarios': { get: { tags: ['SCOS'], summary: 'The three demonstration scenarios with their trace sizes', responses: ok('Scenarios', { type: 'array', items: { type: 'object' } }) } },

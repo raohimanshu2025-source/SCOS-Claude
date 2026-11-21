@@ -78,6 +78,28 @@ function passwordScreen() {
   $('#pf').onsubmit = async e => { e.preventDefault(); const f = new FormData(e.target); const r = await api('POST', '/auth/v1/password', { old: f.get('old'), new: f.get('new') }); if (!r.ok) { $('#pe').textContent = r.body.error; return; } toast('Password changed. Log in again.'); setTimeout(() => location.reload(), 1200); };
 }
 
+// SCOS cascade picture for the console: one column per step, one box per service, one arrow per link used.
+// Same drawing as the portal's dependency section (scos.js); only links returned by the trace are drawn.
+function scosDiagram(tr, hi = false) {
+  const byStep = []; for (const a of tr.affected) (byStep[a.step] ||= []).push(a);
+  const CW = 230, BW = 160, BH = 44, RH = 58, top = 26, pos = new Map();
+  byStep.forEach((list, k) => list.forEach((a, i) => pos.set(a.code, { x: 10 + k * CW, y: top + i * RH, a })));
+  const W = 10 + byStep.length * CW, H = top + Math.max(...byStep.map(l => l.length)) * RH + 30, into = {};
+  const edges = tr.links.map(l => {
+    const p = pos.get(l.from), q = pos.get(l.to); if (!p || !q) return '';
+    const fwd = q.x > p.x, x1 = fwd ? p.x + BW : p.x + BW / 2, y1 = fwd ? p.y + BH / 2 : p.y + BH, x2 = fwd ? q.x : q.x + BW / 2, y2 = fwd ? q.y + BH / 2 : q.y + BH;
+    const d = fwd ? `M${x1},${y1} C${x1 + 22},${y1} ${x2 - 22},${y2} ${x2 - 4},${y2}` : `M${x1},${y1} C${x1},${y1 + 34} ${x2},${y2 + 34} ${x2},${y2 + 4}`;
+    const n = (into[l.to] = (into[l.to] || 0) + 1) - 1, mx = fwd ? x2 - 40 : (x1 + x2) / 2, my = fwd ? y2 - 6 - 12 * n : Math.max(y1, y2) + 22 + 12 * n;
+    return `<g class="sx-e${l.crossBoundary ? ' hand' : ''}"><path d="${d}" marker-end="url(#cx-ah${l.crossBoundary ? 'h' : ''})"><title>${esc(`${l.fromName} → ${l.toName} (${l.linkId}, seen in ${l.incidents} incidents${l.crossBoundary ? `, hand-over ${l.ownerFrom} → ${l.ownerTo}` : ''})`)}</title></path><text x="${mx.toFixed(0)}" y="${my.toFixed(0)}" text-anchor="middle">${esc(l.linkId)}</text></g>`;
+  }).join('');
+  const cut = (s, n) => (s.length > n ? s.slice(0, n - 1) + '…' : s);
+  const owner = a => (a.trigger && a.step === 0 && /no owner|IMD/.test(a.owner) ? 'no owner' : a.owner || '');
+  const nodes = [...pos.values()].map(({ x, y, a }) => `<g class="sx-v${a.step === 0 ? ' first' : ''}"><rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="9"/><text x="${x + 8}" y="${y + 18}" class="n">${esc(cut(a.name, 22))}</text><text x="${x + 8}" y="${y + 34}" class="o">${esc(cut(owner(a), 26))}</text><title>${esc(a.name + ' · ' + owner(a))}</title></g>`).join('');
+  const heads = byStep.map((_, k) => `<text class="sx-col-h" x="${10 + k * CW}" y="16">${k === 0 ? (hi ? 'पहली विफलता' : 'First failure') : (hi ? 'कदम ' : 'Step ') + k}</text>`).join('');
+  const mk = (id, c) => `<marker id="${id}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" class="${c}"/></marker>`;
+  return `<div class="sx-anim"><svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="How the failure may spread, step by step"><defs>${mk('cx-ah', 'sx-ah')}${mk('cx-ahh', 'sx-ah hand')}</defs>${heads}${edges}${nodes}</svg></div><p class="hint">${hi ? 'नारंगी तीर: दो विभागों के बीच हैंड-ओवर। धूसर तीर: वही विभाग या ख़तरा। तीर पर माउस ले जाएँ: कड़ी और उसके पीछे की पिछली घटनाओं की संख्या।' : 'Amber arrow: hand-over between two departments. Grey arrow: same department or a hazard. Hover an arrow for its link and the number of past incidents behind it.'}</p>`;
+}
+
 const VIEWS = {
   async home(m) {
     const [st, cat] = await Promise.all([api('GET', '/status/v1/heartbeat'), api('GET', '/catalogue/v1/count')]);
@@ -285,49 +307,69 @@ const VIEWS = {
   // departments for a scenario and approves, holds or rejects each one. Nothing is sent to any department; every
   // decision is written to the signed audit log.
   async scos(m) {
-    const canDecide = ME.role === 'operator';
+    const canDecide = ME.role === 'operator', canReset = ['operator', 'admin'].includes(ME.role);
+    // English or Hindi for this screen (button at the top). Data from the registers (service and department names) stays as recorded.
+    const hi = m.dataset.lang === 'hi', L = (en, h) => (hi ? h : en);
     const [ab, sc, dec, ni, sv] = await Promise.all([api('GET', '/scos/v1'), api('GET', '/scos/v1/scenarios'), api('GET', '/scos/v1/decisions'), api('GET', '/scos/v1/new-incidents'), api('GET', '/scos/v1/services')]);
-    const head = `<div class="view-head"><h2>SCOS tasks <span class="pill demo">research addition</span></h2><p>The SCOS layer follows the dependency links coded from past incidents and suggests which department acts next. <b>Suggestions only:</b> nothing is sent to any department. ${canDecide ? 'As the control room (ICCC operator) you approve, hold or reject each suggested task. Hold and reject need a reason.' : 'Only the ICCC operator login can decide; you can read the record.'} Every decision is written to the signed audit log. This screen is our addition; the two documents do not ask for it.</p></div>`;
-    if (!ab.ok || !ab.body.counts.links) { m.innerHTML = `<div class="view">${head}${card('No link register', '<p class="hint">This city has no SCOS dependency register. Start the server with the Kanpur profile to use this screen.</p>')}</div>`; return; }
+    const langBtn = `<button class="btn sm" id="sxlang" lang="${hi ? 'en' : 'hi'}">${hi ? 'English' : 'हिंदी'}</button>`;
+    const resetBtn = canReset ? ` <button class="btn sm" id="sxreset">${L('Reset demo', 'डेमो रीसेट करें')}</button>` : '';
+    const head = `<div class="view-head"><h2>${L('SCOS tasks', 'SCOS कार्य')} <span class="pill demo">${L('research addition', 'शोध से जोड़ा गया')}</span></h2><div class="row">${langBtn}${resetBtn}</div><p${hi ? ' lang="hi"' : ''}>${L(`The SCOS layer follows the dependency links coded from past incidents and suggests which department acts next. <b>Suggestions only:</b> nothing is sent to any department. ${canDecide ? 'As the control room (ICCC operator) you approve, hold or reject each suggested task. Hold and reject need a reason.' : 'Only the ICCC operator login can decide; you can read the record.'} Every decision is written to the signed audit log. This screen is our addition; the two documents do not ask for it.`,
+      `SCOS परत पिछली घटनाओं से दर्ज की गई निर्भरता कड़ियों को आगे बढ़ाती है और सुझाव देती है कि आगे कौन-सा विभाग काम करे। <b>सिर्फ़ सुझाव:</b> किसी विभाग को कुछ नहीं भेजा जाता। ${canDecide ? 'कंट्रोल रूम (ICCC ऑपरेटर) के रूप में आप हर सुझाए गए काम को मंज़ूर करें, रोकें या अस्वीकार करें। रोकने और अस्वीकार करने के लिए कारण ज़रूरी है।' : 'सिर्फ़ ICCC ऑपरेटर लॉगिन फ़ैसला कर सकता है; आप रिकॉर्ड पढ़ सकते हैं।'} हर फ़ैसला हस्ताक्षरित ऑडिट लॉग में लिखा जाता है। यह स्क्रीन हमारा जोड़ है; दोनों दस्तावेज़ इसे नहीं माँगते।`)}</p></div>`;
+    const wire = () => {
+      const lb = $('#sxlang'); if (lb) lb.onclick = () => { m.dataset.lang = hi ? 'en' : 'hi'; VIEWS.scos(m); };
+      const rb = $('#sxreset'); if (rb) rb.onclick = async () => {
+        if (!confirm(L('Reset the SCOS demo? New incidents and task decisions will be hidden from this screen. Nothing is deleted and the audit log keeps every entry.', 'SCOS डेमो रीसेट करें? नई घटनाएँ और फ़ैसले इस स्क्रीन से छिप जाएँगे। कुछ भी मिटाया नहीं जाता और ऑडिट लॉग हर प्रविष्टि रखता है।'))) return;
+        const x = await api('POST', '/scos/v1/reset-demo', {}); if (!x.ok) return toast(x.body.error || 'Reset failed');
+        toast(L(`Demo reset: ${x.body.hidden.incidents} new incidents and ${x.body.hidden.decisions} decisions hidden. The audit log keeps them.`, `डेमो रीसेट: ${x.body.hidden.incidents} नई घटनाएँ और ${x.body.hidden.decisions} फ़ैसले छिपाए गए। ऑडिट लॉग उन्हें रखता है।`)); delete m.dataset.sc; VIEWS.scos(m);
+      };
+    };
+    if (!ab.ok || !ab.body.counts.links) { m.innerHTML = `<div class="view">${head}${card('No link register', '<p class="hint">This city has no SCOS dependency register. Start the server with the Kanpur profile to use this screen.</p>')}</div>`; wire(); return; }
     // New incidents entered by the control room (research demo) appear next to the three scenarios.
     const NI = ni.ok ? ni.body : [];
-    const S = [...sc.body, ...NI.slice().reverse().map(x => ({ id: x.id, start: x.start, title: x.title, why: `New incident (entered ${x.ts.slice(0, 10)} by ${x.actor}): ${x.date}${x.area ? ', ' + x.area : ''}. ${x.description}${x.source ? ' Source: ' + x.source + '.' : ''} First failure picked by the officer: ${x.start}. Not added to the map.`, isNew: true }))];
+    const S = [...sc.body, ...NI.slice().reverse().map(x => ({ id: x.id, start: x.start, title: x.title, isNew: true,
+      why: L(`New incident (entered ${x.ts.slice(0, 10)} by ${x.actor}): ${x.date}${x.area ? ', ' + x.area : ''}. ${x.description}${x.source ? ' Source: ' + x.source + '.' : ''} First failure picked by the officer: ${x.start}. Not added to the map.`,
+        `नई घटना (${x.ts.slice(0, 10)} को ${x.actor} द्वारा दर्ज): ${x.date}${x.area ? ', ' + x.area : ''}। ${x.description}${x.source ? ' स्रोत: ' + x.source + '।' : ''} अधिकारी द्वारा चुनी गई पहली विफलता: ${x.start}। नक्शे में नहीं जोड़ी गई।`) }))];
     const pick = S.find(s => s.id === m.dataset.sc) || S[0];
     const svc = sv.ok ? sv.body : [];
     const today = new Date().toISOString().slice(0, 10);
-    const form = canDecide ? card('Enter a new incident (research demo)', `<p class="hint">Describe an incident that is <b>not</b> in the 52 past incidents of the map (for example a fresh news report). Pick the service that failed first. SCOS follows the frozen map from there and suggests who acts next. The new incident is recorded and written to the audit log, but it is <b>not</b> added to the map.</p>
-      <details${pick.isNew ? '' : ' open'}><summary>${pick.isNew ? 'Enter another new incident' : 'New incident form'}</summary><form id="sxn" class="col">
-        <div class="row"><label class="f">Short title<input name="title" required maxlength="160" size="40" placeholder="e.g. Water main damaged during digging"></label><label class="f">Date<input name="date" type="date" required value="${today}"></label><label class="f">Area<input name="area" maxlength="120" placeholder="e.g. Kalyanpur"></label></div>
-        <label class="f">First failed service<select name="start" required>${svc.map(x => `<option value="${esc(x.code)}">${esc(x.name)} (${esc(x.code)})</option>`).join('')}</select></label>
-        <label class="f">What happened (as reported)<textarea name="description" required maxlength="2000" rows="3"></textarea></label>
-        <label class="f">Source (news report or note)<input name="source" maxlength="300" placeholder="e.g. Demo example, made up for the demo"></label>
-        <button class="btn primary" type="submit">Enter incident and trace</button>
+    const form = canDecide ? card(L('Enter a new incident (research demo)', 'नई घटना दर्ज करें (शोध डेमो)'), `<p class="hint"${hi ? ' lang="hi"' : ''}>${L('Describe an incident that is <b>not</b> in the 52 past incidents of the map (for example a fresh news report). Pick the service that failed first. SCOS follows the frozen map from there and suggests who acts next. The new incident is recorded and written to the audit log, but it is <b>not</b> added to the map.',
+        'ऐसी घटना लिखें जो नक्शे की 52 पिछली घटनाओं में <b>नहीं</b> है (जैसे कोई ताज़ा ख़बर)। वह सेवा चुनें जो सबसे पहले विफल हुई। SCOS वहाँ से स्थिर (फ़्रोज़न) नक्शे पर आगे बढ़ता है और बताता है कि आगे कौन काम करे। नई घटना दर्ज होती है और ऑडिट लॉग में लिखी जाती है, पर नक्शे में <b>नहीं</b> जोड़ी जाती।')}</p>
+      <details${pick.isNew ? '' : ' open'}><summary>${pick.isNew ? L('Enter another new incident', 'एक और नई घटना दर्ज करें') : L('New incident form', 'नई घटना का फ़ॉर्म')}</summary><form id="sxn" class="col">
+        <div class="row"><label class="f">${L('Short title', 'छोटा शीर्षक')}<input name="title" required maxlength="160" size="40" placeholder="${L('e.g. Water main damaged during digging', 'जैसे खुदाई में पानी की मुख्य लाइन टूटी')}"></label><label class="f">${L('Date', 'तारीख़')}<input name="date" type="date" required value="${today}"></label><label class="f">${L('Area', 'इलाका')}<input name="area" maxlength="120" placeholder="${L('e.g. Kalyanpur', 'जैसे कल्याणपुर')}"></label></div>
+        <label class="f">${L('First failed service', 'सबसे पहले विफल सेवा')}<select name="start" required>${svc.map(x => `<option value="${esc(x.code)}">${esc(x.name)} (${esc(x.code)})</option>`).join('')}</select></label>
+        <label class="f">${L('What happened (as reported)', 'क्या हुआ (जैसा बताया गया)')}<textarea name="description" required maxlength="2000" rows="3"></textarea></label>
+        <label class="f">${L('Source (news report or note)', 'स्रोत (ख़बर या नोट)')}<input name="source" maxlength="300" placeholder="${L('e.g. Demo example, made up for the demo', 'जैसे डेमो उदाहरण, डेमो के लिए बनाया गया')}"></label>
+        <button class="btn primary" type="submit">${L('Enter incident and trace', 'घटना दर्ज करें और ट्रेस देखें')}</button>
       </form></details><div id="sxno"></div>`) : '';
     const t = await api('POST', '/scos/v1/trace', { start: pick.start });
     const rec = dec.ok ? dec.body : [];
     const last = a => rec.find(d => d.scenario === pick.id && d.service === a.service && d.department === a.department);
-    const cls = { approve: 'ok', hold: 'held', reject: 'bad' }, word = { approve: 'approved', hold: 'on hold', reject: 'rejected' };
-    const rows = t.body.actions.map(a => { const d = last(a); return `<tr><td>${a.order}</td><td>${a.step === 0 ? 'first failure' : 'step ' + a.step}</td><td><b>${esc(a.department)}</b><br><span class="hint">${esc(a.serviceName)} (${esc(a.service)})</span></td><td>${a.via ? `<span class="mono">${esc(a.via)}</span>` : '—'}</td><td>${d ? pill(word[d.decision], cls[d.decision]) + `<br><span class="hint">${esc(d.actor)}, ${esc(d.ts.slice(0, 16).replace('T', ' '))}${d.reason ? '<br>' + esc(d.reason) : ''}</span>` : pill('suggested', 'pending')}</td><td>${canDecide ? `<button class="btn primary sm" data-d="approve" data-o="${a.order}">Approve</button> <button class="btn sm" data-d="hold" data-o="${a.order}">Hold</button> <button class="btn danger sm" data-d="reject" data-o="${a.order}">Reject</button>` : ''}</td></tr>`; }).join('');
+    const cls = { approve: 'ok', hold: 'held', reject: 'bad' }, word = { approve: L('approved', 'मंज़ूर'), hold: L('on hold', 'रोका गया'), reject: L('rejected', 'अस्वीकार') };
+    const rows = t.body.actions.map(a => { const d = last(a); return `<tr><td>${a.order}</td><td>${a.step === 0 ? L('first failure', 'पहली विफलता') : L('step ', 'कदम ') + a.step}</td><td><b>${esc(a.department)}</b><br><span class="hint">${esc(a.serviceName)} (${esc(a.service)})</span></td><td>${a.via ? `<span class="mono">${esc(a.via)}</span>` : '—'}</td><td>${d ? pill(word[d.decision], cls[d.decision]) + `<br><span class="hint">${esc(d.actor)}, ${esc(d.ts.slice(0, 16).replace('T', ' '))}${d.reason ? '<br>' + esc(d.reason) : ''}</span>` : pill(L('suggested', 'सुझाया गया'), 'pending')}</td><td>${canDecide ? `<button class="btn primary sm" data-d="approve" data-o="${a.order}">${L('Approve', 'मंज़ूर')}</button> <button class="btn sm" data-d="hold" data-o="${a.order}">${L('Hold', 'रोकें')}</button> <button class="btn danger sm" data-d="reject" data-o="${a.order}">${L('Reject', 'अस्वीकार')}</button>` : ''}</td></tr>`; }).join('');
+    const tb = t.body;
     m.innerHTML = `<div class="view">${head}
       ${form}
-      ${card('Scenario or new incident', `<div class="row">${S.map(s => `<button class="btn${s.id === pick.id ? ' primary' : ''}" data-sc="${esc(s.id)}" aria-pressed="${s.id === pick.id}">${esc(s.id)} · ${esc(s.title)}</button>`).join('')}</div><p class="hint">${pick.isNew ? '<span class="pill demo">new incident</span> ' : ''}${esc(pick.why)} Trace: ${t.body.affected.length} services reached in up to ${t.body.steps} steps, using ${t.body.links.length} links seen in ${t.body.minIncidents} or more past incidents (${t.body.crossBoundaryLinks} are hand-overs between departments), backed by ${t.body.incidents.length} news-reported incidents. All links are evidence level C1.</p>`)}
-      ${card('Who acts next (suggested order)', `<div class="tbl-wrap"><table><tr><th>#</th><th>When</th><th>Department and service</th><th>Link</th><th>Decision</th><th></th></tr>${rows}</table></div><div id="sxo"></div>`)}
-      ${card('Decision record (latest 100)', rec.length ? table(rec.map(d => ({ time: d.ts, scenario: d.scenario, task: `${d.service} → ${d.department}`, link: d.via || '', decision: d.decision, reason: d.reason || '', officer: d.actor }))) : '<p class="hint">No decisions yet.</p>')}
-      ${card('Where this comes from', `<p class="small">${esc(ab.body.note)}</p><p class="small">Open data: <a href="/#deps">dependency explorer on the portal</a> · <a href="/developers.html">developer page</a> · <a href="/scos/v1/openapi">OpenAPI</a></p>`)}</div>`;
+      ${card(L('Scenario or new incident', 'परिदृश्य या नई घटना'), `<div class="row">${S.map(s => `<button class="btn${s.id === pick.id ? ' primary' : ''}" data-sc="${esc(s.id)}" aria-pressed="${s.id === pick.id}">${esc(s.id)} · ${esc(s.title)}</button>`).join('')}</div><p class="hint">${pick.isNew ? `<span class="pill demo">${L('new incident', 'नई घटना')}</span> ` : ''}${esc(pick.why)} ${L(`Trace: ${tb.affected.length} services reached in up to ${tb.steps} steps, using ${tb.links.length} links seen in ${tb.minIncidents} or more past incidents (${tb.crossBoundaryLinks} are hand-overs between departments), backed by ${tb.incidents.length} news-reported incidents. All links are evidence level C1.`,
+        `ट्रेस: ${tb.steps} कदमों तक ${tb.affected.length} सेवाएँ प्रभावित, ${tb.links.length} कड़ियों से जो ${tb.minIncidents} या अधिक पिछली घटनाओं में देखी गईं (${tb.crossBoundaryLinks} विभागों के बीच हैंड-ओवर), ${tb.incidents.length} ख़बरों वाली घटनाओं पर आधारित। सभी कड़ियाँ साक्ष्य स्तर C1।`)}</p>`)}
+      ${card(L('How the failure may spread (from the frozen map)', 'विफलता कैसे फैल सकती है (स्थिर नक्शे से)'), scosDiagram(tb, hi))}
+      ${card(L('Who acts next (suggested order)', 'आगे कौन काम करे (सुझाया गया क्रम)'), `<div class="tbl-wrap"><table><tr><th>#</th><th>${L('When', 'कब')}</th><th>${L('Department and service', 'विभाग और सेवा')}</th><th>${L('Link', 'कड़ी')}</th><th>${L('Decision', 'फ़ैसला')}</th><th></th></tr>${rows}</table></div><div id="sxo"></div>`)}
+      ${card(L('Decision record (latest 100)', 'फ़ैसलों का रिकॉर्ड (नवीनतम 100)'), rec.length ? table(rec.map(d => ({ time: d.ts, scenario: d.scenario, task: `${d.service} → ${d.department}`, link: d.via || '', decision: d.decision, reason: d.reason || '', officer: d.actor }))) : `<p class="hint">${L('No decisions yet.', 'अभी कोई फ़ैसला नहीं।')}</p>`)}
+      ${card(L('Where this comes from', 'यह कहाँ से आता है'), `<p class="small">${esc(ab.body.note)}</p><p class="small">Open data: <a href="/#deps">dependency explorer on the portal</a> · <a href="/developers.html">developer page</a> · <a href="/scos/v1/openapi">OpenAPI</a></p>`)}</div>`;
+    wire();
     m.querySelectorAll('[data-sc]').forEach(b => { b.onclick = () => { m.dataset.sc = b.dataset.sc; VIEWS.scos(m); }; });
     const fm = $('#sxn'); if (fm) fm.onsubmit = async e => {
       e.preventDefault();
       const x = await api('POST', '/scos/v1/new-incidents', Object.fromEntries(new FormData(fm)));
       if (!x.ok) return out($('#sxno'), x);
-      toast(`Recorded ${x.body.incident.id}. Trace shown below. It was not added to the map.`); m.dataset.sc = x.body.incident.id; VIEWS.scos(m);
+      toast(L(`Recorded ${x.body.incident.id}. Trace shown below. It was not added to the map.`, `${x.body.incident.id} दर्ज। ट्रेस नीचे है। इसे नक्शे में नहीं जोड़ा गया।`)); m.dataset.sc = x.body.incident.id; VIEWS.scos(m);
     };
     m.querySelectorAll('[data-d]').forEach(b => { b.onclick = async () => {
       const decision = b.dataset.d, order = Number(b.dataset.o);
       let reason = '';
-      if (decision !== 'approve') { reason = prompt(decision === 'hold' ? 'Why hold this task? (for the record)' : 'Why reject this task? (for the record)'); if (reason === null) return; if (!reason.trim()) return toast('A reason is needed.'); }
+      if (decision !== 'approve') { reason = prompt(decision === 'hold' ? L('Why hold this task? (for the record)', 'यह काम क्यों रोकें? (रिकॉर्ड के लिए)') : L('Why reject this task? (for the record)', 'यह काम क्यों अस्वीकार करें? (रिकॉर्ड के लिए)')); if (reason === null) return; if (!reason.trim()) return toast(L('A reason is needed.', 'कारण ज़रूरी है।')); }
       const x = await api('POST', '/scos/v1/decisions', { scenario: pick.id, order, decision, reason });
       if (!x.ok) return out($('#sxo'), x);
-      toast(`Recorded: task ${order} ${word[decision]}. Nothing was sent to the department.`); VIEWS.scos(m);
+      toast(L(`Recorded: task ${order} ${word[decision]}. Nothing was sent to the department.`, `दर्ज: काम ${order} ${word[decision]}। विभाग को कुछ नहीं भेजा गया।`)); VIEWS.scos(m);
     }; });
   },
 

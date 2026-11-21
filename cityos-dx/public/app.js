@@ -286,21 +286,41 @@ const VIEWS = {
   // decision is written to the signed audit log.
   async scos(m) {
     const canDecide = ME.role === 'operator';
-    const [ab, sc, dec] = await Promise.all([api('GET', '/scos/v1'), api('GET', '/scos/v1/scenarios'), api('GET', '/scos/v1/decisions')]);
+    const [ab, sc, dec, ni, sv] = await Promise.all([api('GET', '/scos/v1'), api('GET', '/scos/v1/scenarios'), api('GET', '/scos/v1/decisions'), api('GET', '/scos/v1/new-incidents'), api('GET', '/scos/v1/services')]);
     const head = `<div class="view-head"><h2>SCOS tasks <span class="pill demo">research addition</span></h2><p>The SCOS layer follows the dependency links coded from past incidents and suggests which department acts next. <b>Suggestions only:</b> nothing is sent to any department. ${canDecide ? 'As the control room (ICCC operator) you approve, hold or reject each suggested task. Hold and reject need a reason.' : 'Only the ICCC operator login can decide; you can read the record.'} Every decision is written to the signed audit log. This screen is our addition; the two documents do not ask for it.</p></div>`;
     if (!ab.ok || !ab.body.counts.links) { m.innerHTML = `<div class="view">${head}${card('No link register', '<p class="hint">This city has no SCOS dependency register. Start the server with the Kanpur profile to use this screen.</p>')}</div>`; return; }
-    const S = sc.body; const pick = S.find(s => s.id === m.dataset.sc) || S[0];
+    // New incidents entered by the control room (research demo) appear next to the three scenarios.
+    const NI = ni.ok ? ni.body : [];
+    const S = [...sc.body, ...NI.slice().reverse().map(x => ({ id: x.id, start: x.start, title: x.title, why: `New incident (entered ${x.ts.slice(0, 10)} by ${x.actor}): ${x.date}${x.area ? ', ' + x.area : ''}. ${x.description}${x.source ? ' Source: ' + x.source + '.' : ''} First failure picked by the officer: ${x.start}. Not added to the map.`, isNew: true }))];
+    const pick = S.find(s => s.id === m.dataset.sc) || S[0];
+    const svc = sv.ok ? sv.body : [];
+    const today = new Date().toISOString().slice(0, 10);
+    const form = canDecide ? card('Enter a new incident (research demo)', `<p class="hint">Describe an incident that is <b>not</b> in the 52 past incidents of the map (for example a fresh news report). Pick the service that failed first. SCOS follows the frozen map from there and suggests who acts next. The new incident is recorded and written to the audit log, but it is <b>not</b> added to the map.</p>
+      <details${pick.isNew ? '' : ' open'}><summary>${pick.isNew ? 'Enter another new incident' : 'New incident form'}</summary><form id="sxn" class="col">
+        <div class="row"><label class="f">Short title<input name="title" required maxlength="160" size="40" placeholder="e.g. Water main damaged during digging"></label><label class="f">Date<input name="date" type="date" required value="${today}"></label><label class="f">Area<input name="area" maxlength="120" placeholder="e.g. Kalyanpur"></label></div>
+        <label class="f">First failed service<select name="start" required>${svc.map(x => `<option value="${esc(x.code)}">${esc(x.name)} (${esc(x.code)})</option>`).join('')}</select></label>
+        <label class="f">What happened (as reported)<textarea name="description" required maxlength="2000" rows="3"></textarea></label>
+        <label class="f">Source (news report or note)<input name="source" maxlength="300" placeholder="e.g. Demo example, made up for the demo"></label>
+        <button class="btn primary" type="submit">Enter incident and trace</button>
+      </form></details><div id="sxno"></div>`) : '';
     const t = await api('POST', '/scos/v1/trace', { start: pick.start });
     const rec = dec.ok ? dec.body : [];
     const last = a => rec.find(d => d.scenario === pick.id && d.service === a.service && d.department === a.department);
     const cls = { approve: 'ok', hold: 'held', reject: 'bad' }, word = { approve: 'approved', hold: 'on hold', reject: 'rejected' };
     const rows = t.body.actions.map(a => { const d = last(a); return `<tr><td>${a.order}</td><td>${a.step === 0 ? 'first failure' : 'step ' + a.step}</td><td><b>${esc(a.department)}</b><br><span class="hint">${esc(a.serviceName)} (${esc(a.service)})</span></td><td>${a.via ? `<span class="mono">${esc(a.via)}</span>` : '—'}</td><td>${d ? pill(word[d.decision], cls[d.decision]) + `<br><span class="hint">${esc(d.actor)}, ${esc(d.ts.slice(0, 16).replace('T', ' '))}${d.reason ? '<br>' + esc(d.reason) : ''}</span>` : pill('suggested', 'pending')}</td><td>${canDecide ? `<button class="btn primary sm" data-d="approve" data-o="${a.order}">Approve</button> <button class="btn sm" data-d="hold" data-o="${a.order}">Hold</button> <button class="btn danger sm" data-d="reject" data-o="${a.order}">Reject</button>` : ''}</td></tr>`; }).join('');
     m.innerHTML = `<div class="view">${head}
-      ${card('Scenario', `<div class="row">${S.map(s => `<button class="btn${s.id === pick.id ? ' primary' : ''}" data-sc="${s.id}" aria-pressed="${s.id === pick.id}">${esc(s.id)} · ${esc(s.title)}</button>`).join('')}</div><p class="hint">${esc(pick.why)} Trace: ${t.body.affected.length} services reached in up to ${t.body.steps} steps, using ${t.body.links.length} links seen in ${t.body.minIncidents} or more past incidents (${t.body.crossBoundaryLinks} are hand-overs between departments), backed by ${t.body.incidents.length} news-reported incidents. All links are evidence level C1.</p>`)}
+      ${form}
+      ${card('Scenario or new incident', `<div class="row">${S.map(s => `<button class="btn${s.id === pick.id ? ' primary' : ''}" data-sc="${esc(s.id)}" aria-pressed="${s.id === pick.id}">${esc(s.id)} · ${esc(s.title)}</button>`).join('')}</div><p class="hint">${pick.isNew ? '<span class="pill demo">new incident</span> ' : ''}${esc(pick.why)} Trace: ${t.body.affected.length} services reached in up to ${t.body.steps} steps, using ${t.body.links.length} links seen in ${t.body.minIncidents} or more past incidents (${t.body.crossBoundaryLinks} are hand-overs between departments), backed by ${t.body.incidents.length} news-reported incidents. All links are evidence level C1.</p>`)}
       ${card('Who acts next (suggested order)', `<div class="tbl-wrap"><table><tr><th>#</th><th>When</th><th>Department and service</th><th>Link</th><th>Decision</th><th></th></tr>${rows}</table></div><div id="sxo"></div>`)}
       ${card('Decision record (latest 100)', rec.length ? table(rec.map(d => ({ time: d.ts, scenario: d.scenario, task: `${d.service} → ${d.department}`, link: d.via || '', decision: d.decision, reason: d.reason || '', officer: d.actor }))) : '<p class="hint">No decisions yet.</p>')}
       ${card('Where this comes from', `<p class="small">${esc(ab.body.note)}</p><p class="small">Open data: <a href="/#deps">dependency explorer on the portal</a> · <a href="/developers.html">developer page</a> · <a href="/scos/v1/openapi">OpenAPI</a></p>`)}</div>`;
     m.querySelectorAll('[data-sc]').forEach(b => { b.onclick = () => { m.dataset.sc = b.dataset.sc; VIEWS.scos(m); }; });
+    const fm = $('#sxn'); if (fm) fm.onsubmit = async e => {
+      e.preventDefault();
+      const x = await api('POST', '/scos/v1/new-incidents', Object.fromEntries(new FormData(fm)));
+      if (!x.ok) return out($('#sxno'), x);
+      toast(`Recorded ${x.body.incident.id}. Trace shown below. It was not added to the map.`); m.dataset.sc = x.body.incident.id; VIEWS.scos(m);
+    };
     m.querySelectorAll('[data-d]').forEach(b => { b.onclick = async () => {
       const decision = b.dataset.d, order = Number(b.dataset.o);
       let reason = '';
@@ -381,12 +401,13 @@ const VIEWS = {
 
   async ops(m) {
     const admin = ME.role === 'admin'; // only the administrator may list backups (GET /ops/v1/backups answers 403 to others)
-    const [au, ver, st, bk] = await Promise.all([api('GET', '/ops/v1/audit?limit=100'), api('GET', '/ops/v1/audit/verify'), api('GET', '/ops/v1/stats'), admin ? api('GET', '/ops/v1/backups') : null]);
+    const [au, ver, st, bk] = await Promise.all([api('GET', '/ops/v1/audit?limit=100' + (m.dataset.iface ? '&iface=' + encodeURIComponent(m.dataset.iface) : '')), api('GET', '/ops/v1/audit/verify'), api('GET', '/ops/v1/stats'), admin ? api('GET', '/ops/v1/backups') : null]);
     m.innerHTML = `<div class="view"><div class="view-head"><h2>Operations and audit</h2><p>Signed audit log, statistics, backups and service drills (BIS 5.5, 5.6).</p></div>
-      ${card('Audit log', `<p>${ver.body.ok ? pill('chain verified', 'ok') + ` ${ver.body.checked} entries, hash chain and Ed25519 signatures intact` : pill('broken', 'bad') + ' at entry ' + esc(ver.body.brokenAt) + ': ' + esc(ver.body.reason)}</p>${table(au.body.map(a => ({ seq: a.seq, time: a.ts, interface: a.iface, actor: a.actor, action: a.action, detail: a.detail, ok: a.ok ? 'yes' : 'refused' })))}`, 'BIS-11 BIS-77')}
+      ${card('Audit log', `<p>${ver.body.ok ? pill('chain verified', 'ok') + ` ${ver.body.checked} entries, hash chain and Ed25519 signatures intact` : pill('broken', 'bad') + ' at entry ' + esc(ver.body.brokenAt) + ': ' + esc(ver.body.reason)}</p><div class="row"><span class="hint">Show:</span>${[['', 'All entries'], ['SCOS', 'SCOS only (new incidents and task decisions)']].map(([k, l]) => `<button class="btn sm${(m.dataset.iface || '') === k ? ' primary' : ''}" data-if="${k}">${l}</button>`).join('')}</div>${table(au.body.map(a => ({ seq: a.seq, time: a.ts, interface: a.iface, actor: a.actor, action: a.action, detail: a.detail, ok: a.ok ? 'yes' : 'refused' })))}`, 'BIS-11 BIS-77')}
       ${card('Statistics by interface', table(st.body.audit), 'BIS-77')}
       ${admin ? card('Backups', `<button class="btn primary" id="bb">Take backup now</button><div id="bo"></div>${table(bk.body)}`, 'BIS-78') : ''}
       ${admin ? card('Service drills', `<p class="hint">Pause a service to test the failure handling in BIS 5.6. Remember to resume it.</p><div class="row">${['authorization', 'notification', 'cil', 'urn:demo-cat:rs/rs1', 'urn:demo-cat:rs/rs2'].map(s => `<button class="btn sm" data-s="${s}" data-u="0">Pause ${s}</button><button class="btn sm" data-s="${s}" data-u="1">Resume</button>`).join('')}</div><div id="so"></div>`, 'BIS-80 BIS-83') : ''}</div>`;
+    m.querySelectorAll('[data-if]').forEach(b => { b.onclick = () => { m.dataset.iface = b.dataset.if; VIEWS.ops(m); }; });
     if (admin) {
       $('#bb').onclick = async () => { out($('#bo'), await api('POST', '/ops/v1/backup', { label: 'console' })); };
       m.querySelector('[data-s]').parentElement.onclick = async e => { const b = e.target.closest('[data-s]'); if (!b) return; out($('#so'), await api('POST', '/ops/v1/service', { service: b.dataset.s, up: b.dataset.u === '1' })); };

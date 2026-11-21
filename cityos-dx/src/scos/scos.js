@@ -5,7 +5,9 @@
 //   - the link register and a per-service / per-department explorer (upstream, downstream, owners, evidence),
 //   - a cascade trace: from a first failure, follow the links step by step (plain rules, no machine learning),
 //   - the order in which departments are reached ("who acts next"), as a suggestion only,
-//   - officer decisions (approve, hold, reject) on those suggestions, recorded in the signed audit log.
+//   - officer decisions (approve, hold, reject) on those suggestions, recorded in the signed audit log,
+//   - new incidents entered by the control room (research demo): the trace runs on the frozen map from the first
+//     failure the officer picks; the new incident is recorded but never added to the map or the past-incident register.
 // Every link is evidence level C1 (news, one source family, single coder, not checked by hand). Nothing here is
 // validated; the sealed-incident test and officer checks in the thesis method are still to come.
 import { q } from '../db.js';
@@ -31,6 +33,9 @@ const cleanOwner = s => String(s || '').replace(/\s*\([^)]*\)/g, '').trim();
 export function makeScos({ db, audit, catalogue, resource }) {
   q.run(db, `CREATE TABLE IF NOT EXISTS scos_decisions (id INTEGER PRIMARY KEY AUTOINCREMENT, scenario TEXT NOT NULL, step INTEGER NOT NULL,
     service TEXT NOT NULL, department TEXT NOT NULL, via TEXT, decision TEXT NOT NULL, reason TEXT, actor TEXT NOT NULL, ts TEXT NOT NULL)`);
+  q.run(db, `CREATE TABLE IF NOT EXISTS scos_new_incidents (id TEXT PRIMARY KEY, title TEXT NOT NULL, date TEXT NOT NULL, area TEXT,
+    description TEXT NOT NULL, source TEXT, start TEXT NOT NULL, actor TEXT NOT NULL, ts TEXT NOT NULL)`);
+  const newInc = id => q.get(db, 'SELECT * FROM scos_new_incidents WHERE id = ?', String(id || ''));
   const groupItems = key => catalogue.all('resourceItem').filter(i => i.doc.resourceServerGroup?.value === `urn:demo-cat:group/${key}`);
   // Read through the data exchange. Both registers are public catalogue items; if a city marks them otherwise,
   // the caller must hold a token like any other consumer (the same rule the City Intelligence Layer follows).
@@ -143,7 +148,9 @@ export function makeScos({ db, audit, catalogue, resource }) {
     scenarios(p) { return SCENARIOS.map(s => { const t = this.trace(p, { start: s.start }); return { ...s, affected: t.affected.length, links: t.links.length, crossBoundaryLinks: t.crossBoundaryLinks, incidents: t.incidents.length }; }); },
     decide(p, body = {}) {
       need(p.role === 'operator', p.role === 'anonymous' ? 401 : 403, 'only the ICCC operator (control room) may approve, hold or reject a suggested task');
-      const sc = SCENARIOS.find(s => s.id === body.scenario) || (body.start && { id: 'custom', start: String(body.start).toUpperCase() }); need(sc, 400, 'scenario must be S1, S2 or S3, or give start');
+      const ni = /^NEW-\d{3}$/.test(String(body.scenario || '')) ? newInc(body.scenario) : null;
+      const sc = SCENARIOS.find(s => s.id === body.scenario) || (ni && { id: ni.id, start: ni.start }) || (body.start && { id: 'custom', start: String(body.start).toUpperCase() });
+      need(sc, 400, 'scenario must be S1, S2, S3, a new incident (NEW-001) or give start');
       need(DECISIONS.includes(body.decision), 400, 'decision must be approve, hold or reject');
       const t = this.trace(p, { start: sc.start, steps: body.steps, minIncidents: body.minIncidents });
       const a = t.actions.find(x => x.order === Number(body.order)); need(a, 404, 'no suggested task with that order number in this trace');
@@ -153,6 +160,25 @@ export function makeScos({ db, audit, catalogue, resource }) {
       const r = q.run(db, 'INSERT INTO scos_decisions (scenario, step, service, department, via, decision, reason, actor, ts) VALUES (?,?,?,?,?,?,?,?,?)', sc.id, a.step, a.service, a.department, a.via, body.decision, reason, actor, ts);
       audit.log('SCOS', actor, `Task ${body.decision}`, `${sc.id} #${a.order} ${a.service} -> ${a.department}${a.via ? ' via ' + a.via : ''}${reason ? ': ' + reason : ''}`);
       return { id: Number(r.lastInsertRowid), scenario: sc.id, ...a, decision: body.decision, reason, decidedBy: actor, ts, note: 'Recorded only. SCOS does not send anything to the department.' };
+    },
+    // A new incident entered by the control room (research demo). The officer describes it in words and picks the
+    // first failed service; SCOS traces the frozen map from there. The incident is not coded into the map, so the map
+    // stays the same for every incident entered after the map was frozen (the forward test in the thesis method).
+    addIncident(p, body = {}) {
+      need(p.role === 'operator', p.role === 'anonymous' ? 401 : 403, 'only the ICCC operator (control room) may enter a new incident');
+      const txt = (k, max, req) => { const v = String(body[k] ?? '').trim().slice(0, max); if (req) need(v, 400, `give ${k}`); return v; };
+      const title = txt('title', 160, true), description = txt('description', 2000, true), area = txt('area', 120), source = txt('source', 300);
+      const date = txt('date', 10, true); need(/^\d{4}-\d{2}-\d{2}$/.test(date), 400, 'date must be YYYY-MM-DD');
+      const start = String(body.start || '').toUpperCase(); need(load(p).nodes.has(start), 400, 'start: pick the first failed service from /scos/v1/services');
+      const n = q.get(db, 'SELECT COUNT(*) AS n FROM scos_new_incidents').n + 1, id = 'NEW-' + String(n).padStart(3, '0');
+      const ts = iso(Date.now()), actor = actorOf(p);
+      q.run(db, 'INSERT INTO scos_new_incidents (id, title, date, area, description, source, start, actor, ts) VALUES (?,?,?,?,?,?,?,?,?)', id, title, date, area, description, source, start, actor, ts);
+      audit.log('SCOS', actor, 'New incident entered', `${id} ${date} first failure ${start}: ${title}`);
+      return { incident: newInc(id), trace: this.trace(p, { start }), note: 'Recorded for the research demo. Not added to the dependency map or the past-incident register.' };
+    },
+    newIncidents(p) {
+      need(['operator', 'admin', 'auditor'].includes(p.role), p.role === 'anonymous' ? 401 : 403, 'new incidents are for the control room, administrators and auditors');
+      return q.all(db, 'SELECT * FROM scos_new_incidents ORDER BY id DESC LIMIT 100');
     },
     decisions(p, query = {}) {
       need(['operator', 'admin', 'auditor'].includes(p.role), p.role === 'anonymous' ? 401 : 403, 'the decision record is for the control room, administrators and auditors');
@@ -181,6 +207,8 @@ export function scosOpenapi() {
       '/scos/v1/trace': { post: { tags: ['SCOS'], summary: 'Follow the links step by step from a first failure and list who acts next (suggestion only)',
         requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['start'], properties: { start: { type: 'string', example: 'PWR' }, steps: { type: 'integer', minimum: 1, maximum: 6, default: 3 }, minIncidents: { type: 'integer', default: 2 } } } } } },
         responses: { ...ok('Trace: affected services, links used, suggested actions, incidents behind them'), ...err } } },
+      '/scos/v1/new-incidents': { get: { tags: ['SCOS'], summary: 'New incidents entered by the control room (research demo), newest first', responses: { ...ok('New incidents', { type: 'array', items: { type: 'object' } }), ...err } },
+        post: { tags: ['SCOS'], summary: 'Enter a new incident (control room only): title, date, area, description, source, start (first failed service). Returns the trace on the frozen map. Not added to the map.', responses: { ...ok('New incident and its trace'), ...err } } },
       '/scos/v1/incidents': { get: { tags: ['SCOS'], summary: 'The past incidents in the register, oldest first, with how many links each supports', responses: ok('Incidents', { type: 'array', items: { type: 'object' } }) } },
       '/scos/v1/incident': { get: { tags: ['SCOS'], summary: 'One past incident: register row, reported steps, news sources and the links it supports', parameters: [{ name: 'id', in: 'query', required: true, schema: { type: 'string', example: 'KI-045' } }], responses: { ...ok('Incident page data'), ...err } } },
       '/scos/v1/scenarios': { get: { tags: ['SCOS'], summary: 'The three demonstration scenarios with their trace sizes', responses: ok('Scenarios', { type: 'array', items: { type: 'object' } }) } },

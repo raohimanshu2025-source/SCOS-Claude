@@ -144,3 +144,26 @@ test('incident pages: steps, sources and links for each of the 52 build incident
   const js = (await c.req('GET', '/scos.js', { raw: true })).body;
   assert.match(js, /Only links from the register are drawn/, 'the scenario animation draws trace links only');
 });
+
+test('the control room can enter a new incident: it is traced on the frozen map, decided and audited, but never added to the map', async () => {
+  const body = { title: 'Water main damaged during digging (demo example)', date: '2026-11-20', area: 'Kalyanpur', description: 'Made-up demo example.', source: 'Demo example', start: 'WORKS' };
+  assert.equal((await c.req('POST', '/scos/v1/new-incidents', { body })).status, 401);
+  const kesco = await c.login('officer.kesco');
+  assert.equal((await kesco.as('POST', '/scos/v1/new-incidents', { body })).status, 403);
+  const ctl = await c.login('control');
+  assert.equal((await ctl.as('POST', '/scos/v1/new-incidents', { body: { ...body, start: 'NOPE' } })).status, 400);
+  const before = (await c.req('GET', '/scos/v1')).body.counts;
+  const r = await ctl.as('POST', '/scos/v1/new-incidents', { body });
+  assert.equal(r.status, 201, JSON.stringify(r.body));
+  assert.equal(r.body.incident.id, 'NEW-001');
+  assert.ok(r.body.trace.affected.some(a => a.code === 'WAT'), 'digging can damage water supply (L-08)');
+  assert.deepEqual((await c.req('GET', '/scos/v1')).body.counts, before, 'the map and the past-incident register do not change');
+  const order = r.body.trace.actions.find(a => a.service === 'WAT').order;
+  const d = await ctl.as('POST', '/scos/v1/decisions', { body: { scenario: 'NEW-001', order, decision: 'approve' } });
+  assert.equal(d.status, 201, JSON.stringify(d.body));
+  assert.equal(d.body.scenario, 'NEW-001');
+  assert.equal((await ctl.as('GET', '/scos/v1/new-incidents')).body[0].id, 'NEW-001');
+  assert.ok(q.get(c.app.db, "SELECT * FROM audit WHERE iface='SCOS' AND action='New incident entered'"));
+  assert.match(q.get(c.app.db, "SELECT * FROM audit WHERE iface='SCOS' AND action='Task approve' AND detail LIKE 'NEW-001%'").detail, /WAT/);
+  assert.equal(c.app.audit.verify().ok, true);
+});
